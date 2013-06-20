@@ -5,6 +5,7 @@ import (
 	"math"
 	"net/http"
 	"io/ioutil"
+	_"math/rand"
 	"strings"
 	"strconv"
 	"github.com/moovweb/gokogiri"
@@ -16,6 +17,7 @@ import (
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
 var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
 var config Config
+var DEBUG = true
 
 type Coordinate struct {
 	lat float64
@@ -62,7 +64,7 @@ func getDistance(origin Coordinate, destination Coordinate) float64 {
 
 func getConfig() Config {
 	// Download the speedtest.net configuration and return only the data
-	// we ar4444444444e interested in
+	// we are interested in
 	config := Config{}
 
 	resp, err := http.Get(SpeedtestConfigUrl)
@@ -130,57 +132,106 @@ func getClosestServers() []xml.Node {
 	// fake this for now, we'll sort the list by distance later
 	fastestServerNodes := serverNodes[:5]
 
-	
-	//fmt.Printf("Fastest Server Nodes: %v\n", fastestServerNodes)
-
 	return fastestServerNodes
 }
 
 
-func getBestServer(servers []xml.Node) {
+func getBestServer(servers []xml.Node) xml.Node {
+	// something is very wrong with our latency calculation
+	
 	for server := range servers {
-		acc := 0
+		acc := float64(0)
 		url := servers[server].Attribute("url").String()
 		// God this is ugly
 		splits := strings.Split(url, "/")
 		baseUrl := strings.Join(splits[1:len(splits) -1], "/")
 		latencyUrl := "http:/" + baseUrl + "/latency.txt"
-		fmt.Printf("Latency url: %s\n", latencyUrl)
-
-		start := time.Now()
-
-		latTest, err := http.Get(latencyUrl)
-		if err != nil {
-			panic(err)
+		if DEBUG { fmt.Printf("Latency url: %s\n", latencyUrl) }
+		
+		for i := 0; i < 3; i++ {
+			start := time.Now()
+			
+			latTest, err := http.Get(latencyUrl)
+			if err != nil {
+				panic(err)
+			}
+			defer latTest.Body.Close()
+		
+			content, err2 := ioutil.ReadAll(latTest.Body)
+			if err2 != nil {
+				panic(err2)
+			}
+			
+			finish := time.Now()
+		
+			if strings.TrimSpace(string(content)) == "test=test" {
+				acc += float64(finish.Sub(start))
+			} else {
+				acc += 3600
+			}
+			
+			if DEBUG { fmt.Printf("\tAcc (%d): %f\n", i, acc) }
 		}
-		defer latTest.Body.Close()
-		
-		content, err2 := ioutil.ReadAll(latTest.Body)
-		if err2 != nil {
-			panic(err2)
-		}
-		
-		finish := time.Now()
-		
-		if strings.TrimSpace(string(content)) == "test=test" {
-			acc += int(finish.Sub(start))
-		} else {
-			acc += 3600
-		}
-		
-		fmt.Printf("Acc: %d\n", acc)
+		avg := acc / 3
+		if DEBUG { fmt.Printf("\tAverage: %f\n", avg) }
+		servers[server].SetAttr("avglatency", fmt.Sprintf("%f", avg))		
 	}
+	// we will put in code to find the quickest one eventually
+	// for now just grab one
+	return servers[0]
 	
 }
 
+func downloadSpeed(urls []string) time.Duration {
+	t0 := time.Now()
+	for url := range urls {
+		fmt.Printf("Downloading %s...\n", urls[url])
+		emptyGet(urls[url])
+	}
+	t1 := time.Now()
+	fmt.Printf("Took: %v\n", t1.Sub(t0))
+	return t1.Sub(t0)
+}
+
+
+func emptyGet(url string) {
+	resp, err := http.Get(url)
+	handleErr(err)
+	defer resp.Body.Close()
+	
+	_, err2 := ioutil.ReadAll(resp.Body)
+	handleErr(err2)
+}
+
+
 
 func main() {
+	// seed our rng
+	//rand.Seed( time.Now().UTC().UnixNano())
+
 	config = getConfig()
 	servers := getClosestServers()
-	fmt.Printf("5 Closest servers: %v\n", servers)
-	//server := getBestServer(servers)
-	getBestServer(servers)
-	//fmt.Printf("Best server: %v\n", server)
+	bestServer := getBestServer(servers)
+	fmt.Printf("Testing from: %s, %s - %s km away - %s ms latency\n", bestServer.Attribute("sponsor"), bestServer.Attribute("country"), bestServer.Attribute("distance"), bestServer.Attribute("avglatency"))
 
+	sizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 400}
+	fmt.Printf("Sizes: %v\n", sizes)
+	
+	var urls []string
+	
+	for size := range sizes {
+		for i := 0; i<4; i++ {
+			url := bestServer.Attribute("url").String()
+			splits := strings.Split(url, "/")
+			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
+			randomImage := fmt.Sprintf("random%dx%d.jpg", sizes[size], sizes[size])
+			downloadUrl := "http:/" + baseUrl + "/" + randomImage
 
+			urls = append(urls, downloadUrl)
+		}
+	}
+	fmt.Printf("Urls: %v\n", urls)
+	speed := downloadSpeed(urls)
+	fmt.Printf("Took: %v\n", speed)
+	
 }
