@@ -1,9 +1,11 @@
 package main
 import (
+	"time"
 	"fmt"
 	"math"
 	"net/http"
 	"io/ioutil"
+	"strings"
 	"strconv"
 	"github.com/moovweb/gokogiri"
 	"github.com/moovweb/gokogiri/xml"
@@ -129,16 +131,56 @@ func getClosestServers() []xml.Node {
 	fastestServerNodes := serverNodes[:5]
 
 	
-	fmt.Printf("Fastest Server Nodes: %v\n", fastestServerNodes)
+	//fmt.Printf("Fastest Server Nodes: %v\n", fastestServerNodes)
 
 	return fastestServerNodes
 }
 
 
+func getBestServer(servers []xml.Node) {
+	for server := range servers {
+		acc := 0
+		url := servers[server].Attribute("url").String()
+		// God this is ugly
+		splits := strings.Split(url, "/")
+		baseUrl := strings.Join(splits[1:len(splits) -1], "/")
+		latencyUrl := "http:/" + baseUrl + "/latency.txt"
+		fmt.Printf("Latency url: %s\n", latencyUrl)
+
+		start := time.Now()
+
+		latTest, err := http.Get(latencyUrl)
+		if err != nil {
+			panic(err)
+		}
+		defer latTest.Body.Close()
+		
+		content, err2 := ioutil.ReadAll(latTest.Body)
+		if err2 != nil {
+			panic(err2)
+		}
+		
+		finish := time.Now()
+		
+		if strings.TrimSpace(string(content)) == "test=test" {
+			acc += int(finish.Sub(start))
+		} else {
+			acc += 3600
+		}
+		
+		fmt.Printf("Acc: %d\n", acc)
+	}
+	
+}
+
 
 func main() {
 	config = getConfig()
+	servers := getClosestServers()
+	fmt.Printf("5 Closest servers: %v\n", servers)
+	//server := getBestServer(servers)
+	getBestServer(servers)
+	//fmt.Printf("Best server: %v\n", server)
 
-	fmt.Printf("5 Closest servers: %v\n", getClosestServers())
 
 }
