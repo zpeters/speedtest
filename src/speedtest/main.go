@@ -4,6 +4,7 @@ import (
 	"math"
 	"net/http"
 	"io/ioutil"
+	"strconv"
 	"github.com/moovweb/gokogiri"
 	"github.com/moovweb/gokogiri/xml"
 )
@@ -11,6 +12,8 @@ import (
 // Shamelessly borrowed from: https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
+var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
+var config Config
 
 type Coordinate struct {
 	lat float64
@@ -57,7 +60,7 @@ func getDistance(origin Coordinate, destination Coordinate) float64 {
 
 func getConfig() Config {
 	// Download the speedtest.net configuration and return only the data
-	// we are interested in
+	// we ar4444444444e interested in
 	config := Config{}
 
 	resp, err := http.Get(SpeedtestConfigUrl)
@@ -92,20 +95,50 @@ func getConfig() Config {
 	return config
 }
 
+func getClosestServers() []xml.Node {
+	// get 5 closets servers
+	resp, err := http.Get(SpeedtestServersUrl)
+	handleErr(err)
+	defer resp.Body.Close()
+
+	xml, err2 := ioutil.ReadAll(resp.Body)
+	handleErr(err2)
+
+	parsedXml, err3 := gokogiri.ParseXml([]byte(xml))
+	handleErr(err3)
+
+	root := parsedXml.Root()
+
+	serverNodes, err4 := root.Search("//server")
+	handleErr(err4)
+	for node := range serverNodes {
+		theirlat, _ := strconv.ParseFloat(serverNodes[node].Attribute("lat").Value(), 64)
+		theirlon, _ := strconv.ParseFloat(serverNodes[node].Attribute("lon").Value(), 64)
+		mylat, _ := strconv.ParseFloat(config.client.Attribute("lat").Value(), 64)
+		mylon, _ := strconv.ParseFloat(config.client.Attribute("lon").Value(), 64)
+		
+		myloc := Coordinate{lat:mylat, lon:mylon}
+		theirloc := Coordinate{lat:theirlat, lon:theirlon}
+		distance := getDistance(myloc, theirloc)
+		
+		serverNodes[node].SetAttr("distance", fmt.Sprintf("%f", distance))
+	
+	}
+
+	// fake this for now, we'll sort the list by distance later
+	fastestServerNodes := serverNodes[:5]
+
+	
+	fmt.Printf("Fastest Server Nodes: %v\n", fastestServerNodes)
+
+	return fastestServerNodes
+}
+
 
 
 func main() {
-	origin := Coordinate{lat:50.00, lon:50.00}
-	destination := Coordinate{lat:100.00, lon:100.00}
-	fmt.Printf("Distance: %f\n", getDistance(origin, destination))
+	config = getConfig()
 
-	config := getConfig()
-
-	fmt.Printf("Client: %v\n", config.client)
- 	fmt.Printf("Times: %v\n", config.times)
-	fmt.Printf("Download: %v\n", config.download)
-	fmt.Printf("Upload: %v\n", config.upload)
-
-	fmt.Printf("Client IP: %v\n", config.client.Attribute("ip"))
+	fmt.Printf("5 Closest servers: %v\n", getClosestServers())
 
 }
