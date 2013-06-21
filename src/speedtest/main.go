@@ -8,6 +8,8 @@ import (
 	_"math/rand"
 	"strings"
 	"strconv"
+	"sort"
+	_"reflect"
 	"github.com/moovweb/gokogiri"
 	"github.com/moovweb/gokogiri/xml"
 )
@@ -29,6 +31,34 @@ type Config struct {
 	times xml.Node
 	download xml.Node
 	upload xml.Node
+}
+
+type Server struct {
+	url string
+	lat float64
+	lon float64
+	name string
+	country string
+	cc string
+	sponsor string
+	id string
+	distance float64
+	avglatency time.Duration
+}
+
+
+type ByDistance []Server
+
+func (this ByDistance) Len() int {
+	return len(this)
+}
+
+func (this ByDistance) Less(i, j int) bool {
+	return this[i].distance < this[j].distance
+}
+
+func (this ByDistance) Swap(i, j int) {
+	this[i], this[j] = this[j], this[i]
 }
 
 func handleErr(err error) {
@@ -99,7 +129,9 @@ func getConfig() Config {
 	return config
 }
 
-func getClosestServers() []xml.Node {
+func getClosestServers() []Server {
+	var servers []Server
+	
 	// get 5 closets servers
 	resp, err := http.Get(SpeedtestServersUrl)
 	handleErr(err)
@@ -116,6 +148,7 @@ func getClosestServers() []xml.Node {
 	serverNodes, err4 := root.Search("//server")
 	handleErr(err4)
 	for node := range serverNodes {
+		s := Server{}
 		theirlat, _ := strconv.ParseFloat(serverNodes[node].Attribute("lat").Value(), 64)
 		theirlon, _ := strconv.ParseFloat(serverNodes[node].Attribute("lon").Value(), 64)
 		mylat, _ := strconv.ParseFloat(config.client.Attribute("lat").Value(), 64)
@@ -123,30 +156,38 @@ func getClosestServers() []xml.Node {
 		
 		myloc := Coordinate{lat:mylat, lon:mylon}
 		theirloc := Coordinate{lat:theirlat, lon:theirlon}
-		distance := getDistance(myloc, theirloc)
+
+		s.url = serverNodes[node].Attribute("url").String()
+		s.lat = theirlat
+		s.lon = theirlon
+		s.name = serverNodes[node].Attribute("name").String()
+		s.country = serverNodes[node].Attribute("country").String()
+		s.cc = serverNodes[node].Attribute("cc").String()
+		s.sponsor = serverNodes[node].Attribute("sponsor").String()
+		s.id = serverNodes[node].Attribute("id").String()
+		s.distance = getDistance(myloc, theirloc)
 		
-		serverNodes[node].SetAttr("distance", fmt.Sprintf("%f", distance))
-	
+		servers = append(servers, s)
 	}
 
-	// fake this for now, we'll sort the list by distance later
-	fastestServerNodes := serverNodes[:5]
 
-	return fastestServerNodes
+	// sort by distance and return top 5
+	sort.Sort(ByDistance(servers))
+	return servers[:5]
 }
 
 
-func getBestServer(servers []xml.Node) xml.Node {
+func getBestServer(servers []Server) Server {
 	// something is very wrong with our latency calculation
 	
 	for server := range servers {
-		acc := float64(0)
-		url := servers[server].Attribute("url").String()
+		var acc time.Duration
+		url := servers[server].url
 		// God this is ugly
 		splits := strings.Split(url, "/")
 		baseUrl := strings.Join(splits[1:len(splits) -1], "/")
 		latencyUrl := "http:/" + baseUrl + "/latency.txt"
-		if DEBUG { fmt.Printf("Latency url: %s\n", latencyUrl) }
+		if DEBUG { fmt.Printf("\tTesting latency: %s (%s)\n", servers[server].name, servers[server].sponsor) }
 		
 		for i := 0; i < 3; i++ {
 			start := time.Now()
@@ -165,42 +206,45 @@ func getBestServer(servers []xml.Node) xml.Node {
 			finish := time.Now()
 		
 			if strings.TrimSpace(string(content)) == "test=test" {
-				acc += float64(finish.Sub(start))
+				acc += finish.Sub(start)
 			} else {
 				acc += 3600
 			}
 			
-			if DEBUG { fmt.Printf("\tAcc (%d): %f\n", i, acc) }
+			if DEBUG { fmt.Printf("\t\tAcc (%d): %v\n", i, acc) }
 		}
-		avg := acc / 3
-		if DEBUG { fmt.Printf("\tAverage: %f\n", avg) }
-		servers[server].SetAttr("avglatency", fmt.Sprintf("%f", avg))		
+		avg := acc / 4
+		if DEBUG { fmt.Printf("\t\tAverage: %s\n", avg) }
+		servers[server].avglatency = avg		
 	}
-	// we will put in code to find the quickest one eventually
-	// for now just grab one
+
+	// now sort
+	sort.Sort(ByDistance(servers))
 	return servers[0]
 	
 }
 
-func downloadSpeed(urls []string) time.Duration {
+func downloadSpeed(urls []string) float64 {
+	var datalen int
 	t0 := time.Now()
 	for url := range urls {
-		fmt.Printf("Downloading %s...\n", urls[url])
-		emptyGet(urls[url])
+		if DEBUG { fmt.Printf("Downloading %s...\n", urls[url]) }
+		datalen = datalen + len(getUrl(urls[url]))
 	}
 	t1 := time.Now()
-	fmt.Printf("Took: %v\n", t1.Sub(t0))
-	return t1.Sub(t0)
+	return float64(datalen) / t1.Sub(t0).Seconds()
 }
 
 
-func emptyGet(url string) {
+func getUrl(url string) []uint8 {
 	resp, err := http.Get(url)
 	handleErr(err)
 	defer resp.Body.Close()
 	
-	_, err2 := ioutil.ReadAll(resp.Body)
+	data, err2 := ioutil.ReadAll(resp.Body)
 	handleErr(err2)
+	
+	return data
 }
 
 
@@ -211,17 +255,23 @@ func main() {
 
 	config = getConfig()
 	servers := getClosestServers()
-	bestServer := getBestServer(servers)
-	fmt.Printf("Testing from: %s, %s - %s km away - %s ms latency\n", bestServer.Attribute("sponsor"), bestServer.Attribute("country"), bestServer.Attribute("distance"), bestServer.Attribute("avglatency"))
+	fmt.Printf("Finding closests servers:\n")
+	for s := range servers {
+		fmt.Printf("\t%s (sponsored by %s) - %6.2fkm\n", servers[s].name, servers[s].sponsor, servers[s].distance)
+	}
 
-	sizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 400}
-	fmt.Printf("Sizes: %v\n", sizes)
+	bestServer := getBestServer(servers)
+	fmt.Printf("Fastest server: %s (sponsored by %s) - %6.2fkm away - %s ms latency\n", bestServer.sponsor, bestServer.country, bestServer.distance, bestServer.avglatency)
+
+	sizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+ 	//sizes := []int{350, 500, 750}
+ 	if DEBUG { fmt.Printf("Sizes: %v\n", sizes) }
 	
-	var urls []string
+ 	var urls []string
 	
 	for size := range sizes {
 		for i := 0; i<4; i++ {
-			url := bestServer.Attribute("url").String()
+			url := bestServer.url
 			splits := strings.Split(url, "/")
 			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
 			randomImage := fmt.Sprintf("random%dx%d.jpg", sizes[size], sizes[size])
@@ -230,8 +280,7 @@ func main() {
 			urls = append(urls, downloadUrl)
 		}
 	}
-	fmt.Printf("Urls: %v\n", urls)
+	if DEBUG { fmt.Printf("Urls: %v\n", urls) }
 	speed := downloadSpeed(urls)
-	fmt.Printf("Took: %v\n", speed)
-	
+	fmt.Printf("Download Speed: %f Mbit/s\n", (speed / 1000 / 1000) * 8)
 }
