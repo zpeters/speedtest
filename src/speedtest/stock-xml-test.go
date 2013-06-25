@@ -7,7 +7,7 @@ import (
 	"encoding/xml"
 	"time"
 	"strconv"
-	"sort"
+	_"sort"
 	"math"
 )
 
@@ -117,27 +117,52 @@ func toFloat(s string) float64 {
 
 // Great Circle calculation
 func getDistance(origin Coordinate, destination Coordinate) float64 {
+	var earthsRadius = 6371.2
+	
 	lat1 := origin.lat
 	lon1 := origin.lon
 	lat2 := destination.lat
 	lon2 := destination.lon
-	radius := float64(6371)
-
-	dlat := ((lat2-lat1)*math.Pi)/180
-	dlon := ((lon2-lon1)*math.Pi)/180
-
-	a := (math.Sin(dlat/2) * math.Sin(dlat/2) +
-		math.Cos((lat1*math.Pi)/180) *
-		math.Cos((lat2*math.Pi)/180) *
-		math.Sin(dlon/2) *
-		math.Sin(dlon/2))
-
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1 -a))
 	
-	d := radius * c
+	theta := lon2 - lon1
+	fmt.Printf("Theta: %f\n", theta)
+	
+	dist := math.Acos(math.Sin(lat1) * math.Sin(lat2) + math.Cos(lat1) * math.Cos(lat2) * math.Cos(theta))
+	
+	if dist < 0 {
+		dist = dist + math.Pi
+	}
+	
+	
+	dist = dist * earthsRadius
 
-	return d
+	return dist
+
 }
+
+// Great Circle calculation
+// func getDistance(origin Coordinate, destination Coordinate) float64 {
+// 	lat1 := origin.lat
+// 	lon1 := origin.lon
+// 	lat2 := destination.lat
+// 	lon2 := destination.lon
+// 	radius := float64(6371)
+
+// 	dlat := ((lat2-lat1)*math.Pi)/180
+// 	dlon := ((lon2-lon1)*math.Pi)/180
+
+// 	a := (math.Sin(dlat/2) * math.Sin(dlat/2) +
+// 		math.Cos((lat1*math.Pi)/180) *
+// 		math.Cos((lat2*math.Pi)/180) *
+// 		math.Sin(dlon/2) *
+// 		math.Sin(dlon/2))
+
+// 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1 -a))
+	
+// 	d := radius * c
+
+// 	return d
+// }
 
 // Download config from speedtest.net
 func getConfig() Config {
@@ -218,7 +243,7 @@ func getClosestServers(numServers int, servers []Server) []Server {
 	}
 	
 	// sort by distance
-	sort.Sort(ByDistance(servers))
+	//sort.Sort(ByDistance(servers))
 
 	// return the top X
 	//return servers[:5]
@@ -227,18 +252,32 @@ func getClosestServers(numServers int, servers []Server) []Server {
 
 
 func main() {
-	if DEBUG { log.Printf("Debugging on...\n") }
-	CONFIG := getConfig()
 
-	if DEBUG { log.Printf("IP: %v\n", CONFIG.Ip) }
-	if DEBUG { log.Printf("Lat: %v\n", CONFIG.Lat) }
-	if DEBUG { log.Printf("Lon: %v\n", CONFIG.Lon) }
-	if DEBUG { log.Printf("Isp: %v\n", CONFIG.Isp) }
+
+	if DEBUG { log.Printf("Debugging on...\n") }
+	 CONFIG := getConfig()
+
+	// if DEBUG { log.Printf("IP: %v\n", CONFIG.Ip) }
+	// if DEBUG { log.Printf("Lat: %v\n", CONFIG.Lat) }
+	// if DEBUG { log.Printf("Lon: %v\n", CONFIG.Lon) }
+	// if DEBUG { log.Printf("Isp: %v\n", CONFIG.Isp) }
 	
 	allServers := getServers()
-	fmt.Printf("Num Servers: %d\n", len(allServers))
+	// fmt.Printf("Num Servers: %d\n", len(allServers))
 
-	closestServers := getClosestServers(5, allServers)
-	fmt.Printf("Closest: %v\n", closestServers)
+	// closestServers := getClosestServers(5, allServers)
+	// //fmt.Printf("Closest: %v\n", closestServers)
+	// for s := range closestServers {
+	// 	fmt.Printf("%s (%s) - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Distance)
+	// }
+
+	myCoord := Coordinate{lat:CONFIG.Lat, lon:CONFIG.Lon}
+	theirCoord := Coordinate{lat:allServers[0].Lat, lon:allServers[0].Lon}
+	fmt.Printf("Source: Lat: %f, Lon: %f\n", myCoord.lat, myCoord.lon)
+	fmt.Printf("Dest: Lat: %f, Lon: %f\n", theirCoord.lat, theirCoord.lon)
+
+	distance := getDistance(myCoord, theirCoord)
+	fmt.Printf("Distance from %v -> %v = %f km\n", myCoord, theirCoord, distance)
+
 
 }
