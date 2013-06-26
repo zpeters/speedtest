@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"sort"
 	"math"
+	"strings"
 )
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
@@ -57,6 +58,21 @@ func (this ByDistance) Less(i, j int) bool {
 func (this ByDistance) Swap(i, j int) {
 	this[i], this[j] = this[j], this[i]
 }
+
+type ByLatency []Server
+
+func (this ByLatency) Len() int {
+	return len(this)
+}
+
+func (this ByLatency) Less(i, j int) bool {
+	return this[i].AvgLatency < this[j].AvgLatency
+}
+
+func (this ByLatency) Swap(i, j int) {
+	this[i], this[j] = this[j], this[i]
+}
+
 
 // http://rosettacode.org/wiki/Haversine_formula#Go
 func haversine(θ float64) float64 {
@@ -203,6 +219,7 @@ func getServers() []Server {
 
 
 func getClosestServers(numServers int, servers []Server) []Server {
+	if DEBUG{ log.Printf("Finding %d closest servers...\n", numServers) }
 	// calculate all servers distance from us and save them
 	for server := range servers {
 		theirlat := servers[server].Lat
@@ -223,6 +240,44 @@ func getClosestServers(numServers int, servers []Server) []Server {
 	return servers[:numServers]
 }
 
+func getLatencyUrl(server Server) string {
+	u := server.Url
+	splits := strings.Split(u, "/")
+	baseUrl := strings.Join(splits[1:len(splits) -1], "/")
+	latencyUrl := "http:/" + baseUrl + "/latency.txt"
+	return latencyUrl
+}
+
+func getFastestServer(numRuns int, servers []Server) Server {
+	for server := range servers {
+		var latencyAcc time.Duration
+		latencyUrl := getLatencyUrl(servers[server])
+		if DEBUG { log.Printf("Testing latency: %s (%s)\n", servers[server].Name, servers[server].Sponsor) }
+
+		for i := 0; i < numRuns; i++ {
+			start := time.Now()
+			resp, err := http.Get(latencyUrl)
+			e(err)
+			defer resp.Body.Close()
+			
+			content, err2 := ioutil.ReadAll(resp.Body)
+			e(err2)
+			finish := time.Now()
+			
+			if strings.TrimSpace(string(content)) == "test=test" {
+				if DEBUG { fmt.Printf("\tRun %d took: %v\n", i, finish.Sub(start)) }
+				latencyAcc = latencyAcc + finish.Sub(start)
+			}
+		}
+		if DEBUG { log.Printf("Total runs took: %v\n", latencyAcc) }
+		servers[server].AvgLatency = time.Duration(latencyAcc.Nanoseconds() / int64(numRuns)) * time.Nanosecond
+	}
+
+	sort.Sort(ByLatency(servers))
+		
+	return servers[0]
+}
+
 
 func main() {
 
@@ -230,16 +285,17 @@ func main() {
 	if DEBUG { log.Printf("Debugging on...\n") }
 	CONFIG = getConfig()
 
-	if DEBUG { log.Printf("IP: %v\n", CONFIG.Ip) }
-	if DEBUG { log.Printf("Lat: %v\n", CONFIG.Lat) }
-	if DEBUG { log.Printf("Lon: %v\n", CONFIG.Lon) }
-	if DEBUG { log.Printf("Isp: %v\n", CONFIG.Isp) }
+	if DEBUG { log.Printf("Me (%s) - IP: %s - %f,%f\n", CONFIG.Isp, CONFIG.Ip, CONFIG.Lat, CONFIG.Lon) }
 	
 	allServers := getServers()
-	if DEBUG { fmt.Printf("Num Servers: %d\n", len(allServers)) }
 
 	closestServers := getClosestServers(5, allServers)
-	for s := range closestServers {
-	 	fmt.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
+	if DEBUG {
+		for s := range closestServers {
+			log.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
+		}
 	}
+
+	fastestServer := getFastestServer(10, closestServers)
+	fmt.Printf("Fastest Server: %v\n", fastestServer)
 }
