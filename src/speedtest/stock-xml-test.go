@@ -7,7 +7,7 @@ import (
 	"encoding/xml"
 	"time"
 	"strconv"
-	_"sort"
+	"sort"
 	"math"
 )
 
@@ -15,11 +15,18 @@ var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
 var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
 var DEBUG = true
 var CONFIG Config
+const rEarth = 6372.8
 
 type Coordinate struct {
 	lat float64
 	lon float64
 }
+
+type pos struct {
+    φ float64 // latitude, radians
+    ψ float64 // longitude, radians
+}
+ 
 
 type Server struct {
 	Url        string
@@ -46,6 +53,20 @@ func (this ByDistance) Less(i, j int) bool {
 
 func (this ByDistance) Swap(i, j int) {
 	this[i], this[j] = this[j], this[i]
+}
+
+// http://rosettacode.org/wiki/Haversine_formula#Go
+func haversine(θ float64) float64 {
+    return .5 * (1 - math.Cos(θ))
+}
+
+func degPos(lat, lon float64) pos {
+    return pos{lat * math.Pi / 180, lon * math.Pi / 180}
+}
+
+func hsDist(p1, p2 pos) float64 {
+    return 2 * rEarth * math.Asin(math.Sqrt(haversine(p2.φ-p1.φ)+
+        math.Cos(p1.φ)*math.Cos(p2.φ)*haversine(p2.ψ-p1.ψ)))
 }
 
 type Config struct {
@@ -115,55 +136,6 @@ func toFloat(s string) float64 {
 	return f
 }
 
-// Great Circle calculation
-func getDistance(origin Coordinate, destination Coordinate) float64 {
-	var earthsRadius = 6371.2
-	
-	lat1 := origin.lat
-	lon1 := origin.lon
-	lat2 := destination.lat
-	lon2 := destination.lon
-	
-	theta := lon2 - lon1
-	fmt.Printf("Theta: %f\n", theta)
-	
-	dist := math.Acos(math.Sin(lat1) * math.Sin(lat2) + math.Cos(lat1) * math.Cos(lat2) * math.Cos(theta))
-	
-	if dist < 0 {
-		dist = dist + math.Pi
-	}
-	
-	
-	dist = dist * earthsRadius
-
-	return dist
-
-}
-
-// Great Circle calculation
-// func getDistance(origin Coordinate, destination Coordinate) float64 {
-// 	lat1 := origin.lat
-// 	lon1 := origin.lon
-// 	lat2 := destination.lat
-// 	lon2 := destination.lon
-// 	radius := float64(6371)
-
-// 	dlat := ((lat2-lat1)*math.Pi)/180
-// 	dlon := ((lon2-lon1)*math.Pi)/180
-
-// 	a := (math.Sin(dlat/2) * math.Sin(dlat/2) +
-// 		math.Cos((lat1*math.Pi)/180) *
-// 		math.Cos((lat2*math.Pi)/180) *
-// 		math.Sin(dlon/2) *
-// 		math.Sin(dlon/2))
-
-// 	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1 -a))
-	
-// 	d := radius * c
-
-// 	return d
-// }
-
 // Download config from speedtest.net
 func getConfig() Config {
 	if DEBUG { log.Printf("Getting config...\n") }
@@ -227,7 +199,6 @@ func getServers() []Server {
 }
 
 
-// this function seems to be returning the furthest away, not the closest
 func getClosestServers(numServers int, servers []Server) []Server {
 	// calculate all servers distance from us and save them
 	for server := range servers {
@@ -236,14 +207,14 @@ func getClosestServers(numServers int, servers []Server) []Server {
 		mylat    := CONFIG.Lat
 		mylon    := CONFIG.Lon
 
-		theircoords := Coordinate{lat:theirlat, lon:theirlon}
-		mycoords := Coordinate{lat:mylat, lon:mylon}
+		theirCoords := Coordinate{lat:theirlat, lon:theirlon}
+		myCoords := Coordinate{lat:mylat, lon:mylon}
 
-		servers[server].Distance = getDistance(mycoords, theircoords)
+		servers[server].Distance = hsDist(degPos(myCoords.lat, myCoords.lon), degPos(theirCoords.lat, theirCoords.lon))
 	}
 	
 	// sort by distance
-	//sort.Sort(ByDistance(servers))
+	sort.Sort(ByDistance(servers))
 
 	// return the top X
 	//return servers[:5]
@@ -257,27 +228,17 @@ func main() {
 	if DEBUG { log.Printf("Debugging on...\n") }
 	 CONFIG := getConfig()
 
-	// if DEBUG { log.Printf("IP: %v\n", CONFIG.Ip) }
-	// if DEBUG { log.Printf("Lat: %v\n", CONFIG.Lat) }
-	// if DEBUG { log.Printf("Lon: %v\n", CONFIG.Lon) }
-	// if DEBUG { log.Printf("Isp: %v\n", CONFIG.Isp) }
+	if DEBUG { log.Printf("IP: %v\n", CONFIG.Ip) }
+	if DEBUG { log.Printf("Lat: %v\n", CONFIG.Lat) }
+	if DEBUG { log.Printf("Lon: %v\n", CONFIG.Lon) }
+	if DEBUG { log.Printf("Isp: %v\n", CONFIG.Isp) }
 	
 	allServers := getServers()
-	// fmt.Printf("Num Servers: %d\n", len(allServers))
+	 fmt.Printf("Num Servers: %d\n", len(allServers))
 
-	// closestServers := getClosestServers(5, allServers)
-	// //fmt.Printf("Closest: %v\n", closestServers)
-	// for s := range closestServers {
-	// 	fmt.Printf("%s (%s) - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Distance)
-	// }
-
-	myCoord := Coordinate{lat:CONFIG.Lat, lon:CONFIG.Lon}
-	theirCoord := Coordinate{lat:allServers[0].Lat, lon:allServers[0].Lon}
-	fmt.Printf("Source: Lat: %f, Lon: %f\n", myCoord.lat, myCoord.lon)
-	fmt.Printf("Dest: Lat: %f, Lon: %f\n", theirCoord.lat, theirCoord.lon)
-
-	distance := getDistance(myCoord, theirCoord)
-	fmt.Printf("Distance from %v -> %v = %f km\n", myCoord, theirCoord, distance)
-
-
+	closestServers := getClosestServers(5, allServers)
+	//fmt.Printf("Closest: %v\n", closestServers)
+	for s := range closestServers {
+	 	fmt.Printf("%s (%s) - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Distance)
+	}
 }
