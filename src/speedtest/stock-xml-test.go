@@ -209,7 +209,7 @@ func getClosestServers(numServers int, servers []Server) []Server {
 
 		theirCoords := Coordinate{lat:theirlat, lon:theirlon}
 		myCoords := Coordinate{lat:mylat, lon:mylon}
-
+		
 		servers[server].Distance = hsDist(degPos(myCoords.lat, myCoords.lon), degPos(theirCoords.lat, theirCoords.lon))
 	}
 	
@@ -239,6 +239,6 @@ func main() {
 	closestServers := getClosestServers(5, allServers)
 	//fmt.Printf("Closest: %v\n", closestServers)
 	for s := range closestServers {
-	 	fmt.Printf("%s (%s) - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Distance)
+	 	fmt.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
 	}
 }
