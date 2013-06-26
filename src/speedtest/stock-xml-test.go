@@ -17,6 +17,9 @@ var DEBUG = true
 var CONFIG Config
 const rEarth = 6372.8
 
+// add some debugging timing to different functions or look into profiling
+
+
 type Coordinate struct {
 	lat float64
 	lon float64
@@ -209,7 +212,7 @@ func getClosestServers(numServers int, servers []Server) []Server {
 
 		theirCoords := Coordinate{lat:theirlat, lon:theirlon}
 		myCoords := Coordinate{lat:mylat, lon:mylon}
-		
+
 		servers[server].Distance = hsDist(degPos(myCoords.lat, myCoords.lon), degPos(theirCoords.lat, theirCoords.lon))
 	}
 	
@@ -217,8 +220,7 @@ func getClosestServers(numServers int, servers []Server) []Server {
 	sort.Sort(ByDistance(servers))
 
 	// return the top X
-	//return servers[:5]
-	return servers
+	return servers[:numServers]
 }
 
 
@@ -226,7 +228,7 @@ func main() {
 
 
 	if DEBUG { log.Printf("Debugging on...\n") }
-	 CONFIG := getConfig()
+	CONFIG = getConfig()
 
 	if DEBUG { log.Printf("IP: %v\n", CONFIG.Ip) }
 	if DEBUG { log.Printf("Lat: %v\n", CONFIG.Lat) }
@@ -234,10 +236,9 @@ func main() {
 	if DEBUG { log.Printf("Isp: %v\n", CONFIG.Isp) }
 	
 	allServers := getServers()
-	 fmt.Printf("Num Servers: %d\n", len(allServers))
+	if DEBUG { fmt.Printf("Num Servers: %d\n", len(allServers)) }
 
 	closestServers := getClosestServers(5, allServers)
-	//fmt.Printf("Closest: %v\n", closestServers)
 	for s := range closestServers {
 	 	fmt.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
 	}
