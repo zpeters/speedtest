@@ -11,7 +11,7 @@ import (
 	"math"
 	"strings"
 	"math/rand"
-	"encoding/hex"
+	_"encoding/hex"
 )
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
@@ -310,58 +310,58 @@ func main() {
 	if DEBUG { log.Printf("Debugging on...\n") }
 	CONFIG = getConfig()
 
-	// if DEBUG { log.Printf("Me (%s) - IP: %s - %f,%f\n", CONFIG.Isp, CONFIG.Ip, CONFIG.Lat, CONFIG.Lon) }
+	if DEBUG { log.Printf("Me (%s) - IP: %s - %f,%f\n", CONFIG.Isp, CONFIG.Ip, CONFIG.Lat, CONFIG.Lon) }
 	
-	// allServers := getServers()
+	allServers := getServers()
 
-	// closestServers := getClosestServers(5, allServers)
-	// if DEBUG {
-	// 	for s := range closestServers {
-	// 		log.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
-	// 	}
-	// }
-
-	// fastestServer := getFastestServer(10, closestServers)
-	// fmt.Printf("Fastest Server: %v\n", fastestServer)
-
-
-	// Test download
-	// Create URLS
-	//dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
-	// var urls []string
-	// for size := range dlsizes {
-	// 	for i := 0; i<4; i++ {
-	// 		url := fastestServer.Url
-	// 		splits := strings.Split(url, "/")
-	// 		baseUrl := strings.Join(splits[1:len(splits) -1], "/")
-	// 		randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
-	// 		downloadUrl := "http:/" + baseUrl + "/" + randomImage
-			
-	// 		urls = append(urls, downloadUrl)
-	// 	}
-	// }	
-
-	// var speedAcc float64
-	// for u := range urls {
-	// 	fmt.Printf("%s\n", urls[u])
-	// 	dlSpeed := downloadSpeed(urls[u])
-	// 	fmt.Printf("\tDownload speed: %f Mbps\n", dlSpeed)
-	// 	speedAcc = speedAcc + dlSpeed
-	// }
-	// fmt.Printf("Average: %f Mbps\n", (speedAcc / float64(len(urls))))
-
-	// Test upload
-	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
-	ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
-	var ulsize []int
-	
-	for size := range ulsizesizes {
-		for i := 0; i<25; i++ {
-			ulsize = append(ulsize, ulsizesizes[size])
+	closestServers := getClosestServers(10, allServers)
+	if DEBUG {
+		for s := range closestServers {
+			log.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
 		}
 	}
-	fmt.Printf("Ulsize: %v\n", ulsize)
-	fmt.Printf("Urandom: %v\n", urandom(ulsize[1]))
-	fmt.Printf("Dump: %v\n", hex.Dump(urandom(ulsize[1])))
+
+	fastestServer := getFastestServer(10, closestServers)
+	fmt.Printf("Fastest Server: %v\n", fastestServer)
+
+
+	//Test download
+	//Create URLS
+	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	var urls []string
+	for size := range dlsizes {
+		for i := 0; i<4; i++ {
+			url := fastestServer.Url
+			splits := strings.Split(url, "/")
+			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
+			randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
+			downloadUrl := "http:/" + baseUrl + "/" + randomImage
+			
+			urls = append(urls, downloadUrl)
+		}
+	}	
+
+	var speedAcc float64
+	for u := range urls {
+		fmt.Printf("%s\n", urls[u])
+		dlSpeed := downloadSpeed(urls[u])
+		fmt.Printf("\tDownload speed: %f Mbps\n", dlSpeed)
+		speedAcc = speedAcc + dlSpeed
+	}
+	fmt.Printf("Average: %f Mbps\n", (speedAcc / float64(len(urls))))
+
+	// // Test upload
+	// // https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
+	// ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
+	// var ulsize []int
+	
+	// for size := range ulsizesizes {
+	// 	for i := 0; i<25; i++ {
+	// 		ulsize = append(ulsize, ulsizesizes[size])
+	// 	}
+	// }
+	// fmt.Printf("Ulsize: %v\n", ulsize)
+	// fmt.Printf("Urandom: %v\n", urandom(ulsize[1]))
+	// fmt.Printf("Dump: %v\n", hex.Dump(urandom(ulsize[1])))
 	
 }
