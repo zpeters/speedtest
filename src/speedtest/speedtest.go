@@ -11,17 +11,23 @@ import (
 	"math"
 	"strings"
 	"math/rand"
-	"encoding/hex"
+	"bytes"
+	"flag"
 )
+
+// TODO
+//
+// Clean up code for release
+// move stuff in main into it's own functions
+// test download speeds against speedtest.net to make sure measurements are correct, dl ususally seems slower
+// submit to github
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
 var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
-var DEBUG = true
+var DEBUG = false
 var CONFIG Config
+var CLOSESTSERVERS = 5
 const rEarth = 6372.8
-
-// add some debugging timing to different functions or look into profiling
-
 
 type Coordinate struct {
 	lat float64
@@ -235,9 +241,10 @@ func getClosestServers(numServers int, servers []Server) []Server {
 		servers[server].Distance = hsDist(degPos(myCoords.lat, myCoords.lon), degPos(theirCoords.lat, theirCoords.lon))
 	}
 	
+	fmt.Printf("\tRanking...\n")
 	// sort by distance
 	sort.Sort(ByDistance(servers))
-
+	
 	// return the top X
 	return servers[:numServers]
 }
@@ -288,6 +295,22 @@ func downloadSpeed(url string) float64 {
 	data, err2 := ioutil.ReadAll(resp.Body)
 	e(err2)
 	finish := time.Now()
+ 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
+	seconds := finish.Sub(start).Seconds()
+	mbps := (megabytes * 8) / float64(seconds)
+
+	return mbps
+}
+
+func uploadSpeed(url string, mimetype string, data []byte) float64 {
+	start := time.Now()
+	buf := bytes.NewBuffer(data)
+	resp, err := http.Post(url, mimetype, buf)
+	e(err)
+	defer resp.Body.Close()
+	_, err2 := ioutil.ReadAll(resp.Body)
+	e(err2)
+	finish := time.Now()
 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
 	seconds := finish.Sub(start).Seconds()
 	mbps := (megabytes * 8) / float64(seconds)
@@ -295,26 +318,32 @@ func downloadSpeed(url string) float64 {
 	return mbps
 }
 
+
+
 func urandom(n int) []byte {
-	bytes := make([]byte, n)
+	b := make([]byte, n)
 	for i:=0; i<n; i++ {
-		bytes[i] = byte(rand.Int31())
+		b[i] = byte(rand.Int31())
 	}
-	return bytes
+
+	return b
 }
 
 
 func main() {
+	flag.BoolVar(&DEBUG, "d", false, "Turn on debugging")
+	flag.Parse()
+	
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	if DEBUG { log.Printf("Debugging on...\n") }
 	CONFIG = getConfig()
 
-	if DEBUG { log.Printf("Me (%s) - IP: %s - %f,%f\n", CONFIG.Isp, CONFIG.Ip, CONFIG.Lat, CONFIG.Lon) }
-	
+	fmt.Printf("Getting servers list...\n")
 	allServers := getServers()
 
-	closestServers := getClosestServers(10, allServers)
+	fmt.Printf("Finding %d closets servers...\n", CLOSESTSERVERS)
+	closestServers := getClosestServers(CLOSESTSERVERS, allServers)
 	if DEBUG {
 		for s := range closestServers {
 			log.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
@@ -322,12 +351,12 @@ func main() {
 	}
 
 	fastestServer := getFastestServer(10, closestServers)
-	fmt.Printf("Fastest Server: %v\n", fastestServer)
+	fmt.Printf("Fastest Server: %s (%s - %s) - %s ping \n", fastestServer.Sponsor, fastestServer.Name, fastestServer.Country, fastestServer.AvgLatency)
 
-
+	fmt.Printf("Download test...\n")	
 	//Test download
-	//Create URLS
 	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	//dlsizes := []int{350, 500, 750, 1000, 1500, 2000}
 	var urls []string
 	for size := range dlsizes {
 		for i := 0; i<4; i++ {
@@ -336,20 +365,21 @@ func main() {
 			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
 			randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
 			downloadUrl := "http:/" + baseUrl + "/" + randomImage
-			
 			urls = append(urls, downloadUrl)
 		}
 	}	
 
 	var speedAcc float64
 	for u := range urls {
-		fmt.Printf("%s\n", urls[u])
+		if DEBUG { fmt.Printf("Download test %d\n", u) }
 		dlSpeed := downloadSpeed(urls[u])
-		fmt.Printf("\tDownload speed: %f Mbps\n", dlSpeed)
+		if DEBUG { fmt.Printf("\tDownload speed: %f Mbps\n", dlSpeed) }
 		speedAcc = speedAcc + dlSpeed
 	}
-	fmt.Printf("Average: %f Mbps\n", (speedAcc / float64(len(urls))))
+	fmt.Printf("Average Download Speed: %f Mbps\n", (speedAcc / float64(len(urls))))
 
+	
+	fmt.Printf("Upload test...\n")
 	// Test upload
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
@@ -360,8 +390,16 @@ func main() {
 			ulsize = append(ulsize, ulsizesizes[size])
 		}
 	}
-	fmt.Printf("Ulsize: %v\n", ulsize)
-	fmt.Printf("Urandom: %v\n", urandom(ulsize[1]))
-	fmt.Printf("Dump: %v\n", hex.Dump(urandom(ulsize[1])))
+
+	var ulSpeedAcc float64
+	for i:=0; i<len(ulsize); i++ {
+		if DEBUG { fmt.Printf("Ulsize: %d\n", ulsize[i]) }
+		r := urandom(ulsize[1])
+		ulSpeed := uploadSpeed(fastestServer.Url, "text/xml", r)
+		if DEBUG { fmt.Printf("\tUpload speed: %f Mbps\n", ulSpeed) }
+		ulSpeedAcc = ulSpeedAcc + ulSpeed
+	}
+	
+	fmt.Printf("Average Upload Speed: %f Mbps\n", (ulSpeedAcc / float64(len(ulsize))))
  	
 }
