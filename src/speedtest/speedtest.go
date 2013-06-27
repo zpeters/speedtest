@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"encoding/xml"
 	"time"
+	"os"
 	"strconv"
 	"sort"
 	"math"
@@ -27,6 +28,7 @@ var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
 var DEBUG = false
 var CONFIG Config
 var CLOSESTSERVERS = 5
+var VERSION = "0.01"
 const rEarth = 6372.8
 
 type Coordinate struct {
@@ -332,8 +334,14 @@ func urandom(n int) []byte {
 
 func main() {
 	flag.BoolVar(&DEBUG, "d", false, "Turn on debugging")
+	verFlag := flag.Bool("v", false, "Display version")
 	flag.Parse()
 	
+	if *verFlag == true {
+		fmt.Printf("%s - Version: %s\n", os.Args[0], VERSION)
+		os.Exit(0)
+	}
+
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	if DEBUG { log.Printf("Debugging on...\n") }

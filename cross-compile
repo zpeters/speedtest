@@ -1,0 +1,9 @@
+#!/bin/bash
+export GOPATH=`pwd`
+source ~/src/golang-crosscompile/crosscompile.bash
+
+echo windows-386
+go-windows-386 build -o bin/speedtest-32.exe speedtest
+
+echo windows-amd64
+go-windows-amd64 build -o bin/speedtest-64.exe speedtest

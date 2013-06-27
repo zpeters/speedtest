@@ -1,4 +1,4 @@
 *~
+*.exe
 bin/
 pkg/
-src/github.com
