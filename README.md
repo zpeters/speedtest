@@ -1,3 +1,28 @@
+speedtest
+=========
 This is a quick client for speedtest.net in go.  Patterned after https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 
-Zach Peters - zpeters@gmail.com
+Version
+=======
+Pre-alpha release 0.01
+
+
+Download
+========
+- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.01/Linux/
+- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.01/Windows/
+
+Usage
+=====
+```shell
+speedtest.exe - normal run
+speedtest.exe -d - turn on debugging
+speedtest.exe -v - show version
+```
+
+TODO
+====
+- [ ] More code cleanup
+- [ ] move stuff in main into it's own functions
+- [ ] test download speeds against speedtest.net to make sure measurements are correct, dl ususally seems slower
+- [x] submit to github
