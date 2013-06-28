@@ -22,7 +22,8 @@ speedtest.exe -v - show version
 
 TODO
 ====
-- [ ] More code cleanup
-- [ ] move stuff in main into it's own functions
+- [x] More code cleanup
+- [x] move stuff in main into it's own functions
+- [ ] move some part into their own packages
 - [ ] test download speeds against speedtest.net to make sure measurements are correct, dl ususally seems slower
 - [x] submit to github

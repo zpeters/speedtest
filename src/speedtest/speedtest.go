@@ -16,18 +16,12 @@ import (
 	"flag"
 )
 
-// TODO
-//
-// Clean up code for release
-// move stuff in main into it's own functions
-// test download speeds against speedtest.net to make sure measurements are correct, dl ususally seems slower
-// submit to github
-
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
 var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
 var DEBUG = false
 var CONFIG Config
-var CLOSESTSERVERS = 5
+var NUMCLOSEST = 5
+var NUMLATENCYTESTS = 5
 var VERSION = "0.01"
 const rEarth = 6372.8
 
@@ -55,6 +49,8 @@ type Server struct {
 	AvgLatency time.Duration
 }
 
+
+// Sort by Distance
 type ByDistance []Server
 
 func (this ByDistance) Len() int {
@@ -69,6 +65,7 @@ func (this ByDistance) Swap(i, j int) {
 	this[i], this[j] = this[j], this[i]
 }
 
+// Sort by latency
 type ByLatency []Server
 
 func (this ByLatency) Len() int {
@@ -81,21 +78,6 @@ func (this ByLatency) Less(i, j int) bool {
 
 func (this ByLatency) Swap(i, j int) {
 	this[i], this[j] = this[j], this[i]
-}
-
-
-// http://rosettacode.org/wiki/Haversine_formula#Go
-func haversine(θ float64) float64 {
-    return .5 * (1 - math.Cos(θ))
-}
-
-func degPos(lat, lon float64) pos {
-    return pos{lat * math.Pi / 180, lon * math.Pi / 180}
-}
-
-func hsDist(p1, p2 pos) float64 {
-    return 2 * rEarth * math.Asin(math.Sqrt(haversine(p2.φ-p1.φ)+
-        math.Cos(p1.φ)*math.Cos(p2.φ)*haversine(p2.ψ-p1.ψ)))
 }
 
 type Config struct {
@@ -138,6 +120,23 @@ type TheServersContainer struct {
 type ServerSettings struct {
 	XMLName xml.Name `xml:"settings"`
 	ServersContainer TheServersContainer `xml:"servers"`
+}
+
+
+
+// Great Circle
+// http://rosettacode.org/wiki/Haversine_formula#Go
+func haversine(θ float64) float64 {
+    return .5 * (1 - math.Cos(θ))
+}
+
+func degPos(lat, lon float64) pos {
+    return pos{lat * math.Pi / 180, lon * math.Pi / 180}
+}
+
+func hsDist(p1, p2 pos) float64 {
+    return 2 * rEarth * math.Asin(math.Sqrt(haversine(p2.φ-p1.φ)+
+        math.Cos(p1.φ)*math.Cos(p2.φ)*haversine(p2.ψ-p1.ψ)))
 }
 
 
@@ -243,7 +242,6 @@ func getClosestServers(numServers int, servers []Server) []Server {
 		servers[server].Distance = hsDist(degPos(myCoords.lat, myCoords.lon), degPos(theirCoords.lat, theirCoords.lon))
 	}
 	
-	fmt.Printf("\tRanking...\n")
 	// sort by distance
 	sort.Sort(ByDistance(servers))
 	
@@ -331,44 +329,31 @@ func urandom(n int) []byte {
 	return b
 }
 
-
-func main() {
+func init() {
 	flag.BoolVar(&DEBUG, "d", false, "Turn on debugging")
 	verFlag := flag.Bool("v", false, "Display version")
 	flag.Parse()
-	
 	if *verFlag == true {
 		fmt.Printf("%s - Version: %s\n", os.Args[0], VERSION)
 		os.Exit(0)
 	}
-
 	rand.Seed(time.Now().UTC().UnixNano())
-
 	if DEBUG { log.Printf("Debugging on...\n") }
-	CONFIG = getConfig()
+}
 
-	fmt.Printf("Getting servers list...\n")
-	allServers := getServers()
-
-	fmt.Printf("Finding %d closets servers...\n", CLOSESTSERVERS)
-	closestServers := getClosestServers(CLOSESTSERVERS, allServers)
-	if DEBUG {
-		for s := range closestServers {
-			log.Printf("%s (%s) - %f %f - %f km\n", closestServers[s].Country, closestServers[s].Name , closestServers[s].Lat, closestServers[s].Lon, closestServers[s].Distance)
-		}
-	}
-
-	fastestServer := getFastestServer(10, closestServers)
-	fmt.Printf("Fastest Server: %s (%s - %s) - %s ping \n", fastestServer.Sponsor, fastestServer.Name, fastestServer.Country, fastestServer.AvgLatency)
-
-	fmt.Printf("Download test...\n")	
-	//Test download
-	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
-	//dlsizes := []int{350, 500, 750, 1000, 1500, 2000}
+func downloadTest(server Server) float64 {
 	var urls []string
+	var speedAcc float64
+	var numTests = 4
+	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	//dlsizes := []int{350, 500, 750}
+
+
+
+	// generate the size urls
 	for size := range dlsizes {
-		for i := 0; i<4; i++ {
-			url := fastestServer.Url
+		for i := 0; i<numTests; i++ {
+			url := server.Url
 			splits := strings.Split(url, "/")
 			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
 			randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
@@ -377,21 +362,30 @@ func main() {
 		}
 	}	
 
-	var speedAcc float64
+
+	fmt.Printf("\tRunning %d tests, %d megs total\n", numTests, len(urls))
+
+	// test the urls
 	for u := range urls {
 		if DEBUG { fmt.Printf("Download test %d\n", u) }
 		dlSpeed := downloadSpeed(urls[u])
 		if DEBUG { fmt.Printf("\tDownload speed: %f Mbps\n", dlSpeed) }
 		speedAcc = speedAcc + dlSpeed
 	}
-	fmt.Printf("Average Download Speed: %f Mbps\n", (speedAcc / float64(len(urls))))
-
 	
-	fmt.Printf("Upload test...\n")
-	// Test upload
+
+	mbps := (speedAcc / float64(len(urls)))
+	return mbps
+}
+
+
+func uploadTest(server Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
-	ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
 	var ulsize []int
+	var ulSpeedAcc float64
+
+	//ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
+	ulsizesizes := []int{int(0.25 * 1024 * 1024)}
 	
 	for size := range ulsizesizes {
 		for i := 0; i<25; i++ {
@@ -399,15 +393,46 @@ func main() {
 		}
 	}
 
-	var ulSpeedAcc float64
+	fmt.Printf("\tRunning %d tests - %d Megs total\n", len(ulsize), len(ulsize))
+	
+
 	for i:=0; i<len(ulsize); i++ {
 		if DEBUG { fmt.Printf("Ulsize: %d\n", ulsize[i]) }
-		r := urandom(ulsize[1])
-		ulSpeed := uploadSpeed(fastestServer.Url, "text/xml", r)
+		r := urandom(ulsize[i])
+		ulSpeed := uploadSpeed(server.Url, "text/xml", r)
 		if DEBUG { fmt.Printf("\tUpload speed: %f Mbps\n", ulSpeed) }
 		ulSpeedAcc = ulSpeedAcc + ulSpeed
 	}
 	
-	fmt.Printf("Average Upload Speed: %f Mbps\n", (ulSpeedAcc / float64(len(ulsize))))
+	mbps := ulSpeedAcc / float64(len(ulsize))
+	return mbps
+}
+
+
+func main() {
+	fmt.Printf("Loading config...\n")
+	CONFIG = getConfig()
+
+	fmt.Printf("Getting servers list...")
+	allServers := getServers()
+	fmt.Printf("(%d) found\n", len(allServers))
+	
+	fmt.Printf("Finding %d closest servers...\n", NUMCLOSEST)
+	// add an option for num closest?
+	closestServers := getClosestServers(NUMCLOSEST, allServers)
+	
+	fmt.Printf("Finding fastest server - testing latency %d times...\n", NUMLATENCYTESTS)
+	// add an option for num rums, test how many are necessary
+	fastestServer := getFastestServer(NUMLATENCYTESTS, closestServers)
+	fmt.Printf("Fastest Server: %s (%s - %s) - %s ping \n", fastestServer.Sponsor, fastestServer.Name, fastestServer.Country, fastestServer.AvgLatency)
+	
+	fmt.Printf("Starting download test...\n")
+	dmbps := downloadTest(fastestServer)
+	fmt.Printf("Average Download Speed: %f Mbps\n", dmbps)
+
+	
+	fmt.Printf("Starting Upload test...\n")
+	umbps := uploadTest(fastestServer)
+	fmt.Printf("Average Upload Speed: %f Mbps\n", umbps)
  	
 }
