@@ -25,6 +25,7 @@ var VERSION = "0.03"
 func init() {
 	flag.BoolVar(&debug.DEBUG, "d", false, "Turn on debugging")
 	verFlag := flag.Bool("v", false, "Display version")
+	listFlag := flag.Bool("l", false, "List servers")
 	flag.Parse()
 	if *verFlag == true {
 		fmt.Printf("%s - Version: %s\n", os.Args[0], VERSION)
@@ -32,6 +33,23 @@ func init() {
 	}
 	rand.Seed(time.Now().UTC().UnixNano())
 	if debug.DEBUG { log.Printf("Debugging on...\n") }
+	if *listFlag == true {
+		if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
+		sthttp.CONFIG = sthttp.GetConfig()
+		
+		if debug.DEBUG { fmt.Printf("Getting servers list...") }
+		allServers := sthttp.GetServers()
+		if debug.DEBUG { fmt.Printf("(%d) found\n", len(allServers)) }
+		for s := range allServers {
+			server := allServers[s]
+			u := server.Url
+			splits := strings.Split(u, "/")
+			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
+			fullUrl := "http:/" + baseUrl
+			fmt.Printf("%s (%s - %s) - %s\n", server.Sponsor, server.Name, server.Country, fullUrl)
+		}
+		os.Exit(0)
+	}
 }
 
 func downloadTest(server sthttp.Server) float64 {
