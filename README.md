@@ -4,7 +4,7 @@ This is a quick client for speedtest.net in go.  Patterned after https://github.
 
 Version
 =======
-Pre-alpha release 0.01
+0.03
 
 
 Download
