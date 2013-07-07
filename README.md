@@ -9,8 +9,8 @@ Pre-alpha release 0.01
 
 Download
 ========
-- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.01/Linux/
-- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.01/Windows/
+- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.03/Linux/
+- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.03/Windows/
 
 Usage
 =====
