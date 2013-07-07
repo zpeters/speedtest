@@ -16,12 +16,10 @@ import (
 )
 
 // FIXME
-// latency test for 5nines is saying around 5 seconds
-// number of download tests doesn't seem correct
-// can we do a quicker upload test
+// clean up the "UI"
 
-var NUMCLOSEST = 1
-var NUMLATENCYTESTS = 1
+var NUMCLOSEST = 3
+var NUMLATENCYTESTS = 3
 var VERSION = "0.03"
 
 func init() {
@@ -39,15 +37,12 @@ func init() {
 func downloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var speedAcc float64
-	var numTests = 5
 	//dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
-	dlsizes := []int{350, 500, 750}
+	dlsizes := []int{350, 500, 750, 1000, 1500, 2000}
+	numRuns := 1
 
-
-
-	// generate the size urls
 	for size := range dlsizes {
-		for i := 0; i<numTests; i++ {
+		for i := 0; i<numRuns; i++ {
 			url := server.Url
 			splits := strings.Split(url, "/")
 			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
@@ -58,13 +53,11 @@ func downloadTest(server sthttp.Server) float64 {
 	}	
 
 
-	fmt.Printf("\tRunning %d tests, %d megs total", numTests, len(urls))
+	fmt.Printf("Testing download speed")
 
-	// test the urls
 	for u := range urls {
 		if debug.DEBUG { fmt.Printf("Download test %d\n", u) }
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
-		//fmt.Printf("\tDownload test %d: %f Mbps\n", u, dlSpeed)
 		fmt.Printf(".")
 		speedAcc = speedAcc + dlSpeed
 	}
@@ -81,23 +74,22 @@ func uploadTest(server sthttp.Server) float64 {
 	var ulsize []int
 	var ulSpeedAcc float64
 
-	//ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
-	ulsizesizes := []int{int(0.25 * 1024 * 1024)}
+	ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
+
+	var numRuns = 3
 	
 	for size := range ulsizesizes {
-		for i := 0; i<25; i++ {
+		for i := 0; i<numRuns; i++ {
 			ulsize = append(ulsize, ulsizesizes[size])
 		}
 	}
 
-	fmt.Printf("\tRunning %d tests, %d Megs total", len(ulsize), len(ulsize))
+	fmt.Printf("Testing upload speed")
 	
-
 	for i:=0; i<len(ulsize); i++ {
 		if debug.DEBUG { fmt.Printf("Ulsize: %d\n", ulsize[i]) }
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
-		//fmt.Printf("\tUpload test %d: %f Mbps\n", i, ulSpeed)
 		fmt.Printf(".")
 		ulSpeedAcc = ulSpeedAcc + ulSpeed
 	}
@@ -110,26 +102,22 @@ func uploadTest(server sthttp.Server) float64 {
 
 
 func main() {
-	fmt.Printf("Loading config from speedtest.net...\n")
+	if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
 	sthttp.CONFIG = sthttp.GetConfig()
 
-	fmt.Printf("Getting servers list...")
+	if debug.DEBUG { fmt.Printf("Getting servers list...") }
 	allServers := sthttp.GetServers()
-	fmt.Printf("(%d) found\n", len(allServers))
-	
-	// add an option for num closest?
+	if debug.DEBUG { fmt.Printf("(%d) found\n", len(allServers)) }
+
 	closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
 	
 	fmt.Printf("Finding fastest server...")
 	fastestServer := sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
-	fmt.Printf("%s (%s - %s) - %s ping \n", fastestServer.Sponsor, fastestServer.Name, fastestServer.Country, fastestServer.AvgLatency)
+	fmt.Printf("%s (%s - %s)\n", fastestServer.Sponsor, fastestServer.Name, fastestServer.Country)
 	
-	fmt.Printf("Starting download test...\n")
-	dmbps := downloadTest(fastestServer)
-	fmt.Printf("Average Download Speed: %f Mbps\n", dmbps)
-	
-	fmt.Printf("Starting Upload test...\n")
+	dmbps := downloadTest(fastestServer)	
 	umbps := uploadTest(fastestServer)
-	fmt.Printf("Average Upload Speed: %f Mbps\n", umbps)
- 	
+	
+	fmt.Printf("Ping: %s | Download: %3.2f Mbps | Upload: %3.2f Mbps\n", fastestServer.AvgLatency, dmbps, umbps)
 }
+
