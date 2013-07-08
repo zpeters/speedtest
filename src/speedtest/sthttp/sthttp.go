@@ -163,14 +163,13 @@ func GetServers() []Server {
 func GetClosestServers(numServers int, servers []Server) []Server {
 	if debug.DEBUG{ log.Printf("Finding %d closest servers...\n", numServers) }
 	// calculate all servers distance from us and save them
+    mylat    := CONFIG.Lat
+    mylon    := CONFIG.Lon
+    myCoords := coords.Coordinate{Lat:mylat, Lon:mylon}
 	for server := range servers {
 		theirlat := servers[server].Lat
 		theirlon := servers[server].Lon
-		mylat    := CONFIG.Lat
-		mylon    := CONFIG.Lon
-
 		theirCoords := coords.Coordinate{Lat:theirlat, Lon:theirlon}
-		myCoords := coords.Coordinate{Lat:mylat, Lon:mylon}
 
 		servers[server].Distance = coords.HsDist(coords.DegPos(myCoords.Lat, myCoords.Lon), coords.DegPos(theirCoords.Lat, theirCoords.Lon))
 	}
