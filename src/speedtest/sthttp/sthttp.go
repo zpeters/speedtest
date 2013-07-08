@@ -177,26 +177,38 @@ func getLatencyUrl(server Server) string {
 	return latencyUrl
 }
 
+func GetLatency(server Server) time.Duration {
+	var latency time.Duration
+
+	latencyUrl := getLatencyUrl(server)
+	if debug.DEBUG { log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor) }
+	
+	start := time.Now()
+	resp, err := http.Get(latencyUrl)
+	misc.E(err)
+	defer resp.Body.Close()
+	
+	content, err2 := ioutil.ReadAll(resp.Body)
+	misc.E(err2)
+
+	finish := time.Now()
+
+	if strings.TrimSpace(string(content)) == "test=test" {
+		if debug.DEBUG { fmt.Printf("\tRun took: %v\n", finish.Sub(start)) }
+		latency = finish.Sub(start)
+	} else {
+		panic("Server didn't return 'test=test', possibly invalid")
+	}
+	
+	return latency
+}
+
 func GetFastestServer(numRuns int, servers []Server) Server {
 	for server := range servers {
 		var latencyAcc time.Duration
-		latencyUrl := getLatencyUrl(servers[server])
-		if debug.DEBUG { log.Printf("Testing latency: %s (%s)\n", servers[server].Name, servers[server].Sponsor) }
-
+		
 		for i := 0; i < numRuns; i++ {
-			start := time.Now()
-			resp, err := http.Get(latencyUrl)
-			misc.E(err)
-			defer resp.Body.Close()
-			
-			content, err2 := ioutil.ReadAll(resp.Body)
-			misc.E(err2)
-			finish := time.Now()
-			
-			if strings.TrimSpace(string(content)) == "test=test" {
-				if debug.DEBUG { fmt.Printf("\tRun %d took: %v\n", i, finish.Sub(start)) }
-				latencyAcc = latencyAcc + finish.Sub(start)
-			}
+			latencyAcc = latencyAcc + GetLatency(servers[server])
 		}
 		if debug.DEBUG { log.Printf("Total runs took: %v\n", latencyAcc) }
 		servers[server].AvgLatency = time.Duration(latencyAcc.Nanoseconds() / int64(numRuns)) * time.Nanosecond

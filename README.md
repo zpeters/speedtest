@@ -32,14 +32,12 @@ For Bug reports please use the Github issue tracker for this project
 
 To contribute please see CONTRIBUTING.md
 
-
 Todo
 ====
+- [ ] try to get rid of globals...ick
 - [ ] test download speeds against speedtest.net to make sure measurements are correct, dl ususally seems slower
 - [ ] add more timeout/error checking around servers
 https://github.com/zpeters/speedtest/issues/1
-- [ ] specify server
-http://www.reddit.com/r/sysadmin/comments/1ht86k/command_line_interface_to_speedtestnet/caxrn65
 
 Wishlist
 =======
@@ -55,3 +53,5 @@ Done
 - [x] submit to github
 - [X] list servers
 - [X] add license?
+- [x] specify server
+http://www.reddit.com/r/sysadmin/comments/1ht86k/command_line_interface_to_speedtestnet/caxrn65
