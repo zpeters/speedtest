@@ -3,3 +3,4 @@ import (
 )
 
 var DEBUG = false
+var QUIET = false

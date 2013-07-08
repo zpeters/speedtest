@@ -26,18 +26,22 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	flag.BoolVar(&debug.DEBUG, "d", false, "Turn on debugging")
-	verFlag := flag.Bool("v", false, "Display version")
-	listFlag := flag.Bool("l", false, "List servers")
+    listFlag := flag.Bool("l", false, "List servers")
+    flag.BoolVar(&debug.QUIET, "q", false, "Quiet Mode. Only output server and results")
 	flag.StringVar(&TESTSERVERID, "s", "", "Specify a server (use -l to get a server list, then specify it's id)")
+    verFlag := flag.Bool("v", false, "Display version")
 	
 	flag.Parse()
-	
+    
 	if *verFlag == true {
 		fmt.Printf("%s - Version: %s\n", os.Args[0], VERSION)
 		os.Exit(0)
 	}
 	
-	if debug.DEBUG { log.Printf("Debugging on...\n") }
+	if debug.DEBUG { 
+        log.Printf("Debugging on...\n") 
+        debug.QUIET = false
+    }
 	
 	if *listFlag == true {
 		if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
@@ -48,7 +52,7 @@ func init() {
 		if debug.DEBUG { fmt.Printf("(%d) found\n", len(allServers)) }
 		for s := range allServers {
 			server := allServers[s]
-			fmt.Printf("(ID: %s) - %s (%s - %s) - %s\n", server.Id, server.Sponsor, server.Name, server.Country, server.Url)
+			printServer(server)
 		}
 		os.Exit(0)
 	}
@@ -73,7 +77,7 @@ func downloadTest(server sthttp.Server) float64 {
 	}	
 
 
-	fmt.Printf("Testing download speed")
+	if !debug.QUIET { fmt.Printf("Testing download speed") }
 	if debug.DEBUG { fmt.Printf("\n") }
 
 	for u := range urls {
@@ -81,13 +85,13 @@ func downloadTest(server sthttp.Server) float64 {
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
 		if debug.DEBUG { 
 			fmt.Printf("Download test %d\n", u) 
-		} else {
+		} else if !debug.QUIET {
 			 fmt.Printf(".")
 		 }
 		speedAcc = speedAcc + dlSpeed
 	}
 	
-	fmt.Printf("\n")
+	if !debug.QUIET { fmt.Printf("\n") }
 
 	mbps := (speedAcc / float64(len(urls)))
 	return mbps
@@ -109,7 +113,7 @@ func uploadTest(server sthttp.Server) float64 {
 		}
 	}
 
-	fmt.Printf("Testing upload speed")
+	if !debug.QUIET { fmt.Printf("Testing upload speed") }
 	if debug.DEBUG { fmt.Printf("\n") }
 	
 	for i:=0; i<len(ulsize); i++ {
@@ -118,13 +122,13 @@ func uploadTest(server sthttp.Server) float64 {
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
 		if debug.DEBUG { 
 			fmt.Printf("Ulsize: %d\n", ulsize[i]) 
-		} else {
+		} else if !debug.QUIET {
 			 fmt.Printf(".")
 		 }
 		ulSpeedAcc = ulSpeedAcc + ulSpeed
 	}
 	
-	fmt.Printf("\n")
+	if !debug.QUIET { fmt.Printf("\n") }
 
 	mbps := ulSpeedAcc / float64(len(ulsize))
 	return mbps
@@ -143,6 +147,10 @@ func findServer(id string, serversList []sthttp.Server) sthttp.Server {
 	return foundServer
 }
 
+func printServer(server sthttp.Server) {
+    fmt.Printf("%-4s | %s (%s, %s)\n", server.Id, server.Sponsor, server.Name, server.Country)
+}
+
 func main() {
 	if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
 	sthttp.CONFIG = sthttp.GetConfig()
@@ -150,20 +158,20 @@ func main() {
 	if debug.DEBUG { fmt.Printf("Getting servers list...") }
 	allServers := sthttp.GetServers()
 	if debug.DEBUG { fmt.Printf("(%d) found\n", len(allServers)) }
-	
+    
 	if TESTSERVERID != "" {		
 		// they specified a server so find it in the list
 		TESTSERVER = findServer(TESTSERVERID, allServers)
-		fmt.Printf("(ID: %s) - %s (%s - %s) - %s\n", TESTSERVER.Id, TESTSERVER.Sponsor, TESTSERVER.Name, TESTSERVER.Country, TESTSERVER.Url)
-		//FIXME: this is ugly, eventually we watn to get a true avg latency using NUMLATENCYTESTS
-		fmt.Printf("Testing latency...\n")
+		printServer(TESTSERVER)
+		//FIXME: this is ugly, eventually we want to get a true avg latency using NUMLATENCYTESTS
+		if !debug.QUIET { fmt.Printf("Testing latency...\n") }
 		TESTSERVER.AvgLatency = sthttp.GetLatency(TESTSERVER)
 	} else {
 		// find a fast server for them
 		closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
-		fmt.Printf("Finding fastest server...")
+		if !debug.QUIET { fmt.Printf("Finding fastest server..\n") }
 		TESTSERVER = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
-		fmt.Printf("(ID: %s) - %s (%s - %s) - %s\n", TESTSERVER.Id, TESTSERVER.Sponsor, TESTSERVER.Name, TESTSERVER.Country, TESTSERVER.Url)
+		printServer(TESTSERVER)
 	}
 
 	dmbps := downloadTest(TESTSERVER)	
