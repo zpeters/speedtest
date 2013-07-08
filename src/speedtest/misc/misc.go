@@ -1,18 +1,9 @@
 package misc
 
 import (
-	"log"
 	"strconv"
 	"math/rand"
 )
-
-
-// Simple error handling
-func E(err error) {
-	if err != nil {
-		log.Panicf("Error: %s\n", err)
-	}
-}
 
 // shortcut to parse float
 func ToFloat(s string) float64 {

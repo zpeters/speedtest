@@ -88,19 +88,25 @@ func checkHttp(resp *http.Response) bool {
 func GetConfig() Config {
 	if debug.DEBUG { log.Printf("Getting config...\n") }
 	resp, err := http.Get(SpeedtestConfigUrl)
-	misc.E(err)
+	if err != nil {
+		log.Panicf("Couldn't retrieve our config from speedtest.net: 'Could not create connection'\n")
+	}
 	defer resp.Body.Close()
 	if checkHttp(resp) != true {
-		log.Panicf("Fail: %s\n", resp.Status)
+		log.Panicf("Couldn't retrieve our config from speedtest.net: '%s'\n", resp.Status)
 	}
 	
 	body, err2 := ioutil.ReadAll(resp.Body)
-	misc.E(err2)
+	if err2 != nil {
+		log.Panicf("Couldn't retrieve our config from speedtest.net: 'Cannot read body'\n")
+	}
 
 	cx := new(stxml.XMLConfigSettings)
 	
 	err3 := xml.Unmarshal(body, &cx)
-	misc.E(err3)
+	if err3 != nil {
+		log.Panicf("Couldn't retrieve our config from speedtest.net: 'Cannot unmarshal XML'\n")
+	}
 
 	c := new(Config)
 	c.Ip = cx.Client.Ip
@@ -118,16 +124,23 @@ func GetServers() []Server {
 	if debug.DEBUG { log.Printf("Getting servers...\n") }
 
 	resp, err := http.Get(SpeedtestServersUrl)
-	misc.E(err)
+	if err != nil {
+		log.Panicf("Cannot get servers list from speedtest.net: 'Cannot contact server'\n")
+	}
 	defer resp.Body.Close()
 
 	body, err2 := ioutil.ReadAll(resp.Body)
-	misc.E(err2)
+	if err2 != nil {
+		log.Panicf("Cannot get servers list from speedtest.net: 'Cannot read body'\n")
+	}
 
 	s := new(stxml.ServerSettings)
 	
 	err3 := xml.Unmarshal(body, &s)
-	misc.E(err3)
+	if err3 != nil {
+		log.Panicf("Cannot get servers list from speedtest.net: 'Cannot unmarshal XML'\n")
+	}
+
 	
 	for xmlServer := range s.ServersContainer.XMLServers {
 		server := new(Server)
@@ -185,11 +198,16 @@ func GetLatency(server Server) time.Duration {
 	
 	start := time.Now()
 	resp, err := http.Get(latencyUrl)
-	misc.E(err)
+	if err != nil {
+		log.Panicf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl) 
+	}
 	defer resp.Body.Close()
 	
 	content, err2 := ioutil.ReadAll(resp.Body)
-	misc.E(err2)
+	if err2 != nil {
+		log.Panicf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl) 
+	}
+
 
 	finish := time.Now()
 
@@ -197,7 +215,7 @@ func GetLatency(server Server) time.Duration {
 		if debug.DEBUG { fmt.Printf("\tRun took: %v\n", finish.Sub(start)) }
 		latency = finish.Sub(start)
 	} else {
-		panic("Server didn't return 'test=test', possibly invalid")
+		log.Panicf("Server didn't return 'test=test', possibly invalid")
 	}
 	
 	return latency
@@ -223,10 +241,14 @@ func GetFastestServer(numRuns int, servers []Server) Server {
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
 	resp, err := http.Get(url)
-	misc.E(err)
+	if err != nil {
+		log.Panicf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
+	}
 	defer resp.Body.Close()
 	data, err2 := ioutil.ReadAll(resp.Body)
-	misc.E(err2)
+	if err2 != nil {
+		log.Panicf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
+	}
 	finish := time.Now()
  	megabytes := float64(len(data)) / float64(1024) / float64(1024)
 	seconds := finish.Sub(start).Seconds()
@@ -239,10 +261,14 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	start := time.Now()
 	buf := bytes.NewBuffer(data)
 	resp, err := http.Post(url, mimetype, buf)
-	misc.E(err)
+	if err != nil {
+		log.Panicf("Cannot test upload speed of '%s' - 'Cannot contact server'\n", url)
+	}
 	defer resp.Body.Close()
 	_, err2 := ioutil.ReadAll(resp.Body)
-	misc.E(err2)
+	if err2 != nil {
+		log.Panicf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
+	}
 	finish := time.Now()
 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
 	seconds := finish.Sub(start).Seconds()

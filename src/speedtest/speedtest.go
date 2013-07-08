@@ -128,7 +128,7 @@ func findServer(url string, serversList []sthttp.Server) sthttp.Server {
 		}
 	}
 	if foundServer.Url == "" {
-		panic("Cannot find this url")
+		log.Panicf("Cannot locate '%s' in our list of speedtest urls!\n", url)
 	}
 	return foundServer
 }
