@@ -8,7 +8,7 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.03
+0.04
 
 Download
 ========
