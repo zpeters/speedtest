@@ -1,3 +1,3 @@
 set GOPATH=%CD%
 go install -v speedtest
-bin\speedtest.exe %*
+bin\speedtest.exe
