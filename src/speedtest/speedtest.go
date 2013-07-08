@@ -17,9 +17,9 @@ import (
 
 var NUMCLOSEST = 3
 var NUMLATENCYTESTS = 3
-var VERSION = "0.03"
+var VERSION = "0.04"
 var TESTSERVER sthttp.Server
-var TESTSERVERURL = ""
+var TESTSERVERID = ""
 
 
 func init() {
@@ -28,7 +28,7 @@ func init() {
 	flag.BoolVar(&debug.DEBUG, "d", false, "Turn on debugging")
 	verFlag := flag.Bool("v", false, "Display version")
 	listFlag := flag.Bool("l", false, "List servers")
-	flag.StringVar(&TESTSERVERURL, "s", "", "Specify a server")
+	flag.StringVar(&TESTSERVERID, "s", "", "Specify a server (use -l to get a server list, then specify it's id)")
 	
 	flag.Parse()
 	
@@ -48,7 +48,7 @@ func init() {
 		if debug.DEBUG { fmt.Printf("(%d) found\n", len(allServers)) }
 		for s := range allServers {
 			server := allServers[s]
-			fmt.Printf("%s (%s - %s) - %s\n", server.Sponsor, server.Name, server.Country, server.Url)
+			fmt.Printf("(ID: %s) - %s (%s - %s) - %s\n", server.Id, server.Sponsor, server.Name, server.Country, server.Url)
 		}
 		os.Exit(0)
 	}
@@ -74,11 +74,16 @@ func downloadTest(server sthttp.Server) float64 {
 
 
 	fmt.Printf("Testing download speed")
+	if debug.DEBUG { fmt.Printf("\n") }
 
 	for u := range urls {
-		if debug.DEBUG { fmt.Printf("Download test %d\n", u) }
+
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
-		fmt.Printf(".")
+		if debug.DEBUG { 
+			fmt.Printf("Download test %d\n", u) 
+		} else {
+			 fmt.Printf(".")
+		 }
 		speedAcc = speedAcc + dlSpeed
 	}
 	
@@ -105,12 +110,17 @@ func uploadTest(server sthttp.Server) float64 {
 	}
 
 	fmt.Printf("Testing upload speed")
+	if debug.DEBUG { fmt.Printf("\n") }
 	
 	for i:=0; i<len(ulsize); i++ {
-		if debug.DEBUG { fmt.Printf("Ulsize: %d\n", ulsize[i]) }
+
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
-		fmt.Printf(".")
+		if debug.DEBUG { 
+			fmt.Printf("Ulsize: %d\n", ulsize[i]) 
+		} else {
+			 fmt.Printf(".")
+		 }
 		ulSpeedAcc = ulSpeedAcc + ulSpeed
 	}
 	
@@ -120,15 +130,15 @@ func uploadTest(server sthttp.Server) float64 {
 	return mbps
 }
 
-func findServer(url string, serversList []sthttp.Server) sthttp.Server {
+func findServer(id string, serversList []sthttp.Server) sthttp.Server {
 	var foundServer sthttp.Server
 	for s := range serversList {
-		if serversList[s].Url == url {
+		if serversList[s].Id == id {
 			foundServer = serversList[s]
 		}
 	}
-	if foundServer.Url == "" {
-		log.Panicf("Cannot locate '%s' in our list of speedtest urls!\n", url)
+	if foundServer.Id == "" {
+		log.Panicf("Cannot locate server Id '%s' in our list of speedtest servers!\n", id)
 	}
 	return foundServer
 }
@@ -141,10 +151,10 @@ func main() {
 	allServers := sthttp.GetServers()
 	if debug.DEBUG { fmt.Printf("(%d) found\n", len(allServers)) }
 	
-	if TESTSERVERURL != "" {		
+	if TESTSERVERID != "" {		
 		// they specified a server so find it in the list
-		TESTSERVER = findServer(TESTSERVERURL, allServers)
-		fmt.Printf("%s (%s - %s) - %s\n", TESTSERVER.Sponsor, TESTSERVER.Name, TESTSERVER.Country, TESTSERVER.Url)
+		TESTSERVER = findServer(TESTSERVERID, allServers)
+		fmt.Printf("(ID: %s) - %s (%s - %s) - %s\n", TESTSERVER.Id, TESTSERVER.Sponsor, TESTSERVER.Name, TESTSERVER.Country, TESTSERVER.Url)
 		//FIXME: this is ugly, eventually we watn to get a true avg latency using NUMLATENCYTESTS
 		fmt.Printf("Testing latency...\n")
 		TESTSERVER.AvgLatency = sthttp.GetLatency(TESTSERVER)
@@ -153,7 +163,7 @@ func main() {
 		closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
 		fmt.Printf("Finding fastest server...")
 		TESTSERVER = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
-		fmt.Printf("%s (%s - %s) - %s\n", TESTSERVER.Sponsor, TESTSERVER.Name, TESTSERVER.Country, TESTSERVER.Url)
+		fmt.Printf("(ID: %s) - %s (%s - %s) - %s\n", TESTSERVER.Id, TESTSERVER.Sponsor, TESTSERVER.Name, TESTSERVER.Country, TESTSERVER.Url)
 	}
 
 	dmbps := downloadTest(TESTSERVER)	

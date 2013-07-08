@@ -21,7 +21,7 @@ Usage
 speedtest.exe - normal run
 speedtest.exe -d - turn on debugging
 speedtest.exe -v - show version
-speedtest.exe -l - list servers (hint, you can grep by location, name, etc to get the URL)
+speedtest.exe -l - list servers (hint, you can "grep" (or "findstr" in Windows) by location, name, etc to get the URL)
 ```
 
 Feedback / Contributing
@@ -35,9 +35,7 @@ To contribute please see CONTRIBUTING.md
 Todo
 ====
 - [ ] try to get rid of globals...ick
-- [ ] test download speeds against speedtest.net to make sure measurements are correct, dl ususally seems slower
-- [ ] add more timeout/error checking around servers
-https://github.com/zpeters/speedtest/issues/1
+- [ ] review FIXME's and clean up ugly code
 
 Wishlist
 =======
@@ -47,6 +45,8 @@ Wishlist
 
 Done
 ====
+- [x] add more timeout/error checking around servers
+https://github.com/zpeters/speedtest/issues/1
 - [x] More code cleanup
 - [x] move stuff in main into it's own functions
 - [x] move some part into their own packages
