@@ -32,6 +32,10 @@ For Bug reports please use the Github issue tracker for this project
 
 To contribute please see CONTRIBUTING.md
 
+Thank You
+=========
+- Jacob McDonald - jmc734 - Cleaned up printing and formatting.  Added parameter passing to run.sh - https://github.com/zpeters/speedtest/pull/4
+
 Todo
 ====
 - [ ] try to get rid of globals...ick
