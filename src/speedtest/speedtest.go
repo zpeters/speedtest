@@ -15,7 +15,7 @@ import (
 	"speedtest/sthttp"
 )
 
-var VERSION = "0.04"
+var VERSION = "0.05"
 
 var NUMCLOSEST int
 var NUMLATENCYTESTS int
