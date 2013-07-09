@@ -37,6 +37,7 @@ func init() {
     
 	if *verFlag == true {
 		fmt.Printf("%s - Version: %s\n", os.Args[0], VERSION)
+		fmt.Printf("https://github.com/zpeters/speedtest \n")
 		os.Exit(0)
 	}
 	
