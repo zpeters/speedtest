@@ -86,7 +86,6 @@ func checkHttp(resp *http.Response) bool {
 
 // Download config from speedtest.net
 func GetConfig() Config {
-	if debug.DEBUG { log.Printf("Getting config...\n") }
 	resp, err := http.Get(SpeedtestConfigUrl)
 	if err != nil {
 		log.Panicf("Couldn't retrieve our config from speedtest.net: 'Could not create connection'\n")
@@ -121,8 +120,6 @@ func GetConfig() Config {
 func GetServers() []Server {
 	var servers []Server
 
-	if debug.DEBUG { log.Printf("Getting servers...\n") }
-
 	resp, err := http.Get(SpeedtestServersUrl)
 	if err != nil {
 		log.Panicf("Cannot get servers list from speedtest.net: 'Cannot contact server'\n")
@@ -154,8 +151,6 @@ func GetServers() []Server {
 		server.Id = s.ServersContainer.XMLServers[xmlServer].Id
 		servers = append(servers, *server)
 	}
-
-	if debug.DEBUG { log.Printf("Found %d servers...\n", len(servers)) }
 	return servers
 }
 

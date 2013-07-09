@@ -41,9 +41,9 @@ func init() {
 	}
 	
 	if debug.DEBUG { 
-        log.Printf("Debugging on...\n") 
-        debug.QUIET = false
-    }
+		log.Printf("Debugging on...\n") 
+		debug.QUIET = false
+	}
 	
 	if *listFlag == true {
 		if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
