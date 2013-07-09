@@ -26,6 +26,7 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	flag.BoolVar(&debug.DEBUG, "d", false, "Turn on debugging")
+	configFlag := flag.Bool("dc", false, "Turn on debugging and just dump config")
 	listFlag := flag.Bool("l", false, "List servers (hint use 'grep' or 'findstr' to locate a server ID to use for '-s'")
 	flag.BoolVar(&debug.QUIET, "q", false, "Quiet Mode. Only output server and results")
 	flag.StringVar(&TESTSERVERID, "s", "", "Specify a server ID to use")
@@ -41,6 +42,12 @@ func init() {
 		os.Exit(0)
 	}
 	
+	if *configFlag == true {
+	        debug.DEBUG = true
+		_ = sthttp.GetConfig()		
+		os.Exit(0)
+	}
+
 	if debug.DEBUG { 
 		log.Printf("Debugging on...\n") 
 		debug.QUIET = false

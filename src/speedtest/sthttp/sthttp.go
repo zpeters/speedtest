@@ -111,6 +111,8 @@ func GetConfig() Config {
 	c.Lat = misc.ToFloat(cx.Client.Lat)
 	c.Lon = misc.ToFloat(cx.Client.Lon)
 	c.Isp = cx.Client.Isp
+	
+	if debug.DEBUG { log.Printf("Config: %v\n", c) }
 
 	return *c
 }
