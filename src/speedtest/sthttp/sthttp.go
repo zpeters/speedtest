@@ -8,7 +8,6 @@ import (
 	"time"
 	"sort"
 	"strings"
-	"fmt"
 	"bytes"
 )
 
@@ -224,7 +223,7 @@ func GetLatency(server Server, numRuns int) time.Duration {
 			latency = 1 * time.Minute
 		}
 		
-		if debug.DEBUG { fmt.Printf("\tRun took: %v\n", latency) }
+		if debug.DEBUG { log.Printf("\tRun took: %v\n", latency) }
 		
 		latencyAcc = latencyAcc + latency
 	}
@@ -258,6 +257,7 @@ func DownloadSpeed(url string) float64 {
 	}
 	finish := time.Now()
  	megabytes := float64(len(data)) / float64(1024) / float64(1024)
+	if debug.DEBUG { log.Printf("Downloaded %f megabytes\n", megabytes) }
 	seconds := finish.Sub(start).Seconds()
 	mbps := (megabytes * 8) / float64(seconds)
 
@@ -278,6 +278,7 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	}
 	finish := time.Now()
 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
+	if debug.DEBUG { log.Printf("Uploaded %f megabytes\n", megabytes) }
 	seconds := finish.Sub(start).Seconds()
 	mbps := (megabytes * 8) / float64(seconds)
 

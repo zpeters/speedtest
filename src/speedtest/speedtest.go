@@ -48,6 +48,8 @@ func init() {
 	if *listFlag == true {
 		if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
 		sthttp.CONFIG = sthttp.GetConfig()
+		if debug.DEBUG { fmt.Printf("\n") }
+		
 		
 		if debug.DEBUG { fmt.Printf("Getting servers list...") }
 		allServers := sthttp.GetServers()
@@ -60,37 +62,28 @@ func init() {
 	}
 }
 
-// FIXME: need to do some more work here to make sure this is optimal
-// https://github.com/zpeters/speedtest/issues/6
 func downloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var speedAcc float64
 
-	//dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
-	dlsizes := []int{350, 500, 750, 1000, 1500, 2000}
-	numRuns := 1
+	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500}
 
 	for size := range dlsizes {
-		for i := 0; i<numRuns; i++ {
-			url := server.Url
-			splits := strings.Split(url, "/")
-			baseUrl := strings.Join(splits[1:len(splits) -1], "/")
-			randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
-			downloadUrl := "http:/" + baseUrl + "/" + randomImage
-			urls = append(urls, downloadUrl)
-		}
+		url := server.Url
+		splits := strings.Split(url, "/")
+		baseUrl := strings.Join(splits[1:len(splits) -1], "/")
+		randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
+		downloadUrl := "http:/" + baseUrl + "/" + randomImage
+		urls = append(urls, downloadUrl)
 	}	
 
 
-	if !debug.QUIET { fmt.Printf("Testing download speed") }
-	if debug.DEBUG { fmt.Printf("\n") }
+	if !debug.QUIET { log.Printf("Testing download speed") }
 
 	for u := range urls {
 
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
-		if debug.DEBUG { 
-			fmt.Printf("Download test %d\n", u) 
-		} else if !debug.QUIET {
+		if !debug.QUIET && !debug.DEBUG {
 			 fmt.Printf(".")
 		 }
 		speedAcc = speedAcc + dlSpeed
@@ -102,34 +95,30 @@ func downloadTest(server sthttp.Server) float64 {
 	return mbps
 }
 
-
-// FIXME: need to generally do some more work in here
-// https://github.com/zpeters/speedtest/issues/7
 func uploadTest(server sthttp.Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	var ulsize []int
 	var ulSpeedAcc float64
 
-	ulsizesizes := []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024)}
-
-	var numRuns = 3
-	
-	for size := range ulsizesizes {
-		for i := 0; i<numRuns; i++ {
-			ulsize = append(ulsize, ulsizesizes[size])
-		}
+	ulsizesizes := []int{
+		int(0.25 * 1024 * 1024),
+		int(0.5 * 1024 * 1024),
+		int(1.0 * 1024 * 1024),
+		int(1.5 * 1024 * 1024),
+		int(2.0 * 1024 * 1024),
 	}
 
-	if !debug.QUIET { fmt.Printf("Testing upload speed") }
-	if debug.DEBUG { fmt.Printf("\n") }
+	for size := range ulsizesizes {
+		ulsize = append(ulsize, ulsizesizes[size])
+	}
+
+	if !debug.QUIET { log.Printf("Testing upload speed") }
 	
 	for i:=0; i<len(ulsize); i++ {
 
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
-		if debug.DEBUG { 
-			fmt.Printf("Ulsize: %d\n", ulsize[i]) 
-		} else if !debug.QUIET {
+		if !debug.QUIET && !debug.DEBUG {
 			 fmt.Printf(".")
 		 }
 		ulSpeedAcc = ulSpeedAcc + ulSpeed
@@ -180,6 +169,7 @@ func main() {
 		if !debug.QUIET { fmt.Printf("Finding fastest server..\n") }
 		testServer = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
 		printServer(testServer)
+		if debug.DEBUG{ fmt.Printf("\n") }
 	}
 
 	dmbps := downloadTest(testServer)	
