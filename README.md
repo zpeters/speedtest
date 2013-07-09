@@ -36,16 +36,9 @@ Thank You
 =========
 - Jacob McDonald - jmc734 - Cleaned up printing and formatting.  Added parameter passing to run.sh - https://github.com/zpeters/speedtest/pull/4
 
-Todo
-====
-- [ ] try to get rid of globals...ick
-- [ ] review FIXME's and clean up ugly code
-
-Wishlist
-=======
-- [ ] semi-automate builds and new releases with git hooks on push
-- [ ] daemon mode that does a continuous test/recording for graphing
-- [ ] config switches for amount to download / number of downloads to perform
+Todo / Wishlist
+===============
+Migrated to github "issues" - https://github.com/zpeters/speedtest/issues?state=open
 
 Done
 ====
