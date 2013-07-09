@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"bytes"
+	"fmt"
 )
 
 import (
@@ -112,7 +113,7 @@ func GetConfig() Config {
 	c.Lon = misc.ToFloat(cx.Client.Lon)
 	c.Isp = cx.Client.Isp
 	
-	if debug.DEBUG { log.Printf("Config: %v\n", c) }
+	if debug.DEBUG { fmt.Printf("Config: %v\n", c) }
 
 	return *c
 }
