@@ -189,56 +189,59 @@ func getLatencyUrl(server Server) string {
 	return latencyUrl
 }
 
-func GetLatency(server Server) time.Duration {
+// FIXME: this is ugly but I don't have a good alternative right now
+// if we were not able truly measure the latency don't bail out
+// just set the latency ridiculously high so it isn't choosen
+// https://github.com/zpeters/speedtest/issues/5
+func GetLatency(server Server, numRuns int) time.Duration {
 	var latency time.Duration
 	var failed bool = false
-
-	latencyUrl := getLatencyUrl(server)
-	if debug.DEBUG { log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor) }
+	var latencyAcc time.Duration
 	
-	start := time.Now()
-	resp, err := http.Get(latencyUrl)
-	if err != nil {
-		log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl) 
-		failed = true
-	}
-	defer resp.Body.Close()
-	
-	content, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl) 
-		failed = true
-	}
+	for i := 0; i < numRuns; i++ {
+		latencyUrl := getLatencyUrl(server)
+		if debug.DEBUG { log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor) }
+		
+		start := time.Now()
+		resp, err := http.Get(latencyUrl)
+		if err != nil {
+			log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl) 
+			failed = true
+		}
+		defer resp.Body.Close()
+		
+		content, err2 := ioutil.ReadAll(resp.Body)
+		if err2 != nil {
+			log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl) 
+			failed = true
+		}
+		
+		finish := time.Now()
 
-	finish := time.Now()
+		if strings.TrimSpace(string(content)) == "test=test" {
+			latency = finish.Sub(start)
+		} else {
+			log.Printf("Server didn't return 'test=test', possibly invalid")
+			failed = true
+		}
 
-	if strings.TrimSpace(string(content)) == "test=test" {
-		latency = finish.Sub(start)
-	} else {
-		log.Printf("Server didn't return 'test=test', possibly invalid")
-		failed = true
+		if failed == true {
+			latency = 1 * time.Minute
+		}
+		
+		if debug.DEBUG { fmt.Printf("\tRun took: %v\n", latency) }
+		
+		latencyAcc = latencyAcc + latency
 	}
-	
-
-	// if we were not able truly measure the latency don't bail out
-	// just set the latency ridiculously high so it isn't choosen
-	if failed == true {
-		latency = 1 * time.Minute
-	}
-
-	if debug.DEBUG { fmt.Printf("\tRun took: %v\n", latency) }
-	return latency
+	return time.Duration(latencyAcc.Nanoseconds() / int64(numRuns)) * time.Nanosecond
 }
 
 func GetFastestServer(numRuns int, servers []Server) Server {
 	for server := range servers {
-		var latencyAcc time.Duration
+		avgLatency := GetLatency(servers[server], numRuns)
 		
-		for i := 0; i < numRuns; i++ {
-			latencyAcc = latencyAcc + GetLatency(servers[server])
-		}
-		if debug.DEBUG { log.Printf("Total runs took: %v\n", latencyAcc) }
-		servers[server].AvgLatency = time.Duration(latencyAcc.Nanoseconds() / int64(numRuns)) * time.Nanosecond
+		if debug.DEBUG { log.Printf("Total runs took: %v\n", avgLatency) }
+		servers[server].AvgLatency = avgLatency
 	}
 
 	sort.Sort(ByLatency(servers))

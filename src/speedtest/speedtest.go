@@ -15,10 +15,10 @@ import (
 	"speedtest/sthttp"
 )
 
-var NUMCLOSEST = 3
-var NUMLATENCYTESTS = 3
 var VERSION = "0.04"
-var TESTSERVER sthttp.Server
+
+var NUMCLOSEST int
+var NUMLATENCYTESTS int
 var TESTSERVERID = ""
 
 
@@ -26,10 +26,12 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
 	flag.BoolVar(&debug.DEBUG, "d", false, "Turn on debugging")
-    listFlag := flag.Bool("l", false, "List servers")
-    flag.BoolVar(&debug.QUIET, "q", false, "Quiet Mode. Only output server and results")
-	flag.StringVar(&TESTSERVERID, "s", "", "Specify a server (use -l to get a server list, then specify it's id)")
-    verFlag := flag.Bool("v", false, "Display version")
+	listFlag := flag.Bool("l", false, "List servers (hint use 'grep' or 'findstr' to locate a server ID to use for '-s'")
+	flag.BoolVar(&debug.QUIET, "q", false, "Quiet Mode. Only output server and results")
+	flag.StringVar(&TESTSERVERID, "s", "", "Specify a server ID to use")
+	flag.IntVar(&NUMCLOSEST, "nc", 3, "Number of geographically close servers to test to find the optimal server")
+	flag.IntVar(&NUMLATENCYTESTS, "nl", 3, "Number of latency tests to perform to determine which server is the fastest")
+	verFlag := flag.Bool("v", false, "Display version")
 	
 	flag.Parse()
     
@@ -161,22 +163,21 @@ func main() {
     
 	if TESTSERVERID != "" {		
 		// they specified a server so find it in the list
-		TESTSERVER = findServer(TESTSERVERID, allServers)
-		printServer(TESTSERVER)
-		//FIXME: this is ugly, eventually we want to get a true avg latency using NUMLATENCYTESTS
+		testServer = findServer(TESTSERVERID, allServers)
+		printServer(testServer)
 		if !debug.QUIET { fmt.Printf("Testing latency...\n") }
-		TESTSERVER.AvgLatency = sthttp.GetLatency(TESTSERVER)
+		testServer.AvgLatency = sthttp.GetLatency(testServer, NUMLATENCYTESTS)
 	} else {
 		// find a fast server for them
 		closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
 		if !debug.QUIET { fmt.Printf("Finding fastest server..\n") }
-		TESTSERVER = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
-		printServer(TESTSERVER)
+		testServer = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
+		printServer(testServer)
 	}
 
-	dmbps := downloadTest(TESTSERVER)	
-	umbps := uploadTest(TESTSERVER)
+	dmbps := downloadTest(testServer)	
+	umbps := uploadTest(testServer)
 	
-	fmt.Printf("Ping: %s | Download: %3.2f Mbps | Upload: %3.2f Mbps\n", TESTSERVER.AvgLatency, dmbps, umbps)
+	fmt.Printf("Ping: %s | Download: %3.2f Mbps | Upload: %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
 }
 
