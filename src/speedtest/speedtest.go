@@ -60,9 +60,12 @@ func init() {
 	}
 }
 
+// FIXME: need to do some more work here to make sure this is optimal
+// https://github.com/zpeters/speedtest/issues/6
 func downloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var speedAcc float64
+
 	//dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 	dlsizes := []int{350, 500, 750, 1000, 1500, 2000}
 	numRuns := 1
@@ -100,6 +103,8 @@ func downloadTest(server sthttp.Server) float64 {
 }
 
 
+// FIXME: need to generally do some more work in here
+// https://github.com/zpeters/speedtest/issues/7
 func uploadTest(server sthttp.Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	var ulsize []int
@@ -154,6 +159,8 @@ func printServer(server sthttp.Server) {
 }
 
 func main() {
+	var testServer sthttp.Server
+
 	if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
 	sthttp.CONFIG = sthttp.GetConfig()
 	

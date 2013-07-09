@@ -17,11 +17,45 @@ Download
 
 Usage
 =====
+speedtest.exe -- normal run, will automatically select the closests/fastest server to test against
 ```shell
-speedtest.exe - normal run
-speedtest.exe -d - turn on debugging
-speedtest.exe -v - show version
-speedtest.exe -l - list servers (hint, you can "grep" (or "findstr" in Windows) by location, name, etc to get the URL)
+$ bin/speedtest.exe 
+Finding fastest server..
+1752 | 5NINES (Madison, WI, United States)
+Testing download speed......
+Testing upload speed......
+Ping: 53.613233ms | Download: 13.34 Mbps | Upload: 3.89 Mbps
+```
+
+speedtest.exe -l -- List servers
+```shell
+$ bin/speedtest.ext -l
+1724 | CityNet (Zaporizhzhya, Ukraine)
+2966 | FUSION MEDIA Kft. (Budapest, Hungary)
+3634 | Paul Bunyan Communications (Bemidji, MN, United States
+...
+
+```
+
+speedtest.exe -s 1724 -- Run against a specific server
+```shell
+$ bin/speedtest.exe -s 1724
+1724 | CityNet (Zaporizhzhya, Ukraine)
+Testing latency...
+Testing download speed......
+Testing upload speed......
+Ping: 982.913566ms | Download: 0.91 Mbps | Upload: 1.25 Mbps
+```
+
+```shell
+speedtest.exe -h
+  -d=false: Turn on debugging
+  -l=false: List servers (hint use 'grep' or 'findstr' to locate a server ID to use for '-s'
+  -nc=3: Number of geographically close servers to test to find the optimal server
+  -nl=3: Number of latency tests to perform to determine which server is the fastest
+  -q=false: Quiet Mode. Only output server and results
+  -s="": Specify a server ID to use
+  -v=false: Display version
 ```
 
 Feedback / Contributing
