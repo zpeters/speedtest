@@ -160,9 +160,9 @@ func GetServers() []Server {
 func GetClosestServers(numServers int, servers []Server) []Server {
 	if debug.DEBUG{ log.Printf("Finding %d closest servers...\n", numServers) }
 	// calculate all servers distance from us and save them
-    mylat    := CONFIG.Lat
-    mylon    := CONFIG.Lon
-    myCoords := coords.Coordinate{Lat:mylat, Lon:mylon}
+	mylat    := CONFIG.Lat
+	mylon    := CONFIG.Lon
+	myCoords := coords.Coordinate{Lat:mylat, Lon:mylon}
 	for server := range servers {
 		theirlat := servers[server].Lat
 		theirlon := servers[server].Lon
@@ -260,8 +260,9 @@ func DownloadSpeed(url string) float64 {
 	}
 	finish := time.Now()
  	megabytes := float64(len(data)) / float64(1024) / float64(1024)
-	if debug.DEBUG { log.Printf("Downloaded %f megabytes\n", megabytes) }
 	seconds := finish.Sub(start).Seconds()
+	if debug.DEBUG { log.Printf("Downloaded %f megabytes\n", megabytes) }
+	if debug.DEBUG { log.Printf("Downloaded in %f seconds\n", float64(seconds)) }
 	mbps := (megabytes * 8) / float64(seconds)
 
 	return mbps
@@ -281,8 +282,9 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	}
 	finish := time.Now()
 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
-	if debug.DEBUG { log.Printf("Uploaded %f megabytes\n", megabytes) }
 	seconds := finish.Sub(start).Seconds()
+	if debug.DEBUG { log.Printf("Uploaded %f megabytes\n", megabytes) }
+	if debug.DEBUG { log.Printf("Uploaded in %f seconds\n", float64(seconds)) }
 	mbps := (megabytes * 8) / float64(seconds)
 
 	return mbps
