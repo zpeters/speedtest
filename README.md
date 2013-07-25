@@ -74,15 +74,7 @@ Todo / Wishlist
 ===============
 Migrated to github "issues" - https://github.com/zpeters/speedtest/issues?state=open
 
-Done
-====
-- [x] add more timeout/error checking around servers
-https://github.com/zpeters/speedtest/issues/1
-- [x] More code cleanup
-- [x] move stuff in main into it's own functions
-- [x] move some part into their own packages
-- [x] submit to github
-- [X] list servers
-- [X] add license?
-- [x] specify server
-http://www.reddit.com/r/sysadmin/comments/1ht86k/command_line_interface_to_speedtestnet/caxrn65
+Reference
+=========
+- how does it work - https://support.speedtest.net/entries/20862782-How-does-the-test-itself-work-How-is-the-result-calculated-
+- why actual speedtest.net results may be innaccurate - http://testmy.net/
