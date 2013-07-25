@@ -146,7 +146,7 @@ func findServer(id string, serversList []sthttp.Server) sthttp.Server {
 		}
 	}
 	if foundServer.Id == "" {
-		log.Panicf("Cannot locate server Id '%s' in our list of speedtest servers!\n", id)
+		log.Fatalf("Cannot locate server Id '%s' in our list of speedtest servers!\n", id)
 	}
 	return foundServer
 }

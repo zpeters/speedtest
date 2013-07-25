@@ -88,23 +88,23 @@ func checkHttp(resp *http.Response) bool {
 func GetConfig() Config {
 	resp, err := http.Get(SpeedtestConfigUrl)
 	if err != nil {
-		log.Panicf("Couldn't retrieve our config from speedtest.net: 'Could not create connection'\n")
+		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Could not create connection'\n")
 	}
 	defer resp.Body.Close()
 	if checkHttp(resp) != true {
-		log.Panicf("Couldn't retrieve our config from speedtest.net: '%s'\n", resp.Status)
+		log.Fatalf("Couldn't retrieve our config from speedtest.net: '%s'\n", resp.Status)
 	}
 	
 	body, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Panicf("Couldn't retrieve our config from speedtest.net: 'Cannot read body'\n")
+		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Cannot read body'\n")
 	}
 
 	cx := new(stxml.XMLConfigSettings)
 	
 	err3 := xml.Unmarshal(body, &cx)
 	if err3 != nil {
-		log.Panicf("Couldn't retrieve our config from speedtest.net: 'Cannot unmarshal XML'\n")
+		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Cannot unmarshal XML'\n")
 	}
 
 	c := new(Config)
@@ -124,20 +124,20 @@ func GetServers() []Server {
 
 	resp, err := http.Get(SpeedtestServersUrl)
 	if err != nil {
-		log.Panicf("Cannot get servers list from speedtest.net: 'Cannot contact server'\n")
+		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot contact server'\n")
 	}
 	defer resp.Body.Close()
 
 	body, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Panicf("Cannot get servers list from speedtest.net: 'Cannot read body'\n")
+		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot read body'\n")
 	}
 
 	s := new(stxml.ServerSettings)
 	
 	err3 := xml.Unmarshal(body, &s)
 	if err3 != nil {
-		log.Panicf("Cannot get servers list from speedtest.net: 'Cannot unmarshal XML'\n")
+		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot unmarshal XML'\n")
 	}
 
 	
@@ -251,12 +251,12 @@ func DownloadSpeed(url string) float64 {
 	start := time.Now()
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Panicf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
+		log.Fatalf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
 	}
 	defer resp.Body.Close()
 	data, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Panicf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
+		log.Fatalf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
  	megabytes := float64(len(data)) / float64(1024) / float64(1024)
@@ -273,12 +273,12 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	buf := bytes.NewBuffer(data)
 	resp, err := http.Post(url, mimetype, buf)
 	if err != nil {
-		log.Panicf("Cannot test upload speed of '%s' - 'Cannot contact server'\n", url)
+		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot contact server'\n", url)
 	}
 	defer resp.Body.Close()
 	_, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Panicf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
+		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
