@@ -69,10 +69,16 @@ To contribute please see CONTRIBUTING.md
 Thank You
 =========
 - Jacob McDonald - jmc734 - Cleaned up printing and formatting.  Added parameter passing to run.sh - https://github.com/zpeters/speedtest/pull/4
+- Cory Lievers - Testing and feedback
 
-Todo / Wishlist
-===============
-Migrated to github "issues" - https://github.com/zpeters/speedtest/issues?state=open
+Why don't my speeds match those reported from the speedtest.net website?
+========================================================================
+The calculation that is used for testing download speeds is literally measuring the amount of data we are downloading (we request a "random" image and count how many bytes are received) and how long it takes to download.  We multiply by the correct factors to get from bytes to megabits. I consider this to be an honest and accurate measurement.
+
+In speedtest.net's reference documentation they describe doing a lot of manipulation to the restults to return an "ideal" measurement (https://support.speedtest.net/entries/20862782-How-does-the-test-itself-work-How-is-the-result-calculated-). This, to me, is trading accuracy for speed and not what I'm looking for out of a testing tool.
+
+For confirmation that my download calculations are correct I have tested against a few other speed testing sites, specifically http://testmy.net ("What makes TestMy.net better") who appear to use an "unfiltered" method of calculating bandwidth speeds.  These results typically match up with speedtest.net cli
+
 
 Reference
 =========
