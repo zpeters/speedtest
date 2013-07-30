@@ -8,12 +8,12 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.05
+0.06
 
 Download
 ========
-- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.05/Linux/
-- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.05/Windows/
+- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.06/Linux/
+- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.06/Windows/
 
 Usage
 =====
