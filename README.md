@@ -8,12 +8,12 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.06
+0.07
 
 Download
 ========
-- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.06/Linux/
-- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.06/Windows/
+- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07/Linux/
+- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07/Windows/
 
 Usage
 =====
@@ -47,13 +47,24 @@ Testing upload speed......
 Ping: 982.913566ms | Download: 0.91 Mbps | Upload: 1.25 Mbps
 ```
 
+speedtest.exe -r -- Runs speedtest in "reporting" mode (useful for Labtec, Excel spreadsheets, etc)
+speedtest.exe -r -rc="," -- Use a different separator (default is '|')
+Report Fields: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
+```shell
+1752|5NINES(Madison, WI,United States)|36.18|19452|4053
+```
+
 ```shell
 speedtest.exe -h
+Usage of bin\speedtest.exe:
   -d=false: Turn on debugging
+  -dc=false: Turn on debugging and just dump config
   -l=false: List servers (hint use 'grep' or 'findstr' to locate a server ID to use for '-s'
-  -nc=3: Number of geographically close servers to test to find the optimal server
+  -nc=3: Number of geographically close servers to test to find the optimal serv er
   -nl=3: Number of latency tests to perform to determine which server is the fastest
   -q=false: Quiet Mode. Only output server and results
+  -r=false: 'Reporting mode' output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
+  -rc="|": Character to use to separate fields in report mode (-r)
   -s="": Specify a server ID to use
   -v=false: Display version
 ```
@@ -69,7 +80,7 @@ To contribute please see CONTRIBUTING.md
 Thank You
 =========
 - Jacob McDonald - jmc734 - Cleaned up printing and formatting.  Added parameter passing to run.sh - https://github.com/zpeters/speedtest/pull/4
-- Cory Lievers - Testing and feedback
+- Cory Lievers - Testing and feedback. Suggestions for formatting to make this more useful for labtec - https://github.com/zpeters/speedtest/issues/9
 
 Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================

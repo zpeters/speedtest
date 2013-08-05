@@ -15,12 +15,12 @@ import (
 	"speedtest/sthttp"
 )
 
-var VERSION = "0.06"
+var VERSION = "0.07"
 
 var NUMCLOSEST int
 var NUMLATENCYTESTS int
 var TESTSERVERID = ""
-
+var REPORTCHAR = ""
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -33,6 +33,8 @@ func init() {
 	flag.IntVar(&NUMCLOSEST, "nc", 3, "Number of geographically close servers to test to find the optimal server")
 	flag.IntVar(&NUMLATENCYTESTS, "nl", 3, "Number of latency tests to perform to determine which server is the fastest")
 	verFlag := flag.Bool("v", false, "Display version")
+	reportFlag := flag.Bool("r", false, "'Reporting mode' output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps")
+flag.StringVar(&REPORTCHAR, "rc", "|", "Character to use to separate fields in report mode (-r)")
 	
 	flag.Parse()
     
@@ -46,6 +48,11 @@ func init() {
 	        debug.DEBUG = true
 		_ = sthttp.GetConfig()		
 		os.Exit(0)
+	}
+
+	if *reportFlag == true {
+		debug.REPORT = true
+		debug.QUIET = true
 	}
 
 	if debug.DEBUG { 
@@ -155,6 +162,10 @@ func printServer(server sthttp.Server) {
     fmt.Printf("%-4s | %s (%s, %s)\n", server.Id, server.Sponsor, server.Name, server.Country)
 }
 
+func printServerReport(server sthttp.Server) {
+	fmt.Printf("%s%s%s(%s,%s)%s", server.Id, REPORTCHAR, server.Sponsor, server.Name, server.Country, REPORTCHAR)
+}
+
 func main() {
 	var testServer sthttp.Server
 
@@ -168,21 +179,39 @@ func main() {
 	if TESTSERVERID != "" {		
 		// they specified a server so find it in the list
 		testServer = findServer(TESTSERVERID, allServers)
-		printServer(testServer)
-		if !debug.QUIET { fmt.Printf("Testing latency...\n") }
+
+		if !debug.REPORT {
+			printServer(testServer)
+		} else {
+			printServerReport(testServer)
+		}
+
+		if !debug.QUIET && !debug.REPORT { fmt.Printf("Testing latency...\n") }
 		testServer.AvgLatency = sthttp.GetLatency(testServer, NUMLATENCYTESTS)
 	} else {
 		// find a fast server for them
 		closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
-		if !debug.QUIET { fmt.Printf("Finding fastest server..\n") }
+		if !debug.QUIET && !debug.REPORT { fmt.Printf("Finding fastest server..\n") }
 		testServer = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
-		printServer(testServer)
+		
+		if !debug.REPORT {
+			printServer(testServer)
+		} else {
+			printServerReport(testServer)
+		}
+		
 		if debug.DEBUG{ fmt.Printf("\n") }
 	}
 
 	dmbps := downloadTest(testServer)	
 	umbps := uploadTest(testServer)
 	
-	fmt.Printf("Ping: %s | Download: %3.2f Mbps | Upload: %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+	if !debug.REPORT {
+		fmt.Printf("Ping: %3.2f ms | Download: %3.2f Mbps | Upload: %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+	} else {
+		dkbps := dmbps * 1024
+		ukbps := umbps * 1024
+		fmt.Printf("%3.2f%s%d%s%d", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+	}
 }
 

@@ -40,7 +40,8 @@ type Server struct {
 	Sponsor    string
 	Id         string
 	Distance   float64
-	AvgLatency time.Duration
+	//AvgLatency time.Duration
+	AvgLatency float64
 }
 
 // Sort by Distance
@@ -190,7 +191,8 @@ func getLatencyUrl(server Server) string {
 // if we were not able truly measure the latency don't bail out
 // just set the latency ridiculously high so it isn't choosen
 // https://github.com/zpeters/speedtest/issues/5
-func GetLatency(server Server, numRuns int) time.Duration {
+//func GetLatency(server Server, numRuns int) time.Duration {
+func GetLatency(server Server, numRuns int) float64 {
 	var latency time.Duration
 	var failed bool = false
 	var latencyAcc time.Duration
@@ -230,7 +232,8 @@ func GetLatency(server Server, numRuns int) time.Duration {
 		
 		latencyAcc = latencyAcc + latency
 	}
-	return time.Duration(latencyAcc.Nanoseconds() / int64(numRuns)) * time.Nanosecond
+	// We want ms not nsP
+	return float64(time.Duration(latencyAcc.Nanoseconds() / int64(numRuns)) * time.Nanosecond)/1000000
 }
 
 func GetFastestServer(numRuns int, servers []Server) Server {
