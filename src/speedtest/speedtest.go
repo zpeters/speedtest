@@ -163,7 +163,7 @@ func printServer(server sthttp.Server) {
 }
 
 func printServerReport(server sthttp.Server) {
-	fmt.Printf("%s%s%s(%s,%s)%s", server.Id, REPORTCHAR, server.Sponsor, server.Name, server.Country, REPORTCHAR)
+	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), REPORTCHAR, server.Id, REPORTCHAR, server.Sponsor, server.Name, server.Country, REPORTCHAR)
 }
 
 func main() {
