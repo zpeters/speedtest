@@ -211,7 +211,7 @@ func main() {
 	} else {
 		dkbps := dmbps * 1024
 		ukbps := umbps * 1024
-		fmt.Printf("%3.2f%s%d%s%d", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+		fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
 	}
 }
 
