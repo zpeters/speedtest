@@ -15,7 +15,7 @@ import (
 	"speedtest/sthttp"
 )
 
-var VERSION = "0.07"
+var VERSION = "0.08"
 
 var NUMCLOSEST int
 var NUMLATENCYTESTS int
@@ -79,10 +79,10 @@ flag.StringVar(&REPORTCHAR, "rc", "|", "Character to use to separate fields in r
 
 func downloadTest(server sthttp.Server) float64 {
 	var urls []string
-	var speedAcc float64
+	var maxSpeed float64
 
-	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500}
-
+	dlsizes := []int{500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	
 	for size := range dlsizes {
 		url := server.Url
 		splits := strings.Split(url, "/")
@@ -101,19 +101,24 @@ func downloadTest(server sthttp.Server) float64 {
 		if !debug.QUIET && !debug.DEBUG {
 			 fmt.Printf(".")
 		 }
-		speedAcc = speedAcc + dlSpeed
+		if debug.DEBUG {
+			log.Printf("Dl Speed: %v\n", dlSpeed)
+		}
+		
+		if dlSpeed > maxSpeed {
+			maxSpeed = dlSpeed
+		}
 	}
 	
 	if !debug.QUIET { fmt.Printf("\n") }
 
-	mbps := (speedAcc / float64(len(urls)))
-	return mbps
+	return maxSpeed
 }
 
 func uploadTest(server sthttp.Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	var ulsize []int
-	var ulSpeedAcc float64
+	var maxSpeed float64
 
 	ulsizesizes := []int{
 		int(0.25 * 1024 * 1024),
@@ -136,13 +141,17 @@ func uploadTest(server sthttp.Server) float64 {
 		if !debug.QUIET && !debug.DEBUG {
 			 fmt.Printf(".")
 		 }
-		ulSpeedAcc = ulSpeedAcc + ulSpeed
+
+		if ulSpeed > maxSpeed {
+			maxSpeed = ulSpeed
+		}
+
+
 	}
 	
 	if !debug.QUIET { fmt.Printf("\n") }
 
-	mbps := ulSpeedAcc / float64(len(ulsize))
-	return mbps
+	return maxSpeed
 }
 
 func findServer(id string, serversList []sthttp.Server) sthttp.Server {
