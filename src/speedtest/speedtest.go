@@ -25,16 +25,15 @@ var REPORTCHAR = ""
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	flag.BoolVar(&debug.DEBUG, "d", false, "Turn on debugging")
-	configFlag := flag.Bool("dc", false, "Turn on debugging and just dump config")
-	listFlag := flag.Bool("l", false, "List servers (hint use 'grep' or 'findstr' to locate a server ID to use for '-s'")
-	flag.BoolVar(&debug.QUIET, "q", false, "Quiet Mode. Only output server and results")
-	flag.StringVar(&TESTSERVERID, "s", "", "Specify a server ID to use")
-	flag.IntVar(&NUMCLOSEST, "nc", 3, "Number of geographically close servers to test to find the optimal server")
-	flag.IntVar(&NUMLATENCYTESTS, "nl", 3, "Number of latency tests to perform to determine which server is the fastest")
-	verFlag := flag.Bool("v", false, "Display version")
-	reportFlag := flag.Bool("r", false, "'Reporting mode' output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps")
-flag.StringVar(&REPORTCHAR, "rc", "|", "Character to use to separate fields in report mode (-r)")
+	flag.BoolVar(&debug.DEBUG, "d", false, "\tTurn on debugging")
+	listFlag := flag.Bool("l", false, "\tList servers (hint use 'grep' or 'findstr' to locate a\n\t\t  server ID to use for '-s'")
+	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
+	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
+	flag.IntVar(&NUMCLOSEST, "nc", 3, "\tNumber of geographically close servers to test to find\n\t\t  the optimal server")
+	flag.IntVar(&NUMLATENCYTESTS, "nl", 3, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
+	verFlag := flag.Bool("v", false, "\tDisplay version")
+	reportFlag := flag.Bool("r", false, "\tReporting mode output, minimal output with '|' for\n\t\t  separators, use '-rc' to change separator characters.\n\t\t  Reports the following: Server ID, Server Name (Location),\n\t\t  Ping time in ms, Download speed in kbps, Upload speed in kbps")
+flag.StringVar(&REPORTCHAR, "rc", "|", "\tCharacter to use to separate fields in report mode (-r)")
 	
 	flag.Parse()
     
