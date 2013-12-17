@@ -43,12 +43,6 @@ flag.StringVar(&REPORTCHAR, "rc", "|", "\tCharacter to use to separate fields in
 		os.Exit(0)
 	}
 	
-	if *configFlag == true {
-	        debug.DEBUG = true
-		_ = sthttp.GetConfig()		
-		os.Exit(0)
-	}
-
 	if *reportFlag == true {
 		debug.REPORT = true
 		debug.QUIET = true
