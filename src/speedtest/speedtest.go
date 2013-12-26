@@ -21,6 +21,7 @@ var NUMCLOSEST int
 var NUMLATENCYTESTS int
 var TESTSERVERID = ""
 var REPORTCHAR = ""
+var ALGOTYPE = ""
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -28,7 +29,9 @@ func init() {
 	flag.BoolVar(&debug.DEBUG, "d", false, "\tTurn on debugging")
 	listFlag := flag.Bool("l", false, "\tList servers (hint use 'grep' or 'findstr' to locate a\n\t\t  server ID to use for '-s'")
 	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
-	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
+	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")XS
+	// TODO: not implemented yet
+	flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
 	flag.IntVar(&NUMCLOSEST, "nc", 3, "\tNumber of geographically close servers to test to find\n\t\t  the optimal server")
 	flag.IntVar(&NUMLATENCYTESTS, "nl", 3, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
 	verFlag := flag.Bool("v", false, "\tDisplay version")
@@ -216,4 +219,3 @@ func main() {
 		fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
 	}
 }
-
