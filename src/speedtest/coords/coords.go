@@ -6,7 +6,6 @@ import (
 
 const RadiusEarth = 6372.8
 
-
 type Coordinate struct {
 	Lat float64
 	Lon float64
@@ -31,5 +30,3 @@ func HsDist(p1, p2 pos) float64 {
     return 2 * RadiusEarth * math.Asin(math.Sqrt(haversine(p2.φ-p1.φ)+
         math.Cos(p1.φ)*math.Cos(p2.φ)*haversine(p2.ψ-p1.ψ)))
 }
-
-

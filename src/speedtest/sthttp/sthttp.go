@@ -1,4 +1,4 @@
-package sthttp
+sSpackage sthttp
 
 import (
 	"net/http"
@@ -40,7 +40,6 @@ type Server struct {
 	Sponsor    string
 	Id         string
 	Distance   float64
-	//AvgLatency time.Duration
 	AvgLatency float64
 }
 
@@ -187,11 +186,6 @@ func getLatencyUrl(server Server) string {
 	return latencyUrl
 }
 
-// FIXME: this is ugly but I don't have a good alternative right now
-// if we were not able truly measure the latency don't bail out
-// just set the latency ridiculously high so it isn't choosen
-// https://github.com/zpeters/speedtest/issues/5
-//func GetLatency(server Server, numRuns int) time.Duration {
 func GetLatency(server Server, numRuns int) float64 {
 	var latency time.Duration
 	var failed bool = false

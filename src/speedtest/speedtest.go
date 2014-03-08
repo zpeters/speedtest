@@ -30,7 +30,7 @@ func init() {
 	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
 	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
 	flag.IntVar(&NUMCLOSEST, "nc", 3, "\tNumber of geographically close servers to test to find\n\t\t  the optimal server")
-	flag.IntVar(&NUMLATENCYTESTS, "nl", 3, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
+	flag.IntVar(&NUMLATENCYTESTS, "nl", 5, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
 	verFlag := flag.Bool("v", false, "\tDisplay version")
 	reportFlag := flag.Bool("r", false, "\tReporting mode output, minimal output with '|' for\n\t\t  separators, use '-rc' to change separator characters.\n\t\t  Reports the following: Server ID, Server Name (Location),\n\t\t  Ping time in ms, Download speed in kbps, Upload speed in kbps")
 flag.StringVar(&REPORTCHAR, "rc", "|", "\tCharacter to use to separate fields in report mode (-r)")
