@@ -1,8 +1,8 @@
 package misc
 
 import (
-	"strconv"
 	"math/rand"
+	"strconv"
 )
 
 // shortcut to parse float
@@ -11,15 +11,11 @@ func ToFloat(s string) float64 {
 	return f
 }
 
-
 func Urandom(n int) []byte {
 	b := make([]byte, n)
-	for i:=0; i<n; i++ {
+	for i := 0; i < n; i++ {
 		b[i] = byte(rand.Int31())
 	}
 
 	return b
 }
-
-
-

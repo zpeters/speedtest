@@ -1,22 +1,22 @@
-sSpackage sthttp
+package sthttp
 
 import (
-	"net/http"
-	"log"
-	"io/ioutil"
+	"bytes"
 	"encoding/xml"
-	"time"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"sort"
 	"strings"
-	"bytes"
-	"fmt"
+	"time"
 )
 
 import (
+	"speedtest/coords"
 	"speedtest/debug"
 	"speedtest/misc"
 	"speedtest/stxml"
-	"speedtest/coords"
 )
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
@@ -24,7 +24,7 @@ var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
 var CONFIG Config
 
 type Config struct {
-	Ip string
+	Ip  string
 	Lat float64
 	Lon float64
 	Isp string
@@ -94,14 +94,14 @@ func GetConfig() Config {
 	if checkHttp(resp) != true {
 		log.Fatalf("Couldn't retrieve our config from speedtest.net: '%s'\n", resp.Status)
 	}
-	
+
 	body, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
 		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Cannot read body'\n")
 	}
 
 	cx := new(stxml.XMLConfigSettings)
-	
+
 	err3 := xml.Unmarshal(body, &cx)
 	if err3 != nil {
 		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Cannot unmarshal XML'\n")
@@ -112,8 +112,10 @@ func GetConfig() Config {
 	c.Lat = misc.ToFloat(cx.Client.Lat)
 	c.Lon = misc.ToFloat(cx.Client.Lon)
 	c.Isp = cx.Client.Isp
-	
-	if debug.DEBUG { fmt.Printf("Config: %v\n", c) }
+
+	if debug.DEBUG {
+		fmt.Printf("Config: %v\n", c)
+	}
 
 	return *c
 }
@@ -134,13 +136,12 @@ func GetServers() []Server {
 	}
 
 	s := new(stxml.ServerSettings)
-	
+
 	err3 := xml.Unmarshal(body, &s)
 	if err3 != nil {
 		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot unmarshal XML'\n")
 	}
 
-	
 	for xmlServer := range s.ServersContainer.XMLServers {
 		server := new(Server)
 		server.Url = s.ServersContainer.XMLServers[xmlServer].Url
@@ -156,24 +157,25 @@ func GetServers() []Server {
 	return servers
 }
 
-
 func GetClosestServers(numServers int, servers []Server) []Server {
-	if debug.DEBUG{ log.Printf("Finding %d closest servers...\n", numServers) }
+	if debug.DEBUG {
+		log.Printf("Finding %d closest servers...\n", numServers)
+	}
 	// calculate all servers distance from us and save them
-	mylat    := CONFIG.Lat
-	mylon    := CONFIG.Lon
-	myCoords := coords.Coordinate{Lat:mylat, Lon:mylon}
+	mylat := CONFIG.Lat
+	mylon := CONFIG.Lon
+	myCoords := coords.Coordinate{Lat: mylat, Lon: mylon}
 	for server := range servers {
 		theirlat := servers[server].Lat
 		theirlon := servers[server].Lon
-		theirCoords := coords.Coordinate{Lat:theirlat, Lon:theirlon}
+		theirCoords := coords.Coordinate{Lat: theirlat, Lon: theirlon}
 
 		servers[server].Distance = coords.HsDist(coords.DegPos(myCoords.Lat, myCoords.Lon), coords.DegPos(theirCoords.Lat, theirCoords.Lon))
 	}
-	
+
 	// sort by distance
 	sort.Sort(ByDistance(servers))
-	
+
 	// return the top X
 	return servers[:numServers]
 }
@@ -181,7 +183,7 @@ func GetClosestServers(numServers int, servers []Server) []Server {
 func getLatencyUrl(server Server) string {
 	u := server.Url
 	splits := strings.Split(u, "/")
-	baseUrl := strings.Join(splits[1:len(splits) -1], "/")
+	baseUrl := strings.Join(splits[1:len(splits)-1], "/")
 	latencyUrl := "http:/" + baseUrl + "/latency.txt"
 	return latencyUrl
 }
@@ -190,25 +192,27 @@ func GetLatency(server Server, numRuns int) float64 {
 	var latency time.Duration
 	var failed bool = false
 	var latencyAcc time.Duration
-	
+
 	for i := 0; i < numRuns; i++ {
 		latencyUrl := getLatencyUrl(server)
-		if debug.DEBUG { log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor) }
-		
+		if debug.DEBUG {
+			log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor)
+		}
+
 		start := time.Now()
 		resp, err := http.Get(latencyUrl)
 		if err != nil {
-			log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl) 
+			log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
 			failed = true
 		}
 		defer resp.Body.Close()
-		
+
 		content, err2 := ioutil.ReadAll(resp.Body)
 		if err2 != nil {
-			log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl) 
+			log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl)
 			failed = true
 		}
-		
+
 		finish := time.Now()
 
 		if strings.TrimSpace(string(content)) == "test=test" {
@@ -221,28 +225,31 @@ func GetLatency(server Server, numRuns int) float64 {
 		if failed == true {
 			latency = 1 * time.Minute
 		}
-		
-		if debug.DEBUG { log.Printf("\tRun took: %v\n", latency) }
-		
+
+		if debug.DEBUG {
+			log.Printf("\tRun took: %v\n", latency)
+		}
+
 		latencyAcc = latencyAcc + latency
 	}
 	// We want ms not nsP
-	return float64(time.Duration(latencyAcc.Nanoseconds() / int64(numRuns)) * time.Nanosecond)/1000000
+	return float64(time.Duration(latencyAcc.Nanoseconds()/int64(numRuns))*time.Nanosecond) / 1000000
 }
 
 func GetFastestServer(numRuns int, servers []Server) Server {
 	for server := range servers {
 		avgLatency := GetLatency(servers[server], numRuns)
-		
-		if debug.DEBUG { log.Printf("Total runs took: %v\n", avgLatency) }
+
+		if debug.DEBUG {
+			log.Printf("Total runs took: %v\n", avgLatency)
+		}
 		servers[server].AvgLatency = avgLatency
 	}
 
 	sort.Sort(ByLatency(servers))
-		
+
 	return servers[0]
 }
-
 
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
@@ -256,10 +263,14 @@ func DownloadSpeed(url string) float64 {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
- 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
+	megabytes := float64(len(data)) / float64(1024) / float64(1024)
 	seconds := finish.Sub(start).Seconds()
-	if debug.DEBUG { log.Printf("Downloaded %f megabytes\n", megabytes) }
-	if debug.DEBUG { log.Printf("Downloaded in %f seconds\n", float64(seconds)) }
+	if debug.DEBUG {
+		log.Printf("Downloaded %f megabytes\n", megabytes)
+	}
+	if debug.DEBUG {
+		log.Printf("Downloaded in %f seconds\n", float64(seconds))
+	}
 	mbps := (megabytes * 8) / float64(seconds)
 
 	return mbps
@@ -280,8 +291,12 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	finish := time.Now()
 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
 	seconds := finish.Sub(start).Seconds()
-	if debug.DEBUG { log.Printf("Uploaded %f megabytes\n", megabytes) }
-	if debug.DEBUG { log.Printf("Uploaded in %f seconds\n", float64(seconds)) }
+	if debug.DEBUG {
+		log.Printf("Uploaded %f megabytes\n", megabytes)
+	}
+	if debug.DEBUG {
+		log.Printf("Uploaded in %f seconds\n", float64(seconds))
+	}
 	mbps := (megabytes * 8) / float64(seconds)
 
 	return mbps
