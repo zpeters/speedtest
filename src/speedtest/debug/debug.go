@@ -1,6 +1,5 @@
 package debug
-import (
-)
+import ()
 
 var DEBUG = false
 var QUIET = false
