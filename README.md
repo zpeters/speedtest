@@ -2,7 +2,7 @@ speedtest
 =========
 This is a quick client for speedtest.net in go.  Patterned after https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 
-Travis CI - [![Build Status](https://travis-ci.org/zpeters/speedtest.svg?branch=master)](https://travis-ci.org/zpeters/speedtest)
+[![Build Status](https://drone.io/github.com/zpeters/speedtest/status.png)](https://drone.io/github.com/zpeters/speedtest/latest)
 
 License
 =======
