@@ -24,6 +24,3 @@ func TestDebug(t *testing.T) {
 		t.Errorf("REPORT missing")
 	}
 }
-
-func TestNull(t *testing.T) {
-}
