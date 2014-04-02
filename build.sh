@@ -1,3 +1,3 @@
 #!/bin/bash
 export GOPATH=`pwd`
-go install -v speedtest
+go install -v github.com/zpeters/speedtest

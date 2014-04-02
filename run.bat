@@ -1,3 +1,3 @@
 set GOPATH=%CD%
-go install speedtest
+go install github.com/zpeters/speedtest
 bin\speedtest.exe %*

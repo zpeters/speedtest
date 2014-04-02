@@ -11,9 +11,9 @@ import (
 )
 
 import (
-	"speedtest/debug"
-	"speedtest/misc"
-	"speedtest/sthttp"
+	"github.com/zpeters/speedtest/debug"
+	"github.com/zpeters/speedtest/misc"
+	"github.com/zpeters/speedtest/sthttp"
 )
 
 var VERSION = "0.08"

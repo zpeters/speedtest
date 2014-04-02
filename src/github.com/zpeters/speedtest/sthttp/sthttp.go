@@ -13,10 +13,10 @@ import (
 )
 
 import (
-	"speedtest/coords"
-	"speedtest/debug"
-	"speedtest/misc"
-	"speedtest/stxml"
+	"github.com/zpeters/speedtest/coords"
+	"github.com/zpeters/speedtest/debug"
+	"github.com/zpeters/speedtest/misc"
+	"github.com/zpeters/speedtest/stxml"
 )
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
