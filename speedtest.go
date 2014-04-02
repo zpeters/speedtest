@@ -11,6 +11,7 @@ import (
 )
 
 import (
+	"github.com/zpeters/speedtest/coords"
 	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/sthttp"
