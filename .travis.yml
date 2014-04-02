@@ -1,7 +1,7 @@
 language: go
 notifications:
-	email:
-		recipients:
-			- zpeters@gmail.com
-		on_success: always
-		on_failure: always
+   email:
+      recipients:
+         - zpeters@gmail.com
+            on_success: always
+            on_failure: always
