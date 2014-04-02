@@ -5,3 +5,6 @@ notifications:
          - zpeters@gmail.com
       on_success: always
       on_failure: always
+
+script:
+   - go test -v ./...
