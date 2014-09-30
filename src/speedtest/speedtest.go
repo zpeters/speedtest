@@ -5,6 +5,7 @@ import (
 	"time"
 	"os"
 	"strings"
+	"runtime"
 	"math/rand"
 	"flag"
 )
@@ -174,8 +175,17 @@ func printServerReport(server sthttp.Server) {
 func main() {
 	var testServer sthttp.Server
 
+	
 	if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
 	sthttp.CONFIG = sthttp.GetConfig()
+
+	if debug.DEBUG { fmt.Printf("Environment report\n") }
+	if debug.DEBUG { fmt.Printf("Arch: %v\n", runtime.GOARCH) }
+	if debug.DEBUG { fmt.Printf("OS: %v\n", runtime.GOOS) }
+	if debug.DEBUG { fmt.Printf("IP: %v\n", sthttp.CONFIG.Ip) }
+	if debug.DEBUG { fmt.Printf("Lat: %v\n", sthttp.CONFIG.Lat) }
+	if debug.DEBUG { fmt.Printf("Lon: %v\n", sthttp.CONFIG.Lon) }
+	if debug.DEBUG { fmt.Printf("ISP: %v\n", sthttp.CONFIG.Isp) }	
 	
 	if debug.DEBUG { fmt.Printf("Getting servers list...") }
 	allServers := sthttp.GetServers()
