@@ -15,7 +15,7 @@ import (
 	"speedtest/sthttp"
 )
 
-var VERSION = "0.08"
+var VERSION = "0.08 - dev"
 
 var NUMCLOSEST int
 var NUMLATENCYTESTS int
@@ -92,7 +92,7 @@ func downloadTest(server sthttp.Server) float64 {
 	if !debug.QUIET { log.Printf("Testing download speed") }
 
 	for u := range urls {
-
+		if debug.DEBUG { fmt.Printf("Download Test Run: %s\n", urls[u])}
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
 		if !debug.QUIET && !debug.DEBUG {
 			 fmt.Printf(".")
@@ -131,7 +131,7 @@ func uploadTest(server sthttp.Server) float64 {
 	if !debug.QUIET { log.Printf("Testing upload speed") }
 	
 	for i:=0; i<len(ulsize); i++ {
-
+		if debug.DEBUG { fmt.Printf("Upload Test Run: %v\n", i)}
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
 		if !debug.QUIET && !debug.DEBUG {
