@@ -7,13 +7,8 @@ import (
 	"math/rand"
 	"os"
 	"strings"
-<<<<<<< HEAD:speedtest.go
 	"time"
-=======
-	"runtime"
-	"math/rand"
-	"flag"
->>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
+        "runtime"
 )
 
 import (
@@ -108,12 +103,8 @@ func downloadTest(server sthttp.Server) float64 {
 	}
 
 	for u := range urls {
-<<<<<<< HEAD:speedtest.go
-		fmt.Printf("Testing download speed for %v\n", urls[u])
 
-=======
 		if debug.DEBUG { fmt.Printf("Download Test Run: %s\n", urls[u])}
->>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
 		if !debug.QUIET && !debug.DEBUG {
 			fmt.Printf(".")
@@ -151,19 +142,10 @@ func uploadTest(server sthttp.Server) float64 {
 		ulsize = append(ulsize, ulsizesizes[size])
 	}
 
-<<<<<<< HEAD:speedtest.go
-	if !debug.QUIET {
-		log.Printf("Testing upload speed")
-	}
-
-	for i := 0; i < len(ulsize); i++ {
-
-=======
 	if !debug.QUIET { log.Printf("Testing upload speed") }
 	
 	for i:=0; i<len(ulsize); i++ {
 		if debug.DEBUG { fmt.Printf("Upload Test Run: %v\n", i)}
->>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
 		if !debug.QUIET && !debug.DEBUG {
@@ -207,18 +189,9 @@ func printServerReport(server sthttp.Server) {
 func main() {
 	var testServer sthttp.Server
 
-<<<<<<< HEAD:speedtest.go
 	if debug.DEBUG {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}
-	sthttp.CONFIG = sthttp.GetConfig()
-
-	if debug.DEBUG {
-		fmt.Printf("Getting servers list...")
-	}
-=======
-	
-	if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
 	sthttp.CONFIG = sthttp.GetConfig()
 
 	if debug.DEBUG { fmt.Printf("Environment report\n") }
@@ -230,7 +203,6 @@ func main() {
 	if debug.DEBUG { fmt.Printf("ISP: %v\n", sthttp.CONFIG.Isp) }	
 	
 	if debug.DEBUG { fmt.Printf("Getting servers list...") }
->>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
 	allServers := sthttp.GetServers()
 	if debug.DEBUG {
 		fmt.Printf("(%d) found\n", len(allServers))
