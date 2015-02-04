@@ -7,7 +7,13 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+<<<<<<< HEAD:speedtest.go
 	"time"
+=======
+	"runtime"
+	"math/rand"
+	"flag"
+>>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
 )
 
 import (
@@ -16,12 +22,13 @@ import (
 	"github.com/zpeters/speedtest/sthttp"
 )
 
-var VERSION = "0.08"
+var VERSION = "0.08 - dev"
 
 var NUMCLOSEST int
 var NUMLATENCYTESTS int
 var TESTSERVERID = ""
 var REPORTCHAR = ""
+var ALGOTYPE = ""
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -30,6 +37,8 @@ func init() {
 	listFlag := flag.Bool("l", false, "\tList servers (hint use 'grep' or 'findstr' to locate a\n\t\t  server ID to use for '-s'")
 	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
 	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
+	// TODO: not implemented yet
+	flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
 	flag.IntVar(&NUMCLOSEST, "nc", 3, "\tNumber of geographically close servers to test to find\n\t\t  the optimal server")
 	flag.IntVar(&NUMLATENCYTESTS, "nl", 5, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
 	verFlag := flag.Bool("v", false, "\tDisplay version")
@@ -99,8 +108,12 @@ func downloadTest(server sthttp.Server) float64 {
 	}
 
 	for u := range urls {
+<<<<<<< HEAD:speedtest.go
 		fmt.Printf("Testing download speed for %v\n", urls[u])
 
+=======
+		if debug.DEBUG { fmt.Printf("Download Test Run: %s\n", urls[u])}
+>>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
 		if !debug.QUIET && !debug.DEBUG {
 			fmt.Printf(".")
@@ -138,12 +151,19 @@ func uploadTest(server sthttp.Server) float64 {
 		ulsize = append(ulsize, ulsizesizes[size])
 	}
 
+<<<<<<< HEAD:speedtest.go
 	if !debug.QUIET {
 		log.Printf("Testing upload speed")
 	}
 
 	for i := 0; i < len(ulsize); i++ {
 
+=======
+	if !debug.QUIET { log.Printf("Testing upload speed") }
+	
+	for i:=0; i<len(ulsize); i++ {
+		if debug.DEBUG { fmt.Printf("Upload Test Run: %v\n", i)}
+>>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
 		if !debug.QUIET && !debug.DEBUG {
@@ -187,6 +207,7 @@ func printServerReport(server sthttp.Server) {
 func main() {
 	var testServer sthttp.Server
 
+<<<<<<< HEAD:speedtest.go
 	if debug.DEBUG {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}
@@ -195,6 +216,21 @@ func main() {
 	if debug.DEBUG {
 		fmt.Printf("Getting servers list...")
 	}
+=======
+	
+	if debug.DEBUG { fmt.Printf("Loading config from speedtest.net\n") }
+	sthttp.CONFIG = sthttp.GetConfig()
+
+	if debug.DEBUG { fmt.Printf("Environment report\n") }
+	if debug.DEBUG { fmt.Printf("Arch: %v\n", runtime.GOARCH) }
+	if debug.DEBUG { fmt.Printf("OS: %v\n", runtime.GOOS) }
+	if debug.DEBUG { fmt.Printf("IP: %v\n", sthttp.CONFIG.Ip) }
+	if debug.DEBUG { fmt.Printf("Lat: %v\n", sthttp.CONFIG.Lat) }
+	if debug.DEBUG { fmt.Printf("Lon: %v\n", sthttp.CONFIG.Lon) }
+	if debug.DEBUG { fmt.Printf("ISP: %v\n", sthttp.CONFIG.Isp) }	
+	
+	if debug.DEBUG { fmt.Printf("Getting servers list...") }
+>>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/speedtest.go
 	allServers := sthttp.GetServers()
 	if debug.DEBUG {
 		fmt.Printf("(%d) found\n", len(allServers))

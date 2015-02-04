@@ -253,6 +253,7 @@ func GetFastestServer(numRuns int, servers []Server) Server {
 
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
+	if debug.DEBUG { log.Printf("Starting test at: %s\n", start) }
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
@@ -263,12 +264,17 @@ func DownloadSpeed(url string) float64 {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
+<<<<<<< HEAD:sthttp/sthttp.go
 
 	// calculate our data sizes
 	bytes := float64(len(data))
 	bits := float64(len(data) * 8)
 	megabytes := bytes / float64(1024) / float64(1024)
 	megabits := bits / float64(1024) / float64(1024)
+=======
+	if debug.DEBUG { log.Printf("Finishing test at: %s\n", finish) }
+ 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
+>>>>>>> a7d25e20592b5d1476045b6e23216ebbcd73bbfb:src/speedtest/sthttp/sthttp.go
 	seconds := finish.Sub(start).Seconds()
 	if debug.DEBUG {
 		log.Printf("Downloaded %f bits == %f bytes == %f megabits == %f megabytes\n", bits, bytes, megabits, megabytes)
@@ -288,6 +294,7 @@ func DownloadSpeed(url string) float64 {
 
 func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	start := time.Now()
+	if debug.DEBUG { log.Printf("Starting test at: %s\n", start) }	
 	buf := bytes.NewBuffer(data)
 	resp, err := http.Post(url, mimetype, buf)
 	if err != nil {
@@ -299,6 +306,7 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
+	if debug.DEBUG { log.Printf("Finishing test at: %s\n", finish) }
 	megabytes := float64(len(data)) / float64(1024) / float64(1024)
 	seconds := finish.Sub(start).Seconds()
 	if debug.DEBUG {

@@ -12,6 +12,12 @@ Version
 =======
 0.09
 
+Fix Me
+======
+- download size appears to be incorrect - comparing the logged file size and linux reported size?
+- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
+- sthttp.go - FIXME - latency uglieness
+
 Download
 ========
 - Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.09/Linux/
