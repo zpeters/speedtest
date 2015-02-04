@@ -82,7 +82,8 @@ func downloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var maxSpeed float64
 
-	dlsizes := []int{500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	// http://speedtest1.newbreakcommunications.net/speedtest/speedtest/
+	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 
 	for size := range dlsizes {
 		url := server.Url
@@ -98,6 +99,7 @@ func downloadTest(server sthttp.Server) float64 {
 	}
 
 	for u := range urls {
+		fmt.Printf("Testing download speed for %v\n", urls[u])
 
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
 		if !debug.QUIET && !debug.DEBUG {

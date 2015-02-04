@@ -263,15 +263,25 @@ func DownloadSpeed(url string) float64 {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
-	megabytes := float64(len(data)) / float64(1024) / float64(1024)
+
+	// calculate our data sizes
+	bytes := float64(len(data))
+	bits := float64(len(data) * 8)
+	megabytes := bytes / float64(1024) / float64(1024)
+	megabits := bits / float64(1024) / float64(1024)
 	seconds := finish.Sub(start).Seconds()
 	if debug.DEBUG {
-		log.Printf("Downloaded %f megabytes\n", megabytes)
+		log.Printf("Downloaded %f bits == %f bytes == %f megabits == %f megabytes\n", bits, bytes, megabits, megabytes)
 	}
 	if debug.DEBUG {
 		log.Printf("Downloaded in %f seconds\n", float64(seconds))
 	}
 	mbps := (megabytes * 8) / float64(seconds)
+	if debug.DEBUG {
+		mbps2 := megabits / float64(seconds)
+		fmt.Printf("Megabytes * 8 / seconds == %f\n", mbps)
+		fmt.Printf("Megabits / seconds == %f\n", mbps2)
+	}
 
 	return mbps
 }
