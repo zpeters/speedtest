@@ -3,20 +3,22 @@
 export GOPATH=~/go
 source ~/src/golang-crosscompile/crosscompile.bash
 
-echo darwin-amd64
-go-darwin-amd64 build -o bin/speedtest-mac-amd64 
+BRANCH=`git describe --tags` 
 
-echo windows-386
-go-windows-386 build -o bin/speedtest-32.exe
+echo "Building darwin-amd64..."
+go-darwin-amd64 build -o bin/speedtest-mac-amd64-$BRANCH
 
-echo windows-amd64
-go-windows-amd64 build -o bin/speedtest-64.exe
+echo "Building windows-386..."
+go-windows-386 build -o bin/speedtest-32-$BRANCH.exe
 
-echo freebsd-amd64
-go-freebsd-amd64 build -o bin/speedtest-freebsd-amd64 
+echo "Building windows-amd64..."
+go-windows-amd64 build -o bin/speedtest-64-$BRANCH.exe
 
-echo linux-arm
-go-linux-arm build -o bin/speedtest-linux-arm 
+echo "Building freebsd-amd64..."
+go-freebsd-amd64 build -o bin/speedtest-freebsd-amd64-$BRANCH
 
-echo linux-amd64
-go-linux-amd64 build -o bin/speedtest-linux-amd64
+echo "Building linux-arm..."
+go-linux-arm build -o bin/speedtest-linux-arm-$BRANCH
+
+echo "Building linux-amd64..."
+go-linux-amd64 build -o bin/speedtest-linux-amd64-$BRANCH
