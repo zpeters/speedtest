@@ -10,13 +10,17 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.09
+0.09-dev
 
 Fix Me
 ======
-- download size appears to be incorrect - comparing the logged file size and linux reported size?
+- bump version and tag
 - Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
+- clean up switches they kind of a mess
+- update binary links 
 - sthttp.go - FIXME - latency uglieness
+- add a thank you  for groach
+- add "methodology" (re emails)
 
 Download
 ========
