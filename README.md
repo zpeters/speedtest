@@ -14,11 +14,13 @@ Version
 
 Fix Me
 ======
+- move more stuff from speedtest.go to their own functions
+- verify latency
 - bump version and tag
 - Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
+	and 'min' for latency
 - clean up switches they kind of a mess
 - update binary links 
-- sthttp.go - FIXME - latency uglieness
 - add a thank you  for groach
 - add "methodology" (re emails)
 

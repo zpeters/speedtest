@@ -226,7 +226,7 @@ func main() {
 		// find a fast server for them
 		closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
 		if !debug.QUIET && !debug.REPORT {
-			fmt.Printf("Finding fastest server..\n")
+			log.Printf("Finding fastest server..\n")
 		}
 		testServer = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
 
@@ -245,10 +245,10 @@ func main() {
 	umbps := uploadTest(testServer)
 
 	if !debug.REPORT {
-		fmt.Printf("Ping: %3.2f ms | Download: %3.2f Mbps | Upload: %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+		fmt.Printf("Ping (Average): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
 	} else {
-		dkbps := dmbps * 1024
-		ukbps := umbps * 1024
+		dkbps := dmbps * 1000
+		ukbps := umbps * 1000
 		fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
 	}
 }
