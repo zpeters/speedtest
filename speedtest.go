@@ -22,6 +22,7 @@ var VERSION = "0.09 - debug"
 var NUMCLOSEST int
 var NUMLATENCYTESTS int
 var TESTSERVERID = ""
+var PINGONLY bool = false
 var REPORTCHAR = ""
 var ALGOTYPE = ""
 
@@ -31,6 +32,7 @@ func init() {
 	flag.BoolVar(&debug.DEBUG, "d", false, "\tTurn on debugging")
 	listFlag := flag.Bool("l", false, "\tList servers (hint use 'grep' or 'findstr' to locate a\n\t\t  server ID to use for '-s'")
 	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
+	flag.BoolVar(&PINGONLY, "p", false, "\tPing only mode")
 	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
 	// TODO: not implemented yet
 	flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
@@ -208,6 +210,7 @@ func main() {
 		fmt.Printf("(%d) found\n", len(allServers))
 	}
 
+	
 	if TESTSERVERID != "" {
 		// they specified a server so find it in the list
 		testServer = findServer(TESTSERVERID, allServers)
@@ -241,14 +244,21 @@ func main() {
 		}
 	}
 
-	dmbps := downloadTest(testServer)
-	umbps := uploadTest(testServer)
-
-	if !debug.REPORT {
-		fmt.Printf("Ping (Average): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+	if PINGONLY {		
+		if !debug.REPORT {
+			fmt.Printf("Ping (Average): %3.2f ms\n", testServer.AvgLatency)
+		} else {
+			fmt.Printf("%3.2f\n", testServer.AvgLatency)
+		}
 	} else {
-		dkbps := dmbps * 1000
-		ukbps := umbps * 1000
-		fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+		dmbps := downloadTest(testServer)
+		umbps := uploadTest(testServer)
+		if !debug.REPORT {
+			fmt.Printf("Ping (Average): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+		} else {
+			dkbps := dmbps * 1000
+			ukbps := umbps * 1000
+			fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+		}
 	}
 }

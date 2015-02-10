@@ -15,7 +15,7 @@ Version
 Fix Me
 ======
 - move more stuff from speedtest.go to their own functions
-- verify latency
+- verify latency - first test is always higher
 - bump version and tag
 - Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
 	and 'min' for latency

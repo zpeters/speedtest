@@ -248,6 +248,8 @@ func GetFastestServer(numRuns int, servers []Server) Server {
 
 	sort.Sort(ByLatency(servers))
 
+	fmt.Printf("Server: %s is the fastest server\n", servers[0])
+	
 	return servers[0]
 }
 
