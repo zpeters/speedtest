@@ -12,13 +12,18 @@ Version
 =======
 0.09-dev
 
-Fix Me
+Bugs
 ======
+- Latency seems very incorrect
+- Upload speeds roughly half of speedtest.net 
+- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency
+
+Features to Add / Improvements
+==============================
 - move more stuff from speedtest.go to their own functions
 - verify latency - first test is always higher
+- currently we are using a very "dumb" way of testing speed (just downloading files and timing them).  review speedtest explanation and use a more sophistocated (faster) method of testing
 - bump version and tag
-- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
-	and 'min' for latency
 - clean up switches they kind of a mess
 - update binary links 
 - add a thank you  for groach
