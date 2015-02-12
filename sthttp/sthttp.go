@@ -226,14 +226,33 @@ func GetLatency(server Server, numRuns int) float64 {
 			latency = 1 * time.Minute
 		}
 
+		fmt.Printf("\t\tHELLO 0\n")
+
 		if debug.DEBUG {
 			log.Printf("\tRun took: %v\n", latency)
 		}
 
-		latencyAcc = latencyAcc + latency
+		fmt.Printf("\t\tHELLO 1\n")
+
+		//latencyAcc = latencyAcc + latency
+		if latencyAcc == 0 {
+			fmt.Printf("\t\tHELLO 2\n")
+			latencyAcc = latency
+		} else if latency < latencyAcc {
+			fmt.Printf("\t\tHELLO 3\n")
+			latencyAcc = latency
+		}
+		fmt.Printf("\t\tHELLO 4\n")
+
+		if debug.DEBUG {
+			log.Printf("\tQuickest latency so far: %v\n", latencyAcc)
+		}
+		
+		fmt.Printf("\t\tHELLO 5\n")
 	}
 	// We want ms not nsP
-	return float64(time.Duration(latencyAcc.Nanoseconds()/int64(numRuns))*time.Nanosecond) / 1000000
+	//return float64(time.Duration(latencyAcc.Nanoseconds()/int64(numRuns))*time.Nanosecond) / 1000000
+	return float64(time.Duration(latencyAcc.Nanoseconds())*time.Nanosecond) / 1000000
 }
 
 func GetFastestServer(numRuns int, servers []Server) Server {
