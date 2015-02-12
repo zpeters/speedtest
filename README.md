@@ -29,6 +29,10 @@ Features to Add / Improvements
 - add a thank you  for groach
 - add "methodology" (re emails)
 
+Notes
+=====
+- https://support.speedtest.net/hc/en-us/articles/203845400-How-does-the-test-itself-work-How-is-the-result-calculated-
+
 Download
 ========
 - Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.09/Linux/

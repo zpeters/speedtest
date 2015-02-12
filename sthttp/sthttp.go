@@ -190,7 +190,7 @@ func getLatencyUrl(server Server) string {
 
 func GetLatency(server Server, numRuns int) float64 {
 	var latency time.Duration
-	var failed bool = false
+	//var failed bool = false
 	var latencyAcc time.Duration
 
 	for i := 0; i < numRuns; i++ {
@@ -199,56 +199,53 @@ func GetLatency(server Server, numRuns int) float64 {
 			log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor)
 		}
 
+
 		start := time.Now()
 		resp, err := http.Get(latencyUrl)
 		if err != nil {
-			log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
-			failed = true
+		 	log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
+		 	//failed = true
 		}
 		defer resp.Body.Close()
 
-		content, err2 := ioutil.ReadAll(resp.Body)
-		if err2 != nil {
-			log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl)
-			failed = true
-		}
-
 		finish := time.Now()
 
-		if strings.TrimSpace(string(content)) == "test=test" {
-			latency = finish.Sub(start)
-		} else {
-			log.Printf("Server didn't return 'test=test', possibly invalid")
-			failed = true
-		}
+		_, err2 := ioutil.ReadAll(resp.Body)
+		 if err2 != nil {
+		 	log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl)
+		 	//failed = true
+		 }
 
-		if failed == true {
-			latency = 1 * time.Minute
-		}
 
-		fmt.Printf("\t\tHELLO 0\n")
+
+		// if strings.TrimSpace(string(content)) == "test=test" {
+		// 	latency = finish.Sub(start)
+		// } else {
+		// 	log.Printf("Server didn't return 'test=test', possibly invalid")
+		// 	failed = true
+		// }
+
+		// if failed == true {
+		// 	latency = 1 * time.Minute
+		// }
+
+		latency = finish.Sub(start)
 
 		if debug.DEBUG {
 			log.Printf("\tRun took: %v\n", latency)
 		}
 
-		fmt.Printf("\t\tHELLO 1\n")
-
 		//latencyAcc = latencyAcc + latency
 		if latencyAcc == 0 {
-			fmt.Printf("\t\tHELLO 2\n")
 			latencyAcc = latency
 		} else if latency < latencyAcc {
-			fmt.Printf("\t\tHELLO 3\n")
 			latencyAcc = latency
 		}
-		fmt.Printf("\t\tHELLO 4\n")
 
 		if debug.DEBUG {
 			log.Printf("\tQuickest latency so far: %v\n", latencyAcc)
 		}
 		
-		fmt.Printf("\t\tHELLO 5\n")
 	}
 	// We want ms not nsP
 	//return float64(time.Duration(latencyAcc.Nanoseconds()/int64(numRuns))*time.Nanosecond) / 1000000
