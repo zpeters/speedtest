@@ -17,6 +17,25 @@ Download
 - Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.01/Linux/
 - Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.01/Windows/
 
+Bugs
+======
+- Add git version to version flag
+- Latency seems very incorrect
+- Upload speeds roughly half of speedtest.net 
+- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency
+
+Features to Add / Improvements
+==============================
+- move more stuff from speedtest.go to their own functions
+- verify latency - first test is always higher
+- currently we are using a very "dumb" way of testing speed (just downloading files and timing them).  review speedtest explanation and use a more sophistocated (faster) method of testing
+- bump version and tag
+- clean up switches they kind of a mess
+- update binary links 
+- add tests to code
+- add a thank you  for groach
+- add "methodology" (re emails)
+
 Usage
 =====
 speedtest.exe -- normal run, will automatically select the closests/fastest server to test against
