@@ -10,7 +10,7 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.09-dev
+0.07.01
 
 Bugs
 ======
@@ -36,8 +36,8 @@ Notes
 
 Download
 ========
-- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.09/Linux/
-- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.09/Windows/
+- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.01/Linux/
+- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.01/Windows/
 
 Usage
 =====

@@ -20,7 +20,7 @@ import (
 )
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
-var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers.php"
+var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers-static.php"
 var CONFIG Config
 
 type Config struct {
