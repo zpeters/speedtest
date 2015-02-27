@@ -10,29 +10,7 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.07.01
-
-Bugs
-======
-- Add git version to version flag
-- Latency seems very incorrect
-- Upload speeds roughly half of speedtest.net 
-- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency
-
-Features to Add / Improvements
-==============================
-- move more stuff from speedtest.go to their own functions
-- verify latency - first test is always higher
-- currently we are using a very "dumb" way of testing speed (just downloading files and timing them).  review speedtest explanation and use a more sophistocated (faster) method of testing
-- bump version and tag
-- clean up switches they kind of a mess
-- update binary links 
-- add a thank you  for groach
-- add "methodology" (re emails)
-
-Notes
-=====
-- https://support.speedtest.net/hc/en-us/articles/203845400-How-does-the-test-itself-work-How-is-the-result-calculated-
+0.07.2
 
 Download
 ========
