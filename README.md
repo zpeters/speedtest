@@ -14,6 +14,7 @@ Version
 
 Bugs
 ======
+- Add git version to version flag
 - Latency seems very incorrect
 - Upload speeds roughly half of speedtest.net 
 - Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency
