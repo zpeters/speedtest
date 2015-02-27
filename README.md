@@ -10,7 +10,7 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.07
+0.07.1
 
 Download
 ========
