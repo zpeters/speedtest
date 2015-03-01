@@ -10,31 +10,29 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.07.2
+0.07.2 - develop
 
 Download
 ========
-- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.01/Linux/
-- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.01/Windows/
+- Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.2/
 
 Bugs
 ======
-- Add git version to version flag
-- Latency seems very incorrect
-- Upload speeds roughly half of speedtest.net 
-- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency
+- Latency seems very incorrect - #11
+- Upload speeds roughly half of speedtest.net - #12
+- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency - #10
 
 Features to Add / Improvements
 ==============================
-- move more stuff from speedtest.go to their own functions
-- verify latency - first test is always higher
-- currently we are using a very "dumb" way of testing speed (just downloading files and timing them).  review speedtest explanation and use a more sophistocated (faster) method of testing
-- bump version and tag
-- clean up switches they kind of a mess
-- update binary links 
-- add tests to code
-- add a thank you  for groach
-- add "methodology" (re emails)
+- Add git version to version flag - #13
+- Better way to deal with latency on servers that fail - #5
+- Switches to set upload and download amount - #8
+- move more stuff from speedtest.go to their own functions - #14
+- currently we are using a very "dumb" way of testing speed (just downloading files and timing them).  review speedtest explanation and use a more sophistocated (faster) method of testing - #15
+- bump version and tag - #16
+- clean up switches they kind of a mess - #17
+- add tests to code - #18
+- add a thank yous - #19
 
 Usage
 =====
