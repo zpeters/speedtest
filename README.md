@@ -14,8 +14,7 @@ Version
 
 Download
 ========
-- Linux - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07/Linux/
-- Windows - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07/Windows/
+- Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.2/
 
 Usage
 =====
