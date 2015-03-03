@@ -32,7 +32,6 @@ Features to Add / Improvements
 - bump version and tag - #16
 - clean up switches they kind of a mess - #17
 - add tests to code - #18
-- add a thank yous - #19
 
 Usage
 =====
@@ -101,6 +100,8 @@ Thank You
 - Jacob McDonald - jmc734 - Cleaned up printing and formatting.  Added parameter passing to run.sh - https://github.com/zpeters/speedtest/pull/4
 - Cory Lievers - Testing and feedback. Suggestions for formatting to make this more useful for labtec - https://github.com/zpeters/speedtest/issues/9
 - Paul Baker (Network Manager - BMS Telecorp) - Located a bug in the speedtest.net server list generation and found the correct 'static' url
+- Graham Roach (Contact Info?) - Extensive user testing to help determine issues with latency and accuracy of upload and download speeds
+	ADD LIST OF ISSUES FROM GITHUB
 
 
 Why don't my speeds match those reported from the speedtest.net website?
