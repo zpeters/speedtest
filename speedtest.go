@@ -17,7 +17,7 @@ import (
 	"github.com/zpeters/speedtest/sthttp"
 )
 
-var VERSION = "0.07.2"
+var VERSION = "0.07.4"
 
 var NUMCLOSEST int
 var NUMLATENCYTESTS int

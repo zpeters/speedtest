@@ -86,7 +86,11 @@ func checkHttp(resp *http.Response) bool {
 
 // Download config from speedtest.net
 func GetConfig() Config {
-	resp, err := http.Get(SpeedtestConfigUrl)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", SpeedtestConfigUrl, nil)
+	req.Header.Set("Cache-Control", "no-cache")
+	resp, err := client.Do(req)
+
 	if err != nil {
 		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Could not create connection'\n")
 	}
@@ -124,7 +128,11 @@ func GetConfig() Config {
 func GetServers() []Server {
 	var servers []Server
 
-	resp, err := http.Get(SpeedtestServersUrl)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", SpeedtestServersUrl, nil)
+	req.Header.Set("Cache-Control", "no-cache")
+	resp, err := client.Do(req)
+
 	if err != nil {
 		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot contact server'\n")
 	}
@@ -201,7 +209,12 @@ func GetLatency(server Server, numRuns int) float64 {
 
 
 		start := time.Now()
-		resp, err := http.Get(latencyUrl)
+
+		client := &http.Client{}
+		req, _ := http.NewRequest("GET", latencyUrl, nil)
+		req.Header.Set("Cache-Control", "no-cache")
+		resp, err := client.Do(req)
+
 		if err != nil {
 		 	log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
 		 	//failed = true
@@ -213,11 +226,11 @@ func GetLatency(server Server, numRuns int) float64 {
 		_, err2 := ioutil.ReadAll(resp.Body)
 		 if err2 != nil {
 		 	log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl)
-		 	//failed = true
+		 	// failed = true
 		 }
 
 
-
+		
 		// if strings.TrimSpace(string(content)) == "test=test" {
 		// 	latency = finish.Sub(start)
 		// } else {
@@ -272,7 +285,10 @@ func GetFastestServer(numRuns int, servers []Server) Server {
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
 	if debug.DEBUG { log.Printf("Starting test at: %s\n", start) }
-	resp, err := http.Get(url)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Cache-Control", "no-cache")
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
 	}
