@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"time"
+        "runtime"
 )
 
 import (
@@ -16,12 +17,14 @@ import (
 	"github.com/zpeters/speedtest/sthttp"
 )
 
-var VERSION = "0.07.2"
+var VERSION = "0.07.5"
 
 var NUMCLOSEST int
 var NUMLATENCYTESTS int
 var TESTSERVERID = ""
+var PINGONLY bool = false
 var REPORTCHAR = ""
+var ALGOTYPE = ""
 
 func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -29,7 +32,10 @@ func init() {
 	flag.BoolVar(&debug.DEBUG, "d", false, "\tTurn on debugging")
 	listFlag := flag.Bool("l", false, "\tList servers (hint use 'grep' or 'findstr' to locate a\n\t\t  server ID to use for '-s'")
 	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
+	flag.BoolVar(&PINGONLY, "p", false, "\tPing only mode")
 	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
+	// TODO: not implemented yet
+	flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
 	flag.IntVar(&NUMCLOSEST, "nc", 3, "\tNumber of geographically close servers to test to find\n\t\t  the optimal server")
 	flag.IntVar(&NUMLATENCYTESTS, "nl", 5, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
 	verFlag := flag.Bool("v", false, "\tDisplay version")
@@ -82,7 +88,8 @@ func downloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var maxSpeed float64
 
-	dlsizes := []int{500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
+	// http://speedtest1.newbreakcommunications.net/speedtest/speedtest/
+	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 
 	for size := range dlsizes {
 		url := server.Url
@@ -99,6 +106,7 @@ func downloadTest(server sthttp.Server) float64 {
 
 	for u := range urls {
 
+		if debug.DEBUG { fmt.Printf("Download Test Run: %s\n", urls[u])}
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
 		if !debug.QUIET && !debug.DEBUG {
 			fmt.Printf(".")
@@ -136,12 +144,10 @@ func uploadTest(server sthttp.Server) float64 {
 		ulsize = append(ulsize, ulsizesizes[size])
 	}
 
-	if !debug.QUIET {
-		log.Printf("Testing upload speed")
-	}
-
-	for i := 0; i < len(ulsize); i++ {
-
+	if !debug.QUIET { log.Printf("Testing upload speed") }
+	
+	for i:=0; i<len(ulsize); i++ {
+		if debug.DEBUG { fmt.Printf("Upload Test Run: %v\n", i)}
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
 		if !debug.QUIET && !debug.DEBUG {
@@ -190,14 +196,21 @@ func main() {
 	}
 	sthttp.CONFIG = sthttp.GetConfig()
 
-	if debug.DEBUG {
-		fmt.Printf("Getting servers list...")
-	}
+	if debug.DEBUG { fmt.Printf("Environment report\n") }
+	if debug.DEBUG { fmt.Printf("Arch: %v\n", runtime.GOARCH) }
+	if debug.DEBUG { fmt.Printf("OS: %v\n", runtime.GOOS) }
+	if debug.DEBUG { fmt.Printf("IP: %v\n", sthttp.CONFIG.Ip) }
+	if debug.DEBUG { fmt.Printf("Lat: %v\n", sthttp.CONFIG.Lat) }
+	if debug.DEBUG { fmt.Printf("Lon: %v\n", sthttp.CONFIG.Lon) }
+	if debug.DEBUG { fmt.Printf("ISP: %v\n", sthttp.CONFIG.Isp) }	
+	
+	if debug.DEBUG { fmt.Printf("Getting servers list...") }
 	allServers := sthttp.GetServers()
 	if debug.DEBUG {
 		fmt.Printf("(%d) found\n", len(allServers))
 	}
 
+	
 	if TESTSERVERID != "" {
 		// they specified a server so find it in the list
 		testServer = findServer(TESTSERVERID, allServers)
@@ -214,11 +227,11 @@ func main() {
 		testServer.AvgLatency = sthttp.GetLatency(testServer, NUMLATENCYTESTS)
 	} else {
 		// find a fast server for them
-		closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
+		closestServers := sthttp.GetClosestServers(allServers)
 		if !debug.QUIET && !debug.REPORT {
-			fmt.Printf("Finding fastest server..\n")
+			log.Printf("Finding fastest server..\n")
 		}
-		testServer = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
+		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers)
 
 		if !debug.REPORT {
 			printServer(testServer)
@@ -231,14 +244,21 @@ func main() {
 		}
 	}
 
-	dmbps := downloadTest(testServer)
-	umbps := uploadTest(testServer)
-
-	if !debug.REPORT {
-		fmt.Printf("Ping: %3.2f ms | Download: %3.2f Mbps | Upload: %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+	if PINGONLY {		
+		if !debug.REPORT {
+			fmt.Printf("Ping (Average): %3.2f ms\n", testServer.AvgLatency)
+		} else {
+			fmt.Printf("%3.2f\n", testServer.AvgLatency)
+		}
 	} else {
-		dkbps := dmbps * 1024
-		ukbps := umbps * 1024
-		fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+		dmbps := downloadTest(testServer)
+		umbps := uploadTest(testServer)
+		if !debug.REPORT {
+			fmt.Printf("Ping (Average): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+		} else {
+			dkbps := dmbps * 1000
+			ukbps := umbps * 1000
+			fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+		}
 	}
 }

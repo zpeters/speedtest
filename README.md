@@ -10,11 +10,28 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Version
 =======
-0.07.2
+0.07.2 - develop
 
 Download
 ========
 - Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.2/
+
+Bugs
+======
+- Latency seems very incorrect - #11
+- Upload speeds roughly half of speedtest.net - #12
+- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency - #10
+
+Features to Add / Improvements
+==============================
+- Add git version to version flag - #13
+- Better way to deal with latency on servers that fail - #5
+- Switches to set upload and download amount - #8
+- move more stuff from speedtest.go to their own functions - #14
+- currently we are using a very "dumb" way of testing speed (just downloading files and timing them).  review speedtest explanation and use a more sophistocated (faster) method of testing - #15
+- bump version and tag - #16
+- clean up switches they kind of a mess - #17
+- add tests to code - #18
 
 Usage
 =====
@@ -82,6 +99,10 @@ Thank You
 =========
 - Jacob McDonald - jmc734 - Cleaned up printing and formatting.  Added parameter passing to run.sh - https://github.com/zpeters/speedtest/pull/4
 - Cory Lievers - Testing and feedback. Suggestions for formatting to make this more useful for labtec - https://github.com/zpeters/speedtest/issues/9
+- Paul Baker (Network Manager - BMS Telecorp) - Located a bug in the speedtest.net server list generation and found the correct 'static' url
+- Graham Roach (Contact Info?) - Extensive user testing to help determine issues with latency and accuracy of upload and download speeds
+	ADD LIST OF ISSUES FROM GITHUB
+
 
 Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================

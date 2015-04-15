@@ -21,7 +21,11 @@ import (
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
 var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers-static.php"
+var HTTP_CONFIG_TIMEOUT = time.Duration(5 * time.Second)
+var HTTP_LATENCY_TIMEOUT = time.Duration(5 * time.Second)
+var HTTP_DOWNLOAD_TIMEOUT = time.Duration(5 * time.Minute)
 var CONFIG Config
+
 
 type Config struct {
 	Ip  string
@@ -84,9 +88,16 @@ func checkHttp(resp *http.Response) bool {
 	return ok
 }
 
+
 // Download config from speedtest.net
 func GetConfig() Config {
-	resp, err := http.Get(SpeedtestConfigUrl)
+	client := &http.Client{
+		Timeout: HTTP_CONFIG_TIMEOUT,
+	}
+	req, _ := http.NewRequest("GET", SpeedtestConfigUrl, nil)
+	req.Header.Set("Cache-Control", "no-cache")
+	resp, err := client.Do(req)
+
 	if err != nil {
 		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Could not create connection'\n")
 	}
@@ -124,7 +135,13 @@ func GetConfig() Config {
 func GetServers() []Server {
 	var servers []Server
 
-	resp, err := http.Get(SpeedtestServersUrl)
+	client := &http.Client{
+		Timeout: HTTP_CONFIG_TIMEOUT,
+	}
+	req, _ := http.NewRequest("GET", SpeedtestServersUrl, nil)
+	req.Header.Set("Cache-Control", "no-cache")
+	resp, err := client.Do(req)
+
 	if err != nil {
 		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot contact server'\n")
 	}
@@ -157,9 +174,9 @@ func GetServers() []Server {
 	return servers
 }
 
-func GetClosestServers(numServers int, servers []Server) []Server {
+func GetClosestServers(servers []Server) []Server {
 	if debug.DEBUG {
-		log.Printf("Finding %d closest servers...\n", numServers)
+		log.Printf("Sorting all servers by distance...\n")
 	}
 	// calculate all servers distance from us and save them
 	mylat := CONFIG.Lat
@@ -176,8 +193,8 @@ func GetClosestServers(numServers int, servers []Server) []Server {
 	// sort by distance
 	sort.Sort(ByDistance(servers))
 
-	// return the top X
-	return servers[:numServers]
+	// return sorted list of servers
+	return servers
 }
 
 func getLatencyUrl(server Server) string {
@@ -190,70 +207,120 @@ func getLatencyUrl(server Server) string {
 
 func GetLatency(server Server, numRuns int) float64 {
 	var latency time.Duration
-	var failed bool = false
 	var latencyAcc time.Duration
 
 	for i := 0; i < numRuns; i++ {
+		var failed bool
+		var finish time.Time
+		
 		latencyUrl := getLatencyUrl(server)
 		if debug.DEBUG {
 			log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor)
 		}
 
+
 		start := time.Now()
-		resp, err := http.Get(latencyUrl)
+
+		client := &http.Client{
+			Timeout: HTTP_LATENCY_TIMEOUT,
+		}
+		req, _ := http.NewRequest("GET", latencyUrl, nil)
+		req.Header.Set("Cache-Control", "no-cache")
+		resp, err := client.Do(req)
+
 		if err != nil {
-			log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
-			failed = true
-		}
-		defer resp.Body.Close()
-
-		content, err2 := ioutil.ReadAll(resp.Body)
-		if err2 != nil {
-			log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl)
-			failed = true
-		}
-
-		finish := time.Now()
-
-		if strings.TrimSpace(string(content)) == "test=test" {
-			latency = finish.Sub(start)
+		 	log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
+		 	failed = true
 		} else {
-			log.Printf("Server didn't return 'test=test', possibly invalid")
-			failed = true
+			defer resp.Body.Close()
+			finish = time.Now()
+			_, err2 := ioutil.ReadAll(resp.Body)
+			if err2 != nil {
+				log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyUrl)
+				failed = true
+			}
+
 		}
 
-		if failed == true {
+		 if failed == true {
 			latency = 1 * time.Minute
-		}
+		 } else {
+			 latency = finish.Sub(start)
+		 }
 
 		if debug.DEBUG {
 			log.Printf("\tRun took: %v\n", latency)
 		}
 
-		latencyAcc = latencyAcc + latency
+		if latencyAcc == 0 {
+			latencyAcc = latency
+		} else if latency < latencyAcc {
+			latencyAcc = latency
+		}
+
+		if debug.DEBUG {
+			log.Printf("\tQuickest latency so far: %v\n", latencyAcc)
+		}
+		
 	}
 	// We want ms not nsP
-	return float64(time.Duration(latencyAcc.Nanoseconds()/int64(numRuns))*time.Nanosecond) / 1000000
+	//return float64(time.Duration(latencyAcc.Nanoseconds()/int64(numRuns))*time.Nanosecond) / 1000000
+	return float64(time.Duration(latencyAcc.Nanoseconds())*time.Nanosecond) / 1000000
 }
 
-func GetFastestServer(numRuns int, servers []Server) Server {
+func GetFastestServer(numServers int, numRuns int, servers []Server) Server {
+	// test all servers until we find numServers that respond, then
+	// find the fastest of them.  Some servers show up in the master list
+	// but timeout or are "corrupt" therefore we bump their latency
+	// to something really high (1 minute) and they will drop out of this
+	// test
+	var successfulServers []Server
+
+	
 	for server := range servers {
+		if debug.DEBUG {
+			log.Printf("Doing %v runs of %s\n", numRuns, servers[server])
+		}
 		avgLatency := GetLatency(servers[server], numRuns)
 
 		if debug.DEBUG {
 			log.Printf("Total runs took: %v\n", avgLatency)
 		}
-		servers[server].AvgLatency = avgLatency
+
+		if (avgLatency > float64(time.Duration(1 * time.Minute))) {
+			// pass
+			if debug.DEBUG {
+				log.Printf("Server %s was too slow, skipping...\n", server)
+			}
+		} else {
+			if debug.DEBUG {
+				log.Printf("Server latency was ok %v adding to successful servers list", avgLatency)
+			}
+			successfulServers = append(successfulServers, servers[server])
+			successfulServers[server].AvgLatency = avgLatency
+		}
+
+		if len(successfulServers) == numServers {
+			break
+		}
 	}
 
-	sort.Sort(ByLatency(servers))
-
-	return servers[0]
+	sort.Sort(ByLatency(successfulServers))
+	if debug.DEBUG {
+		log.Printf("Server: %s is the fastest server\n", successfulServers[0])
+	}
+	return successfulServers[0]
 }
 
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
-	resp, err := http.Get(url)
+	if debug.DEBUG { log.Printf("Starting test at: %s\n", start) }
+	client := &http.Client{
+		Timeout: HTTP_DOWNLOAD_TIMEOUT,	
+	}
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("Cache-Control", "no-cache")
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
 	}
@@ -263,21 +330,20 @@ func DownloadSpeed(url string) float64 {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
-	megabytes := float64(len(data)) / float64(1024) / float64(1024)
-	seconds := finish.Sub(start).Seconds()
-	if debug.DEBUG {
-		log.Printf("Downloaded %f megabytes\n", megabytes)
-	}
-	if debug.DEBUG {
-		log.Printf("Downloaded in %f seconds\n", float64(seconds))
-	}
-	mbps := (megabytes * 8) / float64(seconds)
 
+	// calculate our data sizes
+	bits := float64(len(data) * 8)
+	megabits := bits / float64(1000) / float64(1000)
+	seconds := finish.Sub(start).Seconds()
+
+	mbps := megabits / float64(seconds)
 	return mbps
 }
 
 func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	start := time.Now()
+	if debug.DEBUG { log.Printf("Starting test at: %s\n", start) }	
+
 	buf := bytes.NewBuffer(data)
 	resp, err := http.Post(url, mimetype, buf)
 	if err != nil {
@@ -289,15 +355,14 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
 	}
 	finish := time.Now()
-	megabytes := float64(len(data)) / float64(1024) / float64(1024)
-	seconds := finish.Sub(start).Seconds()
-	if debug.DEBUG {
-		log.Printf("Uploaded %f megabytes\n", megabytes)
-	}
-	if debug.DEBUG {
-		log.Printf("Uploaded in %f seconds\n", float64(seconds))
-	}
-	mbps := (megabytes * 8) / float64(seconds)
 
+	if debug.DEBUG { log.Printf("Finishing test at: %s\n", finish) }
+
+	// calculate our data sizes
+	bits := float64(len(data) * 8)
+	megabits := bits / float64(1000) / float64(1000)
+	seconds := finish.Sub(start).Seconds()
+
+	mbps := megabits / float64(seconds)
 	return mbps
 }
