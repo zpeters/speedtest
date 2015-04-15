@@ -8,13 +8,9 @@ License
 =======
 Licensed under GPLv3 (See COPYING and LICENSE)
 
-Version
-=======
-0.07.2 - develop
-
 Download
 ========
-- Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.2/
+- Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/
 
 Bugs
 ======
