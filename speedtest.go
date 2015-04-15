@@ -227,11 +227,11 @@ func main() {
 		testServer.AvgLatency = sthttp.GetLatency(testServer, NUMLATENCYTESTS)
 	} else {
 		// find a fast server for them
-		closestServers := sthttp.GetClosestServers(NUMCLOSEST, allServers)
+		closestServers := sthttp.GetClosestServers(allServers)
 		if !debug.QUIET && !debug.REPORT {
 			log.Printf("Finding fastest server..\n")
 		}
-		testServer = sthttp.GetFastestServer(NUMLATENCYTESTS, closestServers)
+		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers)
 
 		if !debug.REPORT {
 			printServer(testServer)
