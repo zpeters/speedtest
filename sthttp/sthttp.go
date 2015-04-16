@@ -44,7 +44,7 @@ type Server struct {
 	Sponsor    string
 	Id         string
 	Distance   float64
-	AvgLatency float64
+	Latency float64
 }
 
 // Sort by Distance
@@ -70,7 +70,7 @@ func (this ByLatency) Len() int {
 }
 
 func (this ByLatency) Less(i, j int) bool {
-	return this[i].AvgLatency < this[j].AvgLatency
+	return this[i].Latency < this[j].Latency
 }
 
 func (this ByLatency) Swap(i, j int) {
@@ -202,9 +202,10 @@ func getLatencyUrl(server Server) string {
 	return latencyUrl
 }
 
-func GetLatency(server Server, numRuns int) float64 {
+func GetLatency(server Server, numRuns int, algotype string) float64 {
 	var latency time.Duration
-	var latencyAcc time.Duration
+	var minLatency time.Duration
+	var avgLatency time.Duration
 
 	for i := 0; i < numRuns; i++ {
 		var failed bool
@@ -249,21 +250,26 @@ func GetLatency(server Server, numRuns int) float64 {
 			log.Printf("\tRun took: %v\n", latency)
 		}
 
-		if latencyAcc == 0 {
-			latencyAcc = latency
-		} else if latency < latencyAcc {
-			latencyAcc = latency
-		}
-
-		if debug.DEBUG {
-			log.Printf("\tQuickest latency so far: %v\n", latencyAcc)
+		if algotype == "max" {
+			if minLatency == 0 {
+				minLatency = latency
+			} else if latency < minLatency {
+				minLatency = latency
+			}
+		} else {
+			avgLatency = avgLatency + latency
 		}
 		
 	}
-	return float64(time.Duration(latencyAcc.Nanoseconds())*time.Nanosecond) / 1000000
+	if algotype == "max" {
+		return float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
+	} else {
+		return float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(numRuns)
+		
+	}
 }
 
-func GetFastestServer(numServers int, numRuns int, servers []Server) Server {
+func GetFastestServer(numServers int, numRuns int, servers []Server, algotype string) Server {
 	// test all servers until we find numServers that respond, then
 	// find the fastest of them.  Some servers show up in the master list
 	// but timeout or are "corrupt" therefore we bump their latency
@@ -276,22 +282,22 @@ func GetFastestServer(numServers int, numRuns int, servers []Server) Server {
 		if debug.DEBUG {
 			log.Printf("Doing %v runs of %s\n", numRuns, servers[server])
 		}
-		avgLatency := GetLatency(servers[server], numRuns)
+		Latency := GetLatency(servers[server], numRuns, algotype)
 
 		if debug.DEBUG {
-			log.Printf("Total runs took: %v\n", avgLatency)
+			log.Printf("Total runs took: %v\n", Latency)
 		}
 
-		if (avgLatency > float64(time.Duration(1 * time.Minute))) {
+		if (Latency > float64(time.Duration(1 * time.Minute))) {
 			if debug.DEBUG {
 				log.Printf("Server %s was too slow, skipping...\n", server)
 			}
 		} else {
 			if debug.DEBUG {
-				log.Printf("Server latency was ok %v adding to successful servers list", avgLatency)
+				log.Printf("Server latency was ok %v adding to successful servers list", Latency)
 			}
 			successfulServers = append(successfulServers, servers[server])
-			successfulServers[server].AvgLatency = avgLatency
+			successfulServers[server].Latency = Latency
 		}
 
 		if len(successfulServers) == numServers {

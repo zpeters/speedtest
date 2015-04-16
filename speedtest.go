@@ -86,6 +86,7 @@ func init() {
 func downloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var maxSpeed float64
+	var avgSpeed float64
 
 	// http://speedtest1.newbreakcommunications.net/speedtest/speedtest/
 	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
@@ -113,24 +114,34 @@ func downloadTest(server sthttp.Server) float64 {
 		if debug.DEBUG {
 			log.Printf("Dl Speed: %v\n", dlSpeed)
 		}
-
-		if dlSpeed > maxSpeed {
-			maxSpeed = dlSpeed
+		
+		if ALGOTYPE == "max" {
+			if dlSpeed > maxSpeed {
+				maxSpeed = dlSpeed
+			}
+		} else {
+			avgSpeed = avgSpeed + dlSpeed
 		}
+			
 	}
 
 	if !debug.QUIET {
 		fmt.Printf("\n")
 	}
 
-	return maxSpeed
+	if ALGOTYPE == "max" {
+		return maxSpeed
+	} else {
+		return avgSpeed / float64(len(urls))
+	}
 }
 
 func uploadTest(server sthttp.Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	var ulsize []int
 	var maxSpeed float64
-
+	var avgSpeed float64
+	
 	ulsizesizes := []int{
 		int(0.25 * 1024 * 1024),
 		int(0.5 * 1024 * 1024),
@@ -153,8 +164,13 @@ func uploadTest(server sthttp.Server) float64 {
 			fmt.Printf(".")
 		}
 
-		if ulSpeed > maxSpeed {
-			maxSpeed = ulSpeed
+
+		if ALGOTYPE == "max" {
+			if ulSpeed > maxSpeed {
+				maxSpeed = ulSpeed
+			}
+		} else {
+			avgSpeed = avgSpeed + ulSpeed
 		}
 
 	}
@@ -163,7 +179,13 @@ func uploadTest(server sthttp.Server) float64 {
 		fmt.Printf("\n")
 	}
 
-	return maxSpeed
+
+
+	if ALGOTYPE == "max" {
+		return maxSpeed
+	} else {
+		return avgSpeed / float64(len(ulsizesizes))
+	}
 }
 
 func findServer(id string, serversList []sthttp.Server) sthttp.Server {
@@ -222,13 +244,13 @@ func main() {
 		if !debug.QUIET && !debug.REPORT {
 			fmt.Printf("Testing latency...\n")
 		}
-		testServer.AvgLatency = sthttp.GetLatency(testServer, NUMLATENCYTESTS)
+		testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE)
 	} else {
 		closestServers := sthttp.GetClosestServers(allServers)
 		if !debug.QUIET && !debug.REPORT {
 			log.Printf("Finding fastest server..\n")
 		}
-		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers)
+		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers, ALGOTYPE)
 
 		if !debug.REPORT {
 			printServer(testServer)
@@ -243,19 +265,28 @@ func main() {
 
 	if PINGONLY {		
 		if !debug.REPORT {
-			fmt.Printf("Ping (Average): %3.2f ms\n", testServer.AvgLatency)
+			if ALGOTYPE == "max" {
+				fmt.Printf("Ping (Lowest): %3.2f ms\n", testServer.Latency)
+			} else {
+				fmt.Printf("Ping (Avg): %3.2f ms\n", testServer.Latency)
+			}
 		} else {
-			fmt.Printf("%3.2f\n", testServer.AvgLatency)
+			fmt.Printf("%3.2f (Max)\n", testServer.Latency)
 		}
 	} else {
 		dmbps := downloadTest(testServer)
 		umbps := uploadTest(testServer)
 		if !debug.REPORT {
-			fmt.Printf("Ping (Average): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.AvgLatency, dmbps, umbps)
+			if ALGOTYPE == "max" {
+				fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
+			} else {
+				fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
+			}
 		} else {
 			dkbps := dmbps * 1000
 			ukbps := umbps * 1000
-			fmt.Printf("%3.2f%s%d%s%d\n", testServer.AvgLatency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
 		}
 	}
 }
