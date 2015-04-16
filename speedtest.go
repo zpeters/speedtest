@@ -34,7 +34,6 @@ func init() {
 	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
 	flag.BoolVar(&PINGONLY, "p", false, "\tPing only mode")
 	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
-	// TODO: not implemented yet
 	flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
 	flag.IntVar(&NUMCLOSEST, "nc", 3, "\tNumber of geographically close servers to test to find\n\t\t  the optimal server")
 	flag.IntVar(&NUMLATENCYTESTS, "nl", 5, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
@@ -212,7 +211,6 @@ func main() {
 
 	
 	if TESTSERVERID != "" {
-		// they specified a server so find it in the list
 		testServer = findServer(TESTSERVERID, allServers)
 
 		if !debug.REPORT {
@@ -226,7 +224,6 @@ func main() {
 		}
 		testServer.AvgLatency = sthttp.GetLatency(testServer, NUMLATENCYTESTS)
 	} else {
-		// find a fast server for them
 		closestServers := sthttp.GetClosestServers(allServers)
 		if !debug.QUIET && !debug.REPORT {
 			log.Printf("Finding fastest server..\n")

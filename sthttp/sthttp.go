@@ -131,7 +131,6 @@ func GetConfig() Config {
 	return *c
 }
 
-// Download server list from speedtest.net
 func GetServers() []Server {
 	var servers []Server
 
@@ -178,7 +177,7 @@ func GetClosestServers(servers []Server) []Server {
 	if debug.DEBUG {
 		log.Printf("Sorting all servers by distance...\n")
 	}
-	// calculate all servers distance from us and save them
+
 	mylat := CONFIG.Lat
 	mylon := CONFIG.Lon
 	myCoords := coords.Coordinate{Lat: mylat, Lon: mylon}
@@ -190,10 +189,8 @@ func GetClosestServers(servers []Server) []Server {
 		servers[server].Distance = coords.HsDist(coords.DegPos(myCoords.Lat, myCoords.Lon), coords.DegPos(theirCoords.Lat, theirCoords.Lon))
 	}
 
-	// sort by distance
 	sort.Sort(ByDistance(servers))
 
-	// return sorted list of servers
 	return servers
 }
 
@@ -263,8 +260,6 @@ func GetLatency(server Server, numRuns int) float64 {
 		}
 		
 	}
-	// We want ms not nsP
-	//return float64(time.Duration(latencyAcc.Nanoseconds()/int64(numRuns))*time.Nanosecond) / 1000000
 	return float64(time.Duration(latencyAcc.Nanoseconds())*time.Nanosecond) / 1000000
 }
 
@@ -288,7 +283,6 @@ func GetFastestServer(numServers int, numRuns int, servers []Server) Server {
 		}
 
 		if (avgLatency > float64(time.Duration(1 * time.Minute))) {
-			// pass
 			if debug.DEBUG {
 				log.Printf("Server %s was too slow, skipping...\n", server)
 			}
@@ -331,7 +325,6 @@ func DownloadSpeed(url string) float64 {
 	}
 	finish := time.Now()
 
-	// calculate our data sizes
 	bits := float64(len(data) * 8)
 	megabits := bits / float64(1000) / float64(1000)
 	seconds := finish.Sub(start).Seconds()
@@ -358,7 +351,6 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 
 	if debug.DEBUG { log.Printf("Finishing test at: %s\n", finish) }
 
-	// calculate our data sizes
 	bits := float64(len(data) * 8)
 	megabits := bits / float64(1000) / float64(1000)
 	seconds := finish.Sub(start).Seconds()
