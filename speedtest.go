@@ -12,6 +12,10 @@ import (
 )
 
 import (
+	"github.com/codegangsta/cli"
+)
+
+import (
 	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/sthttp"
@@ -26,12 +30,10 @@ var PINGONLY bool = false
 var REPORTCHAR = ""
 var ALGOTYPE = ""
 
-func init() {
+func init_foo() {
 	rand.Seed(time.Now().UTC().UnixNano())
 
-	flag.BoolVar(&debug.DEBUG, "d", false, "\tTurn on debugging")
 	listFlag := flag.Bool("l", false, "\tList servers (hint use 'grep' or 'findstr' to locate a\n\t\t  server ID to use for '-s'")
-	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
 	flag.BoolVar(&PINGONLY, "p", false, "\tPing only mode")
 	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
 	flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
@@ -45,7 +47,7 @@ func init() {
 
 	if *verFlag == true {
 		fmt.Printf("%s - Version: %s\n", os.Args[0], VERSION)
-		fmt.Printf("https://github.com/zpeters/speedtest \n")
+	
 		os.Exit(0)
 	}
 
@@ -209,84 +211,138 @@ func printServerReport(server sthttp.Server) {
 	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), REPORTCHAR, server.Id, REPORTCHAR, server.Sponsor, server.Name, server.Country, REPORTCHAR)
 }
 
+func environmentReport() {
+	fmt.Printf("Arch: %v\n", runtime.GOARCH) 
+	fmt.Printf("OS: %v\n", runtime.GOOS) 
+	fmt.Printf("IP: %v\n", sthttp.CONFIG.Ip) 
+	fmt.Printf("Lat: %v\n", sthttp.CONFIG.Lat) 
+	fmt.Printf("Lon: %v\n", sthttp.CONFIG.Lon) 
+	fmt.Printf("ISP: %v\n", sthttp.CONFIG.Isp)
+	fmt.Printf("-------------------------------\n")
+	fmt.Printf("Debug: %v\n", debug.DEBUG)
+	fmt.Printf("Quiet: %v\n", debug.QUIET)
+}
+
 func main() {
-	var testServer sthttp.Server
+	// seeding randomness
+	rand.Seed(time.Now().UTC().UnixNano())
 
-	if debug.DEBUG {
-		fmt.Printf("Loading config from speedtest.net\n")
+	// setting up cli settings
+	app := cli.NewApp()
+	app.Name = "speedtest"
+	app.Usage = "Unofficial command line interface to speedtest.net (https://github.com/zpeters/speedtest)"
+	app.Author = "Zach Peters - zpeters@gmail.com - github.com/zpeters"
+	app.Version = VERSION
+
+	// setup cli flags
+	app.Flags = []cli.Flag {
+		cli.BoolFlag{
+			Name: "debug, d",
+			Usage: "Turn on debugging",
+		},
+		cli.BoolFlag{
+			Name: "quiet, q",
+			Usage: "Quiet mode",
+		},
 	}
-	sthttp.CONFIG = sthttp.GetConfig()
 
-	if debug.DEBUG { fmt.Printf("Environment report\n") }
-	if debug.DEBUG { fmt.Printf("Arch: %v\n", runtime.GOARCH) }
-	if debug.DEBUG { fmt.Printf("OS: %v\n", runtime.GOOS) }
-	if debug.DEBUG { fmt.Printf("IP: %v\n", sthttp.CONFIG.Ip) }
-	if debug.DEBUG { fmt.Printf("Lat: %v\n", sthttp.CONFIG.Lat) }
-	if debug.DEBUG { fmt.Printf("Lon: %v\n", sthttp.CONFIG.Lon) }
-	if debug.DEBUG { fmt.Printf("ISP: %v\n", sthttp.CONFIG.Isp) }	
+
+	// setup the app aciton
+	app.Action = func(c *cli.Context) {
+		fmt.Printf("Bool: %s\n", c.Bool("debug"))
+		fmt.Printf("Queit: %s\n", c.Bool("quiet"))
+		if c.Bool("debug") {
+			debug.DEBUG = true
+		}
+		if c.Bool("quiet") {
+			debug.QUIET = true
+		}
+		
+	}
 	
-	if debug.DEBUG { fmt.Printf("Getting servers list...") }
-	allServers := sthttp.GetServers()
-	if debug.DEBUG {
-		fmt.Printf("(%d) found\n", len(allServers))
-	}
+	
+	// var testServer sthttp.Server
+
+	// if debug.DEBUG {
+	// 	fmt.Printf("Loading config from speedtest.net\n")
+	// }
+	// sthttp.CONFIG = sthttp.GetConfig()
+
+	// if debug.DEBUG { fmt.Printf("Environment report\n") }
+	//app.Action = func(c *cli.Context) {
+	//	if c.Bool("debug") {
+	//		environmentReport()
+//		}
+//	}
+
+
+	// run the app
+	app.Run(os.Args)
+	
+
+	environmentReport()
+	// if debug.DEBUG { fmt.Printf("Getting servers list...") }
+	// allServers := sthttp.GetServers()
+	// if debug.DEBUG {
+	// 	fmt.Printf("(%d) found\n", len(allServers))
+	// }
 
 	
-	if TESTSERVERID != "" {
-		testServer = findServer(TESTSERVERID, allServers)
+	// if TESTSERVERID != "" {
+	// 	testServer = findServer(TESTSERVERID, allServers)
 
-		if !debug.REPORT {
-			printServer(testServer)
-		} else {
-			printServerReport(testServer)
-		}
+	// 	if !debug.REPORT {
+	// 		printServer(testServer)
+	// 	} else {
+	// 		printServerReport(testServer)
+	// 	}
 
-		if !debug.QUIET && !debug.REPORT {
-			fmt.Printf("Testing latency...\n")
-		}
-		testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE)
-	} else {
-		closestServers := sthttp.GetClosestServers(allServers)
-		if !debug.QUIET && !debug.REPORT {
-			log.Printf("Finding fastest server..\n")
-		}
-		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers, ALGOTYPE)
+	// 	if !debug.QUIET && !debug.REPORT {
+	// 		fmt.Printf("Testing latency...\n")
+	// 	}
+	// 	testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE)
+	// } else {
+	// 	closestServers := sthttp.GetClosestServers(allServers)
+	// 	if !debug.QUIET && !debug.REPORT {
+	// 		log.Printf("Finding fastest server..\n")
+	// 	}
+	// 	testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers, ALGOTYPE)
 
-		if !debug.REPORT {
-			printServer(testServer)
-		} else {
-			printServerReport(testServer)
-		}
+	// 	if !debug.REPORT {
+	// 		printServer(testServer)
+	// 	} else {
+	// 		printServerReport(testServer)
+	// 	}
 
-		if debug.DEBUG {
-			fmt.Printf("\n")
-		}
-	}
+	// 	if debug.DEBUG {
+	// 		fmt.Printf("\n")
+	// 	}
+	// }
 
-	if PINGONLY {		
-		if !debug.REPORT {
-			if ALGOTYPE == "max" {
-				fmt.Printf("Ping (Lowest): %3.2f ms\n", testServer.Latency)
-			} else {
-				fmt.Printf("Ping (Avg): %3.2f ms\n", testServer.Latency)
-			}
-		} else {
-			fmt.Printf("%3.2f (Max)\n", testServer.Latency)
-		}
-	} else {
-		dmbps := downloadTest(testServer)
-		umbps := uploadTest(testServer)
-		if !debug.REPORT {
-			if ALGOTYPE == "max" {
-				fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
-			} else {
-				fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
-			}
-		} else {
-			dkbps := dmbps * 1000
-			ukbps := umbps * 1000
-			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
-			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
-		}
-	}
+	// if PINGONLY {		
+	// 	if !debug.REPORT {
+	// 		if ALGOTYPE == "max" {
+	// 			fmt.Printf("Ping (Lowest): %3.2f ms\n", testServer.Latency)
+	// 		} else {
+	// 			fmt.Printf("Ping (Avg): %3.2f ms\n", testServer.Latency)
+	// 		}
+	// 	} else {
+	// 		fmt.Printf("%3.2f (Max)\n", testServer.Latency)
+	// 	}
+	// } else {
+	// 	dmbps := downloadTest(testServer)
+	// 	umbps := uploadTest(testServer)
+	// 	if !debug.REPORT {
+	// 		if ALGOTYPE == "max" {
+	// 			fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
+	// 		} else {
+	// 			fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
+	// 		}
+	// 	} else {
+	// 		dkbps := dmbps * 1000
+	// 		ukbps := umbps * 1000
+	// 		fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+	// 		fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+	// 	}
+	// }
 }
