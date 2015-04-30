@@ -3,7 +3,6 @@ package sthttp
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -123,10 +122,6 @@ func GetConfig() Config {
 	c.Lat = misc.ToFloat(cx.Client.Lat)
 	c.Lon = misc.ToFloat(cx.Client.Lon)
 	c.Isp = cx.Client.Isp
-
-	if debug.DEBUG {
-		fmt.Printf("Config: %v\n", c)
-	}
 
 	return *c
 }
