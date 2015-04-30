@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"math/rand"
@@ -12,6 +11,10 @@ import (
 )
 
 import (
+	"github.com/codegangsta/cli"
+)
+
+import (
 	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/sthttp"
@@ -19,69 +22,10 @@ import (
 
 var VERSION = "0.07.5"
 
-var NUMCLOSEST int
-var NUMLATENCYTESTS int
-var TESTSERVERID = ""
-var PINGONLY bool = false
-var REPORTCHAR = ""
-var ALGOTYPE = ""
-
-func init() {
-	rand.Seed(time.Now().UTC().UnixNano())
-
-	flag.BoolVar(&debug.DEBUG, "d", false, "\tTurn on debugging")
-	listFlag := flag.Bool("l", false, "\tList servers (hint use 'grep' or 'findstr' to locate a\n\t\t  server ID to use for '-s'")
-	flag.BoolVar(&debug.QUIET, "q", false, "\tQuiet Mode. Only output server and results")
-	flag.BoolVar(&PINGONLY, "p", false, "\tPing only mode")
-	flag.StringVar(&TESTSERVERID, "s", "", "\tSpecify a server ID to use")
-	flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')")
-	flag.IntVar(&NUMCLOSEST, "nc", 3, "\tNumber of geographically close servers to test to find\n\t\t  the optimal server")
-	flag.IntVar(&NUMLATENCYTESTS, "nl", 5, "\tNumber of latency tests to perform to determine\n\t\t  which server is the fastest")
-	verFlag := flag.Bool("v", false, "\tDisplay version")
-	reportFlag := flag.Bool("r", false, "\tReporting mode output, minimal output with '|' for\n\t\t  separators, use '-rc' to change separator characters.\n\t\t  Reports the following: Server ID, Server Name (Location),\n\t\t  Ping time in ms, Download speed in kbps, Upload speed in kbps")
-	flag.StringVar(&REPORTCHAR, "rc", "|", "\tCharacter to use to separate fields in report mode (-r)")
-
-	flag.Parse()
-
-	if *verFlag == true {
-		fmt.Printf("%s - Version: %s\n", os.Args[0], VERSION)
-		fmt.Printf("https://github.com/zpeters/speedtest \n")
-		os.Exit(0)
-	}
-
-	if *reportFlag == true {
-		debug.REPORT = true
-		debug.QUIET = true
-	}
-
-	if debug.DEBUG {
-		log.Printf("Debugging on...\n")
-		debug.QUIET = false
-	}
-
-	if *listFlag == true {
-		if debug.DEBUG {
-			fmt.Printf("Loading config from speedtest.net\n")
-		}
-		sthttp.CONFIG = sthttp.GetConfig()
-		if debug.DEBUG {
-			fmt.Printf("\n")
-		}
-
-		if debug.DEBUG {
-			fmt.Printf("Getting servers list...")
-		}
-		allServers := sthttp.GetServers()
-		if debug.DEBUG {
-			fmt.Printf("(%d) found\n", len(allServers))
-		}
-		for s := range allServers {
-			server := allServers[s]
-			printServer(server)
-		}
-		os.Exit(0)
-	}
-}
+var NUMCLOSEST int = 3
+var NUMLATENCYTESTS int = 5
+var REPORTCHAR = "|"
+var ALGOTYPE = "max"
 
 func downloadTest(server sthttp.Server) float64 {
 	var urls []string
@@ -209,71 +153,146 @@ func printServerReport(server sthttp.Server) {
 	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), REPORTCHAR, server.Id, REPORTCHAR, server.Sponsor, server.Name, server.Country, REPORTCHAR)
 }
 
-func main() {
-	var testServer sthttp.Server
+func environmentReport(c *cli.Context) {
+	log.Printf("Env Report")
+	log.Printf("-------------------------------\n")
+	log.Printf("[User Environment]\n")
+	log.Printf("Arch: %v\n", runtime.GOARCH) 
+	log.Printf("OS: %v\n", runtime.GOOS) 
+	log.Printf("IP: %v\n", sthttp.CONFIG.Ip) 
+	log.Printf("Lat: %v\n", sthttp.CONFIG.Lat) 
+	log.Printf("Lon: %v\n", sthttp.CONFIG.Lon) 
+	log.Printf("ISP: %v\n", sthttp.CONFIG.Isp)
+	log.Printf("-------------------------------\n")
+	log.Printf("[Settings]\n")
+	if c.Bool("debug") {
+		log.Printf("Debug (user): %v\n", debug.DEBUG)
+	} else {
+		log.Printf("Debug (default): %v\n", debug.DEBUG)
+	}
+	if c.Bool("quiet") {
+		log.Printf("Quiet (user): %v\n", debug.QUIET)
+	} else {
+		log.Printf("Quiet (default): %v\n", debug.QUIET)
+	}
+	if c.Int("numclosest") == 0 {
+		log.Printf("NUMCLOSEST (default): %v\n", NUMCLOSEST)
+	} else {
+		log.Printf("NUMCLOSEST (user): %v\n", NUMCLOSEST)
 
+	}
+	if c.Int("numlatency") == 0 {
+		log.Printf("NUMLATENCYTESTS (default): %v\n", NUMLATENCYTESTS)
+	} else {
+		log.Printf("NUMLATENCYTESTS (user): %v\n", NUMLATENCYTESTS)
+	}
+	if c.String("server") == "" {
+		log.Printf("server (default none specified)\n")
+	} else {
+		log.Printf("server (user): %s\n", c.String("server"))
+	}
+	if c.String("reportchar") == "" {
+		log.Printf("reportchar (default): %s\n", REPORTCHAR)
+	} else {
+		log.Printf("reportchar (user): %s\n", c.String("reportchar"))
+	}
+	if c.String("algo") == "" {
+		log.Printf("algo (default): %s\n", ALGOTYPE)
+	} else {
+		log.Printf("algo (user): %s\n", c.String("algo"))
+	}
+	log.Printf("--------------------------------\n")
+	log.Printf("[Mode]\n")
+	log.Printf("Report: %v\n", c.Bool("report"))
+	log.Printf("List: %v\n", c.Bool("list"))
+	log.Printf("Ping: %v\n", c.Bool("Ping"))
+	log.Printf("-------------------------------\n")	
+
+}
+
+func listServers() {
 	if debug.DEBUG {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}
 	sthttp.CONFIG = sthttp.GetConfig()
+	if debug.DEBUG {
+		fmt.Printf("\n")
+	}
 
-	if debug.DEBUG { fmt.Printf("Environment report\n") }
-	if debug.DEBUG { fmt.Printf("Arch: %v\n", runtime.GOARCH) }
-	if debug.DEBUG { fmt.Printf("OS: %v\n", runtime.GOOS) }
-	if debug.DEBUG { fmt.Printf("IP: %v\n", sthttp.CONFIG.Ip) }
-	if debug.DEBUG { fmt.Printf("Lat: %v\n", sthttp.CONFIG.Lat) }
-	if debug.DEBUG { fmt.Printf("Lon: %v\n", sthttp.CONFIG.Lon) }
-	if debug.DEBUG { fmt.Printf("ISP: %v\n", sthttp.CONFIG.Isp) }	
-	
-	if debug.DEBUG { fmt.Printf("Getting servers list...") }
+	if debug.DEBUG {
+		fmt.Printf("Getting servers list...")
+	}
 	allServers := sthttp.GetServers()
 	if debug.DEBUG {
 		fmt.Printf("(%d) found\n", len(allServers))
 	}
+	for s := range allServers {
+		server := allServers[s]
+		printServer(server)
+	}	
+}
 
-	
-	if TESTSERVERID != "" {
-		testServer = findServer(TESTSERVERID, allServers)
+func runTest(c *cli.Context) {
+	// create our server object and load initial config
+	var testServer sthttp.Server
+	sthttp.CONFIG = sthttp.GetConfig()
 
-		if !debug.REPORT {
-			printServer(testServer)
-		} else {
-			printServerReport(testServer)
-		}
-
-		if !debug.QUIET && !debug.REPORT {
-			fmt.Printf("Testing latency...\n")
-		}
-		testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE)
-	} else {
-		closestServers := sthttp.GetClosestServers(allServers)
-		if !debug.QUIET && !debug.REPORT {
-			log.Printf("Finding fastest server..\n")
-		}
-		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers, ALGOTYPE)
-
-		if !debug.REPORT {
-			printServer(testServer)
-		} else {
-			printServerReport(testServer)
-		}
-
-		if debug.DEBUG {
-			fmt.Printf("\n")
-		}
+	if debug.DEBUG {
+		environmentReport(c)
 	}
 
-	if PINGONLY {		
-		if !debug.REPORT {
+	// get all possible servers
+	if debug.DEBUG {
+		log.Printf("Getting all servers for our test list")
+	}
+	allServers := sthttp.GetServers()
+	
+	// if they specified a specific server, test against that...
+	if c.String("server") != "" {
+		if debug.DEBUG {
+			log.Printf("Server '%s' specified, getting info...", c.String("server"))
+		}
+		testServer = findServer(c.String("server"), allServers)
+	// ...otherwise get a list of all servers sorted by distance...
+	} else {
+		if debug.DEBUG {
+			log.Printf("Getting closest servers...")
+		}
+		closestServers := sthttp.GetClosestServers(allServers)
+		if debug.DEBUG {
+			log.Printf("Getting the fastests of our closest servers...")
+		}
+		// ... and get the fastests NUMCLOSEST ones
+		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers, ALGOTYPE)
+	}
+
+
+	// Start printing our report
+	if !debug.REPORT {
+		printServer(testServer)
+	} else {
+		printServerReport(testServer)
+	}
+
+	// if ping only then just output latency results and exit nicely...
+	if c.Bool("ping") {
+		if c.Bool("report") {
+			if ALGOTYPE == "max" {
+				fmt.Printf("%3.2f (Lowest)\n", testServer.Latency)
+			} else {
+				fmt.Printf("%3.2f (Avg)\n", testServer.Latency)
+			}
+		} else {
 			if ALGOTYPE == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms\n", testServer.Latency)
 			} else {
 				fmt.Printf("Ping (Avg): %3.2f ms\n", testServer.Latency)
 			}
-		} else {
-			fmt.Printf("%3.2f (Max)\n", testServer.Latency)
 		}
+		os.Exit(0)
+	// ...otherwise run our full test
 	} else {
+		
 		dmbps := downloadTest(testServer)
 		umbps := uploadTest(testServer)
 		if !debug.REPORT {
@@ -286,7 +305,102 @@ func main() {
 			dkbps := dmbps * 1000
 			ukbps := umbps * 1000
 			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
-			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
 		}
 	}
+
+}
+
+func main() {
+	// seeding randomness
+	rand.Seed(time.Now().UTC().UnixNano())
+
+	// set logging to stdout for global logger
+	log.SetOutput(os.Stdout)
+
+	// setting up cli settings
+	app := cli.NewApp()
+	app.Name = "speedtest"
+	app.Usage = "Unofficial command line interface to speedtest.net (https://github.com/zpeters/speedtest)"
+	app.Author = "Zach Peters - zpeters@gmail.com - github.com/zpeters"
+	app.Version = VERSION
+
+	// setup cli flags
+	app.Flags = []cli.Flag {
+		cli.StringFlag{
+			Name: "algo, a",
+			Usage: "Specify the measurement method to use ('max', 'avg')",
+		},
+		cli.BoolFlag{
+			Name: "debug, d",
+			Usage: "Turn on debugging",
+		},
+		cli.BoolFlag{
+			Name: "list, l",
+			Usage: "List available servers",
+		},
+		cli.BoolFlag{
+			Name: "ping, p",
+			Usage: "Ping only mode",
+		},
+		cli.BoolFlag{
+			Name: "quiet, q",
+			Usage: "Quiet mode",
+		},
+		cli.BoolFlag{
+			Name: "report, r",
+			Usage: "Reporting mode output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
+		},
+		cli.StringFlag{
+			Name: "reportchar, rc",
+			Usage: "Set the report separator",
+		},
+		cli.StringFlag{
+			Name: "server, s",
+			Usage: "Use a specific server",
+		},
+		cli.IntFlag{
+			Name: "numclosest, nc",
+			Value: NUMCLOSEST,
+			Usage: "Number of 'closest' servers to find",
+		},
+		cli.IntFlag{
+			Name: "numlatency, nl",
+			Value: NUMLATENCYTESTS,
+			Usage: "Number of latency tests to perform",
+		},
+			
+	}
+
+	// toggle our switches and setup variables
+	app.Action = func(c *cli.Context) {
+		// set our flags
+		if c.Bool("debug") {
+			debug.DEBUG = true
+		}
+		if c.Bool("quiet") {
+			debug.QUIET = true
+		}
+		if c.Bool("report") {
+			debug.REPORT = true
+		}
+		if c.String("algo") != "" {
+			ALGOTYPE = c.String("algo")
+		}
+		NUMCLOSEST = c.Int("numclosest")
+		NUMLATENCYTESTS = c.Int("numlatency")
+		if c.String("reportchar") != "" {
+			REPORTCHAR = c.String("reportchar")
+		}
+
+		// run a oneshot list
+		if c.Bool("list") {
+			listServers()
+			os.Exit(0)
+		}
+
+		// run our test
+		runTest(c)
+	}
+	// run the app
+	app.Run(os.Args)
 }

@@ -1,5 +1,11 @@
 {
 	"ImportPath": "github.com/zpeters/speedtest",
 	"GoVersion": "go1.4.1",
-	"Deps": []
+	"Deps": [
+		{
+			"ImportPath": "github.com/codegangsta/cli",
+			"Comment": "1.2.0-98-g30b361b",
+			"Rev": "30b361bf66a60174a9589458afbf494478bafd00"
+		}
+	]
 }

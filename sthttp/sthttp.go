@@ -3,7 +3,6 @@ package sthttp
 import (
 	"bytes"
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,9 +20,9 @@ import (
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
 var SpeedtestServersUrl = "http://www.speedtest.net/speedtest-servers-static.php"
-var HTTP_CONFIG_TIMEOUT = time.Duration(5 * time.Second)
-var HTTP_LATENCY_TIMEOUT = time.Duration(5 * time.Second)
-var HTTP_DOWNLOAD_TIMEOUT = time.Duration(5 * time.Minute)
+var HTTP_CONFIG_TIMEOUT = time.Duration(15 * time.Second)
+var HTTP_LATENCY_TIMEOUT = time.Duration(15 * time.Second)
+var HTTP_DOWNLOAD_TIMEOUT = time.Duration(15 * time.Minute)
 var CONFIG Config
 
 
@@ -123,10 +122,6 @@ func GetConfig() Config {
 	c.Lat = misc.ToFloat(cx.Client.Lat)
 	c.Lon = misc.ToFloat(cx.Client.Lon)
 	c.Isp = cx.Client.Isp
-
-	if debug.DEBUG {
-		fmt.Printf("Config: %v\n", c)
-	}
 
 	return *c
 }
