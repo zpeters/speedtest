@@ -56,18 +56,34 @@ Report Fields: Server ID, Server Name (Location), Ping time in ms, Download spee
 ```
 
 ```shell
-speedtest.exe -h
-Usage of bin\speedtest.exe:
-  -d=false: Turn on debugging
-  -dc=false: Turn on debugging and just dump config
-  -l=false: List servers (hint use 'grep' or 'findstr' to locate a server ID to use for '-s'
-  -nc=3: Number of geographically close servers to test to find the optimal serv er
-  -nl=3: Number of latency tests to perform to determine which server is the fastest
-  -q=false: Quiet Mode. Only output server and results
-  -r=false: 'Reporting mode' output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
-  -rc="|": Character to use to separate fields in report mode (-r)
-  -s="": Specify a server ID to use
-  -v=false: Display version
+NAME:
+   speedtest - Unofficial command line interface to speedtest.net (https://github.com/zpeters/speedtest)
+
+USAGE:
+   speedtest [global options] command [command options] [arguments...]
+
+VERSION:
+    VERSION
+
+AUTHOR(S): 
+   Zach Peters - zpeters@gmail.com - github.com/zpeters 
+   
+COMMANDS:
+   help, h	Shows a list of commands or help for one command
+   
+GLOBAL OPTIONS:
+   --algo, -a 			Specify the measurement method to use ('max', 'avg')
+   --debug, -d			Turn on debugging
+   --list, -l			List available servers
+   --ping, -p			Ping only mode
+   --quiet, -q			Quiet mode
+   --report, -r			Reporting mode output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
+   --reportchar, --rc 		Set the report separator
+   --server, -s 		Use a specific server
+   --numclosest, --nc "3"	Number of 'closest' servers to find
+   --numlatency, --nl "5"	Number of latency tests to perform
+   --help, -h			show help
+   --version, -v		print the version
 ```
 
 Feedback / Contributing
@@ -99,3 +115,4 @@ Reference
 =========
 - how does it work - https://support.speedtest.net/entries/20862782-How-does-the-test-itself-work-How-is-the-result-calculated-
 - why actual speedtest.net results may be innaccurate - http://testmy.net/
+   
