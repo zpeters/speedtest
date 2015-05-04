@@ -252,7 +252,12 @@ func runTest(c *cli.Context) {
 		if debug.DEBUG {
 			log.Printf("Server '%s' specified, getting info...", c.String("server"))
 		}
+		// find server and load latency report
 		testServer = findServer(c.String("server"), allServers)
+		// load latency
+		testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE )
+
+		fmt.Printf("Selected server: %s\n", testServer)
 	// ...otherwise get a list of all servers sorted by distance...
 	} else {
 		if debug.DEBUG {
