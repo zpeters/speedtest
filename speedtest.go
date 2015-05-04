@@ -389,7 +389,14 @@ func main() {
 			debug.REPORT = true
 		}
 		if c.String("algo") != "" {
-			ALGOTYPE = c.String("algo")
+			if c.String("algo") == "max" {
+				ALGOTYPE = "max"
+			} else if c.String("algo") == "avg" {
+				ALGOTYPE = "avg"
+			} else {
+				fmt.Printf("** Invalid algorithm '%s'\n", c.String("algo"))
+				os.Exit(1)
+			}
 		}
 		NUMCLOSEST = c.Int("numclosest")
 		NUMLATENCYTESTS = c.Int("numlatency")
