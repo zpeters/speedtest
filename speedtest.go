@@ -5,9 +5,9 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"runtime"
 	"strings"
 	"time"
-        "runtime"
 )
 
 import (
@@ -50,7 +50,9 @@ func downloadTest(server sthttp.Server) float64 {
 
 	for u := range urls {
 
-		if debug.DEBUG { fmt.Printf("Download Test Run: %s\n", urls[u])}
+		if debug.DEBUG {
+			fmt.Printf("Download Test Run: %s\n", urls[u])
+		}
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
 		if !debug.QUIET && !debug.DEBUG {
 			fmt.Printf(".")
@@ -58,7 +60,7 @@ func downloadTest(server sthttp.Server) float64 {
 		if debug.DEBUG {
 			log.Printf("Dl Speed: %v\n", dlSpeed)
 		}
-		
+
 		if ALGOTYPE == "max" {
 			if dlSpeed > maxSpeed {
 				maxSpeed = dlSpeed
@@ -66,7 +68,7 @@ func downloadTest(server sthttp.Server) float64 {
 		} else {
 			avgSpeed = avgSpeed + dlSpeed
 		}
-			
+
 	}
 
 	if !debug.QUIET {
@@ -85,7 +87,7 @@ func uploadTest(server sthttp.Server) float64 {
 	var ulsize []int
 	var maxSpeed float64
 	var avgSpeed float64
-	
+
 	ulsizesizes := []int{
 		int(0.25 * 1024 * 1024),
 		int(0.5 * 1024 * 1024),
@@ -98,16 +100,19 @@ func uploadTest(server sthttp.Server) float64 {
 		ulsize = append(ulsize, ulsizesizes[size])
 	}
 
-	if !debug.QUIET { log.Printf("Testing upload speed") }
-	
-	for i:=0; i<len(ulsize); i++ {
-		if debug.DEBUG { fmt.Printf("Upload Test Run: %v\n", i)}
+	if !debug.QUIET {
+		log.Printf("Testing upload speed")
+	}
+
+	for i := 0; i < len(ulsize); i++ {
+		if debug.DEBUG {
+			fmt.Printf("Upload Test Run: %v\n", i)
+		}
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
 		if !debug.QUIET && !debug.DEBUG {
 			fmt.Printf(".")
 		}
-
 
 		if ALGOTYPE == "max" {
 			if ulSpeed > maxSpeed {
@@ -122,8 +127,6 @@ func uploadTest(server sthttp.Server) float64 {
 	if !debug.QUIET {
 		fmt.Printf("\n")
 	}
-
-
 
 	if ALGOTYPE == "max" {
 		return maxSpeed
@@ -157,11 +160,11 @@ func environmentReport(c *cli.Context) {
 	log.Printf("Env Report")
 	log.Printf("-------------------------------\n")
 	log.Printf("[User Environment]\n")
-	log.Printf("Arch: %v\n", runtime.GOARCH) 
-	log.Printf("OS: %v\n", runtime.GOOS) 
-	log.Printf("IP: %v\n", sthttp.CONFIG.Ip) 
-	log.Printf("Lat: %v\n", sthttp.CONFIG.Lat) 
-	log.Printf("Lon: %v\n", sthttp.CONFIG.Lon) 
+	log.Printf("Arch: %v\n", runtime.GOARCH)
+	log.Printf("OS: %v\n", runtime.GOOS)
+	log.Printf("IP: %v\n", sthttp.CONFIG.Ip)
+	log.Printf("Lat: %v\n", sthttp.CONFIG.Lat)
+	log.Printf("Lon: %v\n", sthttp.CONFIG.Lon)
 	log.Printf("ISP: %v\n", sthttp.CONFIG.Isp)
 	log.Printf("-------------------------------\n")
 	log.Printf("[Settings]\n")
@@ -206,7 +209,7 @@ func environmentReport(c *cli.Context) {
 	log.Printf("Report: %v\n", c.Bool("report"))
 	log.Printf("List: %v\n", c.Bool("list"))
 	log.Printf("Ping: %v\n", c.Bool("Ping"))
-	log.Printf("-------------------------------\n")	
+	log.Printf("-------------------------------\n")
 
 }
 
@@ -229,7 +232,7 @@ func listServers() {
 	for s := range allServers {
 		server := allServers[s]
 		printServer(server)
-	}	
+	}
 }
 
 func runTest(c *cli.Context) {
@@ -246,7 +249,7 @@ func runTest(c *cli.Context) {
 		log.Printf("Getting all servers for our test list")
 	}
 	allServers := sthttp.GetServers()
-	
+
 	// if they specified a specific server, test against that...
 	if c.String("server") != "" {
 		if debug.DEBUG {
@@ -255,10 +258,10 @@ func runTest(c *cli.Context) {
 		// find server and load latency report
 		testServer = findServer(c.String("server"), allServers)
 		// load latency
-		testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE )
+		testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE)
 
 		fmt.Printf("Selected server: %s\n", testServer)
-	// ...otherwise get a list of all servers sorted by distance...
+		// ...otherwise get a list of all servers sorted by distance...
 	} else {
 		if debug.DEBUG {
 			log.Printf("Getting closest servers...")
@@ -270,7 +273,6 @@ func runTest(c *cli.Context) {
 		// ... and get the fastests NUMCLOSEST ones
 		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers, ALGOTYPE)
 	}
-
 
 	// Start printing our report
 	if !debug.REPORT {
@@ -295,9 +297,9 @@ func runTest(c *cli.Context) {
 			}
 		}
 		os.Exit(0)
-	// ...otherwise run our full test
+		// ...otherwise run our full test
 	} else {
-		
+
 		dmbps := downloadTest(testServer)
 		umbps := uploadTest(testServer)
 		if !debug.REPORT {
@@ -330,50 +332,49 @@ func main() {
 	app.Version = VERSION
 
 	// setup cli flags
-	app.Flags = []cli.Flag {
+	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "algo, a",
+			Name:  "algo, a",
 			Usage: "Specify the measurement method to use ('max', 'avg')",
 		},
 		cli.BoolFlag{
-			Name: "debug, d",
+			Name:  "debug, d",
 			Usage: "Turn on debugging",
 		},
 		cli.BoolFlag{
-			Name: "list, l",
+			Name:  "list, l",
 			Usage: "List available servers",
 		},
 		cli.BoolFlag{
-			Name: "ping, p",
+			Name:  "ping, p",
 			Usage: "Ping only mode",
 		},
 		cli.BoolFlag{
-			Name: "quiet, q",
+			Name:  "quiet, q",
 			Usage: "Quiet mode",
 		},
 		cli.BoolFlag{
-			Name: "report, r",
+			Name:  "report, r",
 			Usage: "Reporting mode output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
 		},
 		cli.StringFlag{
-			Name: "reportchar, rc",
+			Name:  "reportchar, rc",
 			Usage: "Set the report separator",
 		},
 		cli.StringFlag{
-			Name: "server, s",
+			Name:  "server, s",
 			Usage: "Use a specific server",
 		},
 		cli.IntFlag{
-			Name: "numclosest, nc",
+			Name:  "numclosest, nc",
 			Value: NUMCLOSEST,
 			Usage: "Number of 'closest' servers to find",
 		},
 		cli.IntFlag{
-			Name: "numlatency, nl",
+			Name:  "numlatency, nl",
 			Value: NUMLATENCYTESTS,
 			Usage: "Number of latency tests to perform",
 		},
-			
 	}
 
 	// toggle our switches and setup variables

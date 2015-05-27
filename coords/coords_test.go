@@ -3,8 +3,9 @@ package coords
 import (
 	"testing"
 )
+
 type HalversineTest struct {
-	in float64
+	in  float64
 	out float64
 }
 

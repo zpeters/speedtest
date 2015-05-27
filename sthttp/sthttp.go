@@ -25,7 +25,6 @@ var HTTP_LATENCY_TIMEOUT = time.Duration(15 * time.Second)
 var HTTP_DOWNLOAD_TIMEOUT = time.Duration(15 * time.Minute)
 var CONFIG Config
 
-
 type Config struct {
 	Ip  string
 	Lat float64
@@ -34,16 +33,16 @@ type Config struct {
 }
 
 type Server struct {
-	Url        string
-	Lat        float64
-	Lon        float64
-	Name       string
-	Country    string
-	CC         string
-	Sponsor    string
-	Id         string
-	Distance   float64
-	Latency float64
+	Url      string
+	Lat      float64
+	Lon      float64
+	Name     string
+	Country  string
+	CC       string
+	Sponsor  string
+	Id       string
+	Distance float64
+	Latency  float64
 }
 
 // Sort by Distance
@@ -86,7 +85,6 @@ func checkHttp(resp *http.Response) bool {
 	}
 	return ok
 }
-
 
 // Download config from speedtest.net
 func GetConfig() Config {
@@ -205,12 +203,11 @@ func GetLatency(server Server, numRuns int, algotype string) float64 {
 	for i := 0; i < numRuns; i++ {
 		var failed bool
 		var finish time.Time
-		
+
 		latencyUrl := getLatencyUrl(server)
 		if debug.DEBUG {
 			log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor)
 		}
-
 
 		start := time.Now()
 
@@ -222,8 +219,8 @@ func GetLatency(server Server, numRuns int, algotype string) float64 {
 		resp, err := client.Do(req)
 
 		if err != nil {
-		 	log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
-		 	failed = true
+			log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyUrl)
+			failed = true
 		} else {
 			defer resp.Body.Close()
 			finish = time.Now()
@@ -235,11 +232,11 @@ func GetLatency(server Server, numRuns int, algotype string) float64 {
 
 		}
 
-		 if failed == true {
+		if failed == true {
 			latency = 1 * time.Minute
-		 } else {
-			 latency = finish.Sub(start)
-		 }
+		} else {
+			latency = finish.Sub(start)
+		}
 
 		if debug.DEBUG {
 			log.Printf("\tRun took: %v\n", latency)
@@ -254,13 +251,13 @@ func GetLatency(server Server, numRuns int, algotype string) float64 {
 		} else {
 			avgLatency = avgLatency + latency
 		}
-		
+
 	}
 	if algotype == "max" {
 		return float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
 	} else {
 		return float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(numRuns)
-		
+
 	}
 }
 
@@ -272,7 +269,6 @@ func GetFastestServer(numServers int, numRuns int, servers []Server, algotype st
 	// test
 	var successfulServers []Server
 
-	
 	for server := range servers {
 		if debug.DEBUG {
 			log.Printf("Doing %v runs of %s\n", numRuns, servers[server])
@@ -283,7 +279,7 @@ func GetFastestServer(numServers int, numRuns int, servers []Server, algotype st
 			log.Printf("Total runs took: %v\n", Latency)
 		}
 
-		if (Latency > float64(time.Duration(1 * time.Minute))) {
+		if Latency > float64(time.Duration(1*time.Minute)) {
 			if debug.DEBUG {
 				log.Printf("Server %s was too slow, skipping...\n", server)
 			}
@@ -309,9 +305,11 @@ func GetFastestServer(numServers int, numRuns int, servers []Server, algotype st
 
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
-	if debug.DEBUG { log.Printf("Starting test at: %s\n", start) }
+	if debug.DEBUG {
+		log.Printf("Starting test at: %s\n", start)
+	}
 	client := &http.Client{
-		Timeout: HTTP_DOWNLOAD_TIMEOUT,	
+		Timeout: HTTP_DOWNLOAD_TIMEOUT,
 	}
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Cache-Control", "no-cache")
@@ -336,7 +334,9 @@ func DownloadSpeed(url string) float64 {
 
 func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	start := time.Now()
-	if debug.DEBUG { log.Printf("Starting test at: %s\n", start) }	
+	if debug.DEBUG {
+		log.Printf("Starting test at: %s\n", start)
+	}
 
 	buf := bytes.NewBuffer(data)
 	resp, err := http.Post(url, mimetype, buf)
@@ -350,7 +350,9 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	}
 	finish := time.Now()
 
-	if debug.DEBUG { log.Printf("Finishing test at: %s\n", finish) }
+	if debug.DEBUG {
+		log.Printf("Finishing test at: %s\n", finish)
+	}
 
 	bits := float64(len(data) * 8)
 	megabits := bits / float64(1000) / float64(1000)
