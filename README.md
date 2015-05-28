@@ -8,30 +8,13 @@ License
 =======
 Licensed under GPLv3 (See COPYING and LICENSE)
 
-Version
-=======
-0.07.2 - develop
-
 Download
 ========
-- Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/v0.07.2/
+- Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/
 
-Bugs
-======
-- Latency seems very incorrect - #11
-- Upload speeds roughly half of speedtest.net - #12
-- Implement - flag.StringVar(&ALGOTYPE, "a", "max", "\tSpecify the measurement method to use ('max', 'avg')") and 'min' for latency - #10
-
-Features to Add / Improvements
-==============================
-- Add git version to version flag - #13
-- Better way to deal with latency on servers that fail - #5
-- Switches to set upload and download amount - #8
-- move more stuff from speedtest.go to their own functions - #14
-- currently we are using a very "dumb" way of testing speed (just downloading files and timing them).  review speedtest explanation and use a more sophistocated (faster) method of testing - #15
-- bump version and tag - #16
-- clean up switches they kind of a mess - #17
-- add tests to code - #18
+Bugs and Features
+=================
+See github issues tracker - https://github.com/zpeters/speedtest/issues
 
 Usage
 =====
@@ -73,18 +56,34 @@ Report Fields: Server ID, Server Name (Location), Ping time in ms, Download spee
 ```
 
 ```shell
-speedtest.exe -h
-Usage of bin\speedtest.exe:
-  -d=false: Turn on debugging
-  -dc=false: Turn on debugging and just dump config
-  -l=false: List servers (hint use 'grep' or 'findstr' to locate a server ID to use for '-s'
-  -nc=3: Number of geographically close servers to test to find the optimal serv er
-  -nl=3: Number of latency tests to perform to determine which server is the fastest
-  -q=false: Quiet Mode. Only output server and results
-  -r=false: 'Reporting mode' output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
-  -rc="|": Character to use to separate fields in report mode (-r)
-  -s="": Specify a server ID to use
-  -v=false: Display version
+NAME:
+   speedtest - Unofficial command line interface to speedtest.net (https://github.com/zpeters/speedtest)
+
+USAGE:
+   speedtest [global options] command [command options] [arguments...]
+
+VERSION:
+    VERSION
+
+AUTHOR(S): 
+   Zach Peters - zpeters@gmail.com - github.com/zpeters 
+   
+COMMANDS:
+   help, h	Shows a list of commands or help for one command
+   
+GLOBAL OPTIONS:
+   --algo, -a 			Specify the measurement method to use ('max', 'avg')
+   --debug, -d			Turn on debugging
+   --list, -l			List available servers
+   --ping, -p			Ping only mode
+   --quiet, -q			Quiet mode
+   --report, -r			Reporting mode output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
+   --reportchar, --rc 		Set the report separator
+   --server, -s 		Use a specific server
+   --numclosest, --nc "3"	Number of 'closest' servers to find
+   --numlatency, --nl "5"	Number of latency tests to perform
+   --help, -h			show help
+   --version, -v		print the version
 ```
 
 Feedback / Contributing
@@ -100,9 +99,8 @@ Thank You
 - Jacob McDonald - jmc734 - Cleaned up printing and formatting.  Added parameter passing to run.sh - https://github.com/zpeters/speedtest/pull/4
 - Cory Lievers - Testing and feedback. Suggestions for formatting to make this more useful for labtec - https://github.com/zpeters/speedtest/issues/9
 - Paul Baker (Network Manager - BMS Telecorp) - Located a bug in the speedtest.net server list generation and found the correct 'static' url
-- Graham Roach (Contact Info?) - Extensive user testing to help determine issues with latency and accuracy of upload and download speeds
-	ADD LIST OF ISSUES FROM GITHUB
-
+- Graham Roach (Contact Info?) - Extensive user testing to help determine issues with latency and accuracy of upload and download speeds - #11 (and others)
+- @larray - slightly obscure issues with http caches interferring with test results - #20
 
 Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================
@@ -117,3 +115,4 @@ Reference
 =========
 - how does it work - https://support.speedtest.net/entries/20862782-How-does-the-test-itself-work-How-is-the-result-calculated-
 - why actual speedtest.net results may be innaccurate - http://testmy.net/
+   

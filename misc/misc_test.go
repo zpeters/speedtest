@@ -1,16 +1,16 @@
 package misc
 
 import (
-	"testing"
 	"reflect"
+	"testing"
 )
 
 type ToFloatTest struct {
-	in string
+	in  string
 	out float64
 }
 
-var ToFloatTests = []ToFloatTest {
+var ToFloatTests = []ToFloatTest{
 	{"1.00", 1.00},
 	{"100", 100.00},
 	{"123.123457843274", 123.123457843274},

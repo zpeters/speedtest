@@ -4,4 +4,5 @@ bin/
 pkg/
 \#*\#
 .\#*
+deploy.sh
 speedtest
