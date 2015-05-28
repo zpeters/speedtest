@@ -20,7 +20,7 @@ import (
 	"github.com/zpeters/speedtest/settings"
 )
 
-var VERSION = "v0.7.5-18"
+var VERSION = "v0.8"
 
 
 func runTest(c *cli.Context) {
