@@ -19,7 +19,7 @@ import (
 	"github.com/zpeters/speedtest/tests"
 )
 
-var VERSION = "0.07.5"
+var VERSION = 'v0.7.5-18-gda9456e'
 
 var NUMCLOSEST int = 3
 var NUMLATENCYTESTS int = 5
