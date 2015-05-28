@@ -10,7 +10,8 @@ Licensed under GPLv3 (See COPYING and LICENSE)
 
 Download
 ========
-- Windows/Linux/Mac - http://media.thehelpfulhacker.net/index.php?dir=speedtest/
+- Github (Windows/Linux/Mac) - https://github.com/zpeters/speedtest/releases
+- Mirror (Windows/Linux/Mac) - http://media.thehelpfulhacker.net/index.php?dir=speedtest/
 
 Bugs and Features
 =================
