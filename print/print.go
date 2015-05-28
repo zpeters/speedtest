@@ -14,17 +14,18 @@ import (
 import (
 	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/sthttp"
+	"github.com/zpeters/speedtest/settings"
 )
 
 func PrintServer(server sthttp.Server) {
 	fmt.Printf("%-4s | %s (%s, %s)\n", server.Id, server.Sponsor, server.Name, server.Country)
 }
 
-func PrintServerReport(server sthttp.Server, reportchar string) {
-	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), reportchar, server.Id, reportchar, server.Sponsor, server.Name, server.Country, reportchar)
+func PrintServerReport(server sthttp.Server) {
+	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), settings.REPORTCHAR, server.Id, settings.REPORTCHAR, server.Sponsor, server.Name, server.Country, settings.REPORTCHAR)
 }
 
-func EnvironmentReport(c *cli.Context, numclosest int, numlatencytests int, reportchar string, algotype string) {
+func EnvironmentReport(c *cli.Context) {
 	log.Printf("Env Report")
 	log.Printf("-------------------------------\n")
 	log.Printf("[User Environment]\n")
@@ -47,15 +48,15 @@ func EnvironmentReport(c *cli.Context, numclosest int, numlatencytests int, repo
 		log.Printf("Quiet (default): %v\n", debug.QUIET)
 	}
 	if c.Int("numclosest") == 0 {
-		log.Printf("NUMCLOSEST (default): %v\n", numclosest)
+		log.Printf("NUMCLOSEST (default): %v\n", settings.NUMCLOSEST)
 	} else {
-		log.Printf("NUMCLOSEST (user): %v\n", numclosest)
+		log.Printf("NUMCLOSEST (user): %v\n", settings.NUMCLOSEST)
 
 	}
 	if c.Int("numlatency") == 0 {
-		log.Printf("NUMLATENCYTESTS (default): %v\n", numlatencytests)
+		log.Printf("NUMLATENCYTESTS (default): %v\n", settings.NUMLATENCYTESTS)
 	} else {
-		log.Printf("NUMLATENCYTESTS (user): %v\n", numlatencytests)
+		log.Printf("NUMLATENCYTESTS (user): %v\n", settings.NUMLATENCYTESTS)
 	}
 	if c.String("server") == "" {
 		log.Printf("server (default none specified)\n")
@@ -63,12 +64,12 @@ func EnvironmentReport(c *cli.Context, numclosest int, numlatencytests int, repo
 		log.Printf("server (user): %s\n", c.String("server"))
 	}
 	if c.String("reportchar") == "" {
-		log.Printf("reportchar (default): %s\n", reportchar)
+		log.Printf("reportchar (default): %s\n", settings.REPORTCHAR)
 	} else {
 		log.Printf("reportchar (user): %s\n", c.String("reportchar"))
 	}
 	if c.String("algo") == "" {
-		log.Printf("algo (default): %s\n", algotype)
+		log.Printf("algo (default): %s\n", settings.ALGOTYPE)
 	} else {
 		log.Printf("algo (user): %s\n", c.String("algo"))
 	}

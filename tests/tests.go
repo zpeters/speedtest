@@ -11,9 +11,10 @@ import (
 	"github.com/zpeters/speedtest/print"
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/sthttp"
+	"github.com/zpeters/speedtest/settings"
 )
 
-func DownloadTest(server sthttp.Server, algotype string) float64 {
+func DownloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var maxSpeed float64
 	var avgSpeed float64
@@ -47,7 +48,7 @@ func DownloadTest(server sthttp.Server, algotype string) float64 {
 			log.Printf("Dl Speed: %v\n", dlSpeed)
 		}
 
-		if algotype == "max" {
+		if settings.ALGOTYPE == "max" {
 			if dlSpeed > maxSpeed {
 				maxSpeed = dlSpeed
 			}
@@ -61,7 +62,7 @@ func DownloadTest(server sthttp.Server, algotype string) float64 {
 		fmt.Printf("\n")
 	}
 
-	if algotype == "max" {
+	if settings.ALGOTYPE == "max" {
 		return maxSpeed
 	} else {
 		return avgSpeed / float64(len(urls))
@@ -69,7 +70,7 @@ func DownloadTest(server sthttp.Server, algotype string) float64 {
 }
 
 
-func UploadTest(server sthttp.Server, algotype string) float64 {
+func UploadTest(server sthttp.Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	var ulsize []int
 	var maxSpeed float64
@@ -101,7 +102,7 @@ func UploadTest(server sthttp.Server, algotype string) float64 {
 			fmt.Printf(".")
 		}
 
-		if algotype == "max" {
+		if settings.ALGOTYPE == "max" {
 			if ulSpeed > maxSpeed {
 				maxSpeed = ulSpeed
 			}
@@ -115,7 +116,7 @@ func UploadTest(server sthttp.Server, algotype string) float64 {
 		fmt.Printf("\n")
 	}
 
-	if algotype == "max" {
+	if settings.ALGOTYPE == "max" {
 		return maxSpeed
 	} else {
 		return avgSpeed / float64(len(ulsizesizes))

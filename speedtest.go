@@ -17,14 +17,10 @@ import (
 	"github.com/zpeters/speedtest/sthttp"
 	"github.com/zpeters/speedtest/print"
 	"github.com/zpeters/speedtest/tests"
+	"github.com/zpeters/speedtest/settings"
 )
 
-var VERSION = "v0.7.5-18"
-
-var NUMCLOSEST int = 3
-var NUMLATENCYTESTS int = 5
-var REPORTCHAR = "|"
-var ALGOTYPE = "max"
+var VERSION = "v0.8"
 
 
 func runTest(c *cli.Context) {
@@ -33,7 +29,7 @@ func runTest(c *cli.Context) {
 	sthttp.CONFIG = sthttp.GetConfig()
 
 	if debug.DEBUG {
-		print.EnvironmentReport(c, NUMCLOSEST, NUMLATENCYTESTS, REPORTCHAR, ALGOTYPE)
+		print.EnvironmentReport(c)
 	}
 
 	// get all possible servers
@@ -50,7 +46,7 @@ func runTest(c *cli.Context) {
 		// find server and load latency report
 		testServer = tests.FindServer(c.String("server"), allServers)
 		// load latency
-		testServer.Latency = sthttp.GetLatency(testServer, NUMLATENCYTESTS, ALGOTYPE)
+		testServer.Latency = sthttp.GetLatency(testServer)
 
 		fmt.Printf("Selected server: %s\n", testServer)
 		// ...otherwise get a list of all servers sorted by distance...
@@ -63,26 +59,26 @@ func runTest(c *cli.Context) {
 			log.Printf("Getting the fastests of our closest servers...")
 		}
 		// ... and get the fastests NUMCLOSEST ones
-		testServer = sthttp.GetFastestServer(NUMCLOSEST, NUMLATENCYTESTS, closestServers, ALGOTYPE)
+		testServer = sthttp.GetFastestServer(closestServers)
 	}
 
 	// Start printing our report
 	if !debug.REPORT {
 		print.PrintServer(testServer)
 	} else {
-		print.PrintServerReport(testServer, REPORTCHAR)
+		print.PrintServerReport(testServer)
 	}
 
 	// if ping only then just output latency results and exit nicely...
 	if c.Bool("ping") {
 		if c.Bool("report") {
-			if ALGOTYPE == "max" {
+			if settings.ALGOTYPE == "max" {
 				fmt.Printf("%3.2f (Lowest)\n", testServer.Latency)
 			} else {
 				fmt.Printf("%3.2f (Avg)\n", testServer.Latency)
 			}
 		} else {
-			if ALGOTYPE == "max" {
+			if settings.ALGOTYPE == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms\n", testServer.Latency)
 			} else {
 				fmt.Printf("Ping (Avg): %3.2f ms\n", testServer.Latency)
@@ -92,10 +88,10 @@ func runTest(c *cli.Context) {
 		// ...otherwise run our full test
 	} else {
 
-		dmbps := tests.DownloadTest(testServer, ALGOTYPE)
-		umbps := tests.UploadTest(testServer, ALGOTYPE)
+		dmbps := tests.DownloadTest(testServer)
+		umbps := tests.UploadTest(testServer)
 		if !debug.REPORT {
-			if ALGOTYPE == "max" {
+			if settings.ALGOTYPE == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
 			} else {
 				fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
@@ -103,7 +99,7 @@ func runTest(c *cli.Context) {
 		} else {
 			dkbps := dmbps * 1000
 			ukbps := umbps * 1000
-			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, REPORTCHAR, int(dkbps), REPORTCHAR, int(ukbps))
+			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, settings.REPORTCHAR, int(dkbps), settings.REPORTCHAR, int(ukbps))
 		}
 	}
 
@@ -159,12 +155,12 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:  "numclosest, nc",
-			Value: NUMCLOSEST,
+			Value: settings.NUMCLOSEST,
 			Usage: "Number of 'closest' servers to find",
 		},
 		cli.IntFlag{
 			Name:  "numlatency, nl",
-			Value: NUMLATENCYTESTS,
+			Value: settings.NUMLATENCYTESTS,
 			Usage: "Number of latency tests to perform",
 		},
 	}
@@ -183,18 +179,18 @@ func main() {
 		}
 		if c.String("algo") != "" {
 			if c.String("algo") == "max" {
-				ALGOTYPE = "max"
+				settings.ALGOTYPE = "max"
 			} else if c.String("algo") == "avg" {
-				ALGOTYPE = "avg"
+				settings.ALGOTYPE = "avg"
 			} else {
 				fmt.Printf("** Invalid algorithm '%s'\n", c.String("algo"))
 				os.Exit(1)
 			}
 		}
-		NUMCLOSEST = c.Int("numclosest")
-		NUMLATENCYTESTS = c.Int("numlatency")
+		settings.NUMCLOSEST = c.Int("numclosest")
+		settings.NUMLATENCYTESTS = c.Int("numlatency")
 		if c.String("reportchar") != "" {
-			REPORTCHAR = c.String("reportchar")
+			settings.REPORTCHAR = c.String("reportchar")
 		}
 
 		// run a oneshot list
