@@ -19,7 +19,7 @@ import (
 	"github.com/zpeters/speedtest/tests"
 )
 
-var VERSION = 'v0.7.5-18-gda9456e'
+var VERSION = "v0.7.5-18"
 
 var NUMCLOSEST int = 3
 var NUMLATENCYTESTS int = 5
@@ -147,11 +147,11 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "report, r",
-			Usage: "Reporting mode output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
+			Usage: "Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
 		},
 		cli.StringFlag{
 			Name:  "reportchar, rc",
-			Usage: "Set the report separator",
+			Usage: "Set the report separator. Example: --rc=','",
 		},
 		cli.StringFlag{
 			Name:  "server, s",
