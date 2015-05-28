@@ -16,6 +16,7 @@ import (
 	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/stxml"
+	"github.com/zpeters/speedtest/settings"
 )
 
 var SpeedtestConfigUrl = "http://www.speedtest.net/speedtest-config.php"
@@ -195,12 +196,12 @@ func getLatencyUrl(server Server) string {
 	return latencyUrl
 }
 
-func GetLatency(server Server, numRuns int, algotype string) float64 {
+func GetLatency(server Server) float64 {
 	var latency time.Duration
 	var minLatency time.Duration
 	var avgLatency time.Duration
 
-	for i := 0; i < numRuns; i++ {
+	for i := 0; i < settings.NUMLATENCYTESTS; i++ {
 		var failed bool
 		var finish time.Time
 
@@ -242,7 +243,7 @@ func GetLatency(server Server, numRuns int, algotype string) float64 {
 			log.Printf("\tRun took: %v\n", latency)
 		}
 
-		if algotype == "max" {
+		if settings.ALGOTYPE == "max" {
 			if minLatency == 0 {
 				minLatency = latency
 			} else if latency < minLatency {
@@ -253,15 +254,15 @@ func GetLatency(server Server, numRuns int, algotype string) float64 {
 		}
 
 	}
-	if algotype == "max" {
+	if settings.ALGOTYPE == "max" {
 		return float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
 	} else {
-		return float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(numRuns)
+		return float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(settings.NUMLATENCYTESTS)
 
 	}
 }
 
-func GetFastestServer(numServers int, numRuns int, servers []Server, algotype string) Server {
+func GetFastestServer(servers []Server) Server {
 	// test all servers until we find numServers that respond, then
 	// find the fastest of them.  Some servers show up in the master list
 	// but timeout or are "corrupt" therefore we bump their latency
@@ -271,9 +272,9 @@ func GetFastestServer(numServers int, numRuns int, servers []Server, algotype st
 
 	for server := range servers {
 		if debug.DEBUG {
-			log.Printf("Doing %v runs of %s\n", numRuns, servers[server])
+			log.Printf("Doing %v runs of %s\n", settings.NUMCLOSEST, servers[server])
 		}
-		Latency := GetLatency(servers[server], numRuns, algotype)
+		Latency := GetLatency(servers[server])
 
 		if debug.DEBUG {
 			log.Printf("Total runs took: %v\n", Latency)
@@ -291,7 +292,7 @@ func GetFastestServer(numServers int, numRuns int, servers []Server, algotype st
 			successfulServers[server].Latency = Latency
 		}
 
-		if len(successfulServers) == numServers {
+		if len(successfulServers) == settings.NUMCLOSEST {
 			break
 		}
 	}
