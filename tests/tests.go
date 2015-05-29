@@ -14,6 +14,7 @@ import (
 	"github.com/zpeters/speedtest/settings"
 )
 
+// DownloadTest will perform the "normal" speedtest download test
 func DownloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var maxSpeed float64
@@ -23,12 +24,12 @@ func DownloadTest(server sthttp.Server) float64 {
 	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
 
 	for size := range dlsizes {
-		url := server.Url
+		url := server.URL
 		splits := strings.Split(url, "/")
-		baseUrl := strings.Join(splits[1:len(splits)-1], "/")
+		baseURL := strings.Join(splits[1:len(splits)-1], "/")
 		randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
-		downloadUrl := "http:/" + baseUrl + "/" + randomImage
-		urls = append(urls, downloadUrl)
+		downloadURL := "http:/" + baseURL + "/" + randomImage
+		urls = append(urls, downloadURL)
 	}
 
 	if !debug.QUIET {
@@ -62,14 +63,14 @@ func DownloadTest(server sthttp.Server) float64 {
 		fmt.Printf("\n")
 	}
 
-	if settings.ALGOTYPE == "max" {
-		return maxSpeed
-	} else {
+	if settings.ALGOTYPE != "max" {
 		return avgSpeed / float64(len(urls))
 	}
+	return maxSpeed
+
 }
 
-
+// UploadTest runs a "normal" speedtest upload test
 func UploadTest(server sthttp.Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	var ulsize []int
@@ -97,7 +98,7 @@ func UploadTest(server sthttp.Server) float64 {
 			fmt.Printf("Upload Test Run: %v\n", i)
 		}
 		r := misc.Urandom(ulsize[i])
-		ulSpeed := sthttp.UploadSpeed(server.Url, "text/xml", r)
+		ulSpeed := sthttp.UploadSpeed(server.URL, "text/xml", r)
 		if !debug.QUIET && !debug.DEBUG {
 			fmt.Printf(".")
 		}
@@ -116,28 +117,27 @@ func UploadTest(server sthttp.Server) float64 {
 		fmt.Printf("\n")
 	}
 
-	if settings.ALGOTYPE == "max" {
-		return maxSpeed
-	} else {
+	if settings.ALGOTYPE != "max" {
 		return avgSpeed / float64(len(ulsizesizes))
 	}
+	return maxSpeed
 }
 
-
+// FindServer will find a specific server in the servers list
 func FindServer(id string, serversList []sthttp.Server) sthttp.Server {
 	var foundServer sthttp.Server
 	for s := range serversList {
-		if serversList[s].Id == id {
+		if serversList[s].ID == id {
 			foundServer = serversList[s]
 		}
 	}
-	if foundServer.Id == "" {
+	if foundServer.ID == "" {
 		log.Fatalf("Cannot locate server Id '%s' in our list of speedtest servers!\n", id)
 	}
 	return foundServer
 }
 
-
+// ListServers prints a list of all "global" servers
 func ListServers() {
 	if debug.DEBUG {
 		fmt.Printf("Loading config from speedtest.net\n")
@@ -156,6 +156,6 @@ func ListServers() {
 	}
 	for s := range allServers {
 		server := allServers[s]
-		print.PrintServer(server)
+		print.Server(server)
 	}
 }

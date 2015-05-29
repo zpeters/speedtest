@@ -20,6 +20,7 @@ import (
 	"github.com/zpeters/speedtest/settings"
 )
 
+// VERSION is the version of our software
 var VERSION = "v0.8"
 
 
@@ -64,9 +65,9 @@ func runTest(c *cli.Context) {
 
 	// Start printing our report
 	if !debug.REPORT {
-		print.PrintServer(testServer)
+		print.Server(testServer)
 	} else {
-		print.PrintServerReport(testServer)
+		print.ServerReport(testServer)
 	}
 
 	// if ping only then just output latency results and exit nicely...
