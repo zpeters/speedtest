@@ -88,9 +88,18 @@ func runTest(c *cli.Context) {
 		os.Exit(0)
 		// ...otherwise run our full test
 	} else {
+		var dmbps float64
+		var umbps float64
+		
+		if c.Bool("downloadonly") {
+			dmbps = tests.DownloadTest(testServer)
+		} else if c.Bool("uploadonly") {
+			umbps = tests.UploadTest(testServer)
+		} else {
+			dmbps = tests.DownloadTest(testServer)
+			umbps = tests.UploadTest(testServer)
+		}
 
-		dmbps := tests.DownloadTest(testServer)
-		umbps := tests.UploadTest(testServer)
 		if !debug.REPORT {
 			if settings.ALGOTYPE == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
@@ -145,6 +154,14 @@ func main() {
 		cli.BoolFlag{
 			Name:  "report, r",
 			Usage: "Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
+		},
+		cli.BoolFlag{
+			Name: "downloadonly, do",
+			Usage: "Only perform download test",
+		},
+		cli.BoolFlag{
+			Name: "uploadonly, uo",
+			Usage: "Only perform upload test",
 		},
 		cli.StringFlag{
 			Name:  "reportchar, rc",
