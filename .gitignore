@@ -6,3 +6,4 @@ pkg/
 .\#*
 deploy.sh
 speedtest
+Godeps/_workspace
