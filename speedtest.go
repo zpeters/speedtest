@@ -21,7 +21,7 @@ import (
 )
 
 // VERSION is the version of our software
-var VERSION = "v0.8-10-g04399f8"
+var VERSION = "v0.8.1-1-gd861298"
 
 
 func runTest(c *cli.Context) {
