@@ -29,6 +29,12 @@ func runTest(c *cli.Context) {
 	var testServer sthttp.Server
 	sthttp.CONFIG = sthttp.GetConfig()
 
+	// if we are *not* running a report then say hello to everyone
+	if !debug.REPORT {
+		fmt.Printf("github.com/zpeters/speedtest -- unofficial cli for speedtest.net\n")
+	}
+
+	// if we are in debug mode print outa an environment report
 	if debug.DEBUG {
 		print.EnvironmentReport(c)
 	}
@@ -63,13 +69,6 @@ func runTest(c *cli.Context) {
 		testServer = sthttp.GetFastestServer(closestServers)
 	}
 
-	// Start printing our report
-	if !debug.REPORT {
-		print.Server(testServer)
-	} else {
-		print.ServerReport(testServer)
-	}
-
 	// if ping only then just output latency results and exit nicely...
 	if c.Bool("ping") {
 		if c.Bool("report") {
@@ -86,11 +85,13 @@ func runTest(c *cli.Context) {
 			}
 		}
 		os.Exit(0)
-		// ...otherwise run our full test
+		// ...otherwise run our full test		
 	} else {
+
 		var dmbps float64
 		var umbps float64
-		
+
+		// get our upload and/or download speeds
 		if c.Bool("downloadonly") {
 			dmbps = tests.DownloadTest(testServer)
 		} else if c.Bool("uploadonly") {
@@ -107,8 +108,11 @@ func runTest(c *cli.Context) {
 				fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
 			}
 		} else {
+			//print.ServerReport(testServer)
 			dkbps := dmbps * 1000
 			ukbps := umbps * 1000
+
+			fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), settings.REPORTCHAR, testServer.ID, settings.REPORTCHAR, testServer.Sponsor, testServer.Name, testServer.Country, settings.REPORTCHAR)
 			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, settings.REPORTCHAR, int(dkbps), settings.REPORTCHAR, int(ukbps))
 		}
 	}
@@ -121,7 +125,7 @@ func main() {
 
 	// set logging to stdout for global logger
 	log.SetOutput(os.Stdout)
-
+	
 	// setting up cli settings
 	app := cli.NewApp()
 	app.Name = "speedtest"
@@ -220,6 +224,7 @@ func main() {
 		// run our test
 		runTest(c)
 	}
+
 	// run the app
 	app.Run(os.Args)
 }

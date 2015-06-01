@@ -32,7 +32,7 @@ func DownloadTest(server sthttp.Server) float64 {
 		urls = append(urls, downloadURL)
 	}
 
-	if !debug.QUIET {
+	if !debug.QUIET && !debug.REPORT {
 		log.Printf("Testing download speed")
 	}
 
@@ -42,7 +42,7 @@ func DownloadTest(server sthttp.Server) float64 {
 			log.Printf("Download Test Run: %s\n", urls[u])
 		}
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
-		if !debug.QUIET && !debug.DEBUG {
+		if !debug.QUIET && !debug.DEBUG && !debug.REPORT {
 			fmt.Printf(".")
 		}
 		if debug.DEBUG {
@@ -59,7 +59,7 @@ func DownloadTest(server sthttp.Server) float64 {
 
 	}
 
-	if !debug.QUIET {
+	if !debug.QUIET && !debug.REPORT {
 		fmt.Printf("\n")
 	}
 
@@ -89,7 +89,7 @@ func UploadTest(server sthttp.Server) float64 {
 		ulsize = append(ulsize, ulsizesizes[size])
 	}
 
-	if !debug.QUIET {
+	if !debug.QUIET && !debug.REPORT {
 		log.Printf("Testing upload speed")
 	}
 
@@ -99,7 +99,7 @@ func UploadTest(server sthttp.Server) float64 {
 		}
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.URL, "text/xml", r)
-		if !debug.QUIET && !debug.DEBUG {
+		if !debug.QUIET && !debug.DEBUG && !debug.REPORT {
 			fmt.Printf(".")
 		}
 
