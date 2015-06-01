@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/zpeters/speedtest",
-	"GoVersion": "go1.4.1",
+	"GoVersion": "devel +9ef10fde754f Thu Dec 11 16:32:25 2014 +1100",
 	"Deps": [
 		{
 			"ImportPath": "github.com/codegangsta/cli",
