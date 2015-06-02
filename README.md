@@ -66,27 +66,30 @@ USAGE:
    speedtest [global options] command [command options] [arguments...]
 
 VERSION:
-    VERSION
+   v0.8.2
 
-AUTHOR(S): 
-   Zach Peters - zpeters@gmail.com - github.com/zpeters 
-   
+AUTHOR(S):
+   Zach Peters - zpeters@gmail.com - github.com/zpeters
+
 COMMANDS:
    help, h	Shows a list of commands or help for one command
-   
+
 GLOBAL OPTIONS:
    --algo, -a 			Specify the measurement method to use ('max', 'avg')
    --debug, -d			Turn on debugging
    --list, -l			List available servers
    --ping, -p			Ping only mode
    --quiet, -q			Quiet mode
-   --report, -r			Reporting mode output, minimal output with '|' for separators, use '-rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
-   --reportchar, --rc 		Set the report separator
+   --report, -r			Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
+   --downloadonly, --do		Only perform download test
+   --uploadonly, --uo		Only perform upload test
+   --reportchar, --rc 		Set the report separator. Example: --rc=','
    --server, -s 		Use a specific server
    --numclosest, --nc "3"	Number of 'closest' servers to find
    --numlatency, --nl "5"	Number of latency tests to perform
    --help, -h			show help
    --version, -v		print the version
+
 ```
 
 Feedback / Contributing
