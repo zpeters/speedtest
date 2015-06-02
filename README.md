@@ -104,6 +104,7 @@ Thank You
 - Paul Baker (Network Manager - BMS Telecorp) - Located a bug in the speedtest.net server list generation and found the correct 'static' url
 - Graham Roach (Contact Info?) - Extensive user testing to help determine issues with latency and accuracy of upload and download speeds - #11 (and others)
 - @larray - slightly obscure issues with http caches interferring with test results - #20
+- Noric - reporting and help with testing issues with report formatting - #32
 
 Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================
