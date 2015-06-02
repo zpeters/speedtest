@@ -55,7 +55,10 @@ func runTest(c *cli.Context) {
 		// load latency
 		testServer.Latency = sthttp.GetLatency(testServer)
 
-		fmt.Printf("Selected server: %s\n", testServer)
+		if !debug.REPORT {
+			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
+		}
+		
 		// ...otherwise get a list of all servers sorted by distance...
 	} else {
 		if debug.DEBUG {
@@ -112,7 +115,7 @@ func runTest(c *cli.Context) {
 			dkbps := dmbps * 1000
 			ukbps := umbps * 1000
 
-			fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), settings.REPORTCHAR, testServer.ID, settings.REPORTCHAR, testServer.Sponsor, testServer.Name, testServer.Country, settings.REPORTCHAR)
+			fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now().Format("2006-01-02 15:04:05 -0700"), settings.REPORTCHAR, testServer.ID, settings.REPORTCHAR, testServer.Sponsor, testServer.Name, testServer.Country, settings.REPORTCHAR)
 			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, settings.REPORTCHAR, int(dkbps), settings.REPORTCHAR, int(ukbps))
 		}
 	}
