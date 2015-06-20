@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"os"
 	"time"
+	"strings"
+	"net/url"
 )
 
 import (
@@ -43,10 +45,34 @@ func runTest(c *cli.Context) {
 	if debug.DEBUG {
 		log.Printf("Getting all servers for our test list")
 	}
-	allServers := sthttp.GetServers()
+	var allServers []sthttp.Server
+	if c.String("mini") == "" {
+		allServers = sthttp.GetServers()
+	}
 
-	// if they specified a specific server, test against that...
-	if c.String("server") != "" {
+	// if a mini speedtest installation was specified, use that...
+	if c.String("mini") != "" {
+		//construct testserver object manually
+		u, err := url.Parse(c.String("mini"))
+
+		if err != nil {
+			log.Fatalf("Speedtest mini server URL is not a valid URL: %s", err)
+		}
+
+		log.Printf("Using Mini Server '%s'", c.String("mini"))
+		testServer.URL = c.String("mini")
+		if !strings.HasSuffix(c.String("mini"), "/") {
+			testServer.URL += "/"
+		}
+		testServer.URL += "speedtest/upload.php"
+		testServer.Name = u.Host
+		testServer.Sponsor = "speedtest-mini"
+		testServer.ID = "0"
+
+		testServer.Latency = sthttp.GetLatency(testServer)
+
+		// if they specified a specific speedtest.net server, test against that...
+	} else if c.String("server") != "" {
 		if debug.DEBUG {
 			log.Printf("Server '%s' specified, getting info...", c.String("server"))
 		}
@@ -177,6 +203,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "server, s",
 			Usage: "Use a specific server",
+		},
+		cli.StringFlag{
+			Name: "mini, m",
+			Usage: "URL of speedtest mini server",
 		},
 		cli.IntFlag{
 			Name:  "numclosest, nc",
