@@ -59,7 +59,9 @@ func runTest(c *cli.Context) {
 			log.Fatalf("Speedtest mini server URL is not a valid URL: %s", err)
 		}
 
-		log.Printf("Using Mini Server '%s'", c.String("mini"))
+		if debug.DEBUG {
+			log.Printf("Using Mini Server '%s'", c.String("mini"))
+		}
 		testServer.URL = c.String("mini")
 		if !strings.HasSuffix(c.String("mini"), "/") {
 			testServer.URL += "/"
