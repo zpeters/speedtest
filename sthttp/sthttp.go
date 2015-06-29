@@ -15,20 +15,25 @@ import (
 	"github.com/zpeters/speedtest/coords"
 	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/misc"
-	"github.com/zpeters/speedtest/stxml"
 	"github.com/zpeters/speedtest/settings"
+	"github.com/zpeters/speedtest/stxml"
 )
 
 // SpeedtestConfigURL is where we pull the global 'config' from speedtest.net
 var SpeedtestConfigURL = "http://c.speedtest.net/speedtest-config.php"
+
 // SpeedtestServersURL is the global list of speedtest servers
 var SpeedtestServersURL = "http://c.speedtest.net/speedtest-servers-static.php"
+
 // HTTPConfigTimeout is how long we'll wait for a config download to timeout
 var HTTPConfigTimeout = time.Duration(15 * time.Second)
+
 // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
 var HTTPLatencyTimeout = time.Duration(15 * time.Second)
+
 // HTTPDownloadTimeout is how long we'll wait for a download to timeout
 var HTTPDownloadTimeout = time.Duration(15 * time.Minute)
+
 // CONFIG is our global config space
 var CONFIG Config
 
@@ -265,7 +270,7 @@ func GetLatency(server Server) float64 {
 		}
 
 	}
-	
+
 	if settings.ALGOTYPE == "max" {
 		return float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
 	}

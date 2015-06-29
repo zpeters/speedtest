@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"os"
-	"time"
-	"strings"
 	"net/url"
+	"os"
+	"strings"
+	"time"
 )
 
 import (
@@ -16,15 +16,14 @@ import (
 
 import (
 	"github.com/zpeters/speedtest/debug"
-	"github.com/zpeters/speedtest/sthttp"
 	"github.com/zpeters/speedtest/print"
-	"github.com/zpeters/speedtest/tests"
 	"github.com/zpeters/speedtest/settings"
+	"github.com/zpeters/speedtest/sthttp"
+	"github.com/zpeters/speedtest/tests"
 )
 
 // VERSION is the version of our software
 var VERSION = "v0.8.3-3-gd98c3f7"
-
 
 func runTest(c *cli.Context) {
 	// create our server object and load initial config
@@ -86,7 +85,7 @@ func runTest(c *cli.Context) {
 		if !debug.REPORT {
 			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
 		}
-		
+
 		// ...otherwise get a list of all servers sorted by distance...
 	} else {
 		if debug.DEBUG {
@@ -116,7 +115,7 @@ func runTest(c *cli.Context) {
 			}
 		}
 		os.Exit(0)
-		// ...otherwise run our full test		
+		// ...otherwise run our full test
 	} else {
 
 		var dmbps float64
@@ -156,7 +155,7 @@ func main() {
 
 	// set logging to stdout for global logger
 	log.SetOutput(os.Stdout)
-	
+
 	// setting up cli settings
 	app := cli.NewApp()
 	app.Name = "speedtest"
@@ -191,11 +190,11 @@ func main() {
 			Usage: "Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
 		},
 		cli.BoolFlag{
-			Name: "downloadonly, do",
+			Name:  "downloadonly, do",
 			Usage: "Only perform download test",
 		},
 		cli.BoolFlag{
-			Name: "uploadonly, uo",
+			Name:  "uploadonly, uo",
 			Usage: "Only perform upload test",
 		},
 		cli.StringFlag{
@@ -207,7 +206,7 @@ func main() {
 			Usage: "Use a specific server",
 		},
 		cli.StringFlag{
-			Name: "mini, m",
+			Name:  "mini, m",
 			Usage: "URL of speedtest mini server",
 		},
 		cli.IntFlag{

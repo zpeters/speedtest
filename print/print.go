@@ -2,9 +2,9 @@ package print
 
 import (
 	"fmt"
-	"time"
 	"log"
 	"runtime"
+	"time"
 )
 
 import (
@@ -13,8 +13,8 @@ import (
 
 import (
 	"github.com/zpeters/speedtest/debug"
-	"github.com/zpeters/speedtest/sthttp"
 	"github.com/zpeters/speedtest/settings"
+	"github.com/zpeters/speedtest/sthttp"
 )
 
 // Server prints the results in "human" format
@@ -83,4 +83,3 @@ func EnvironmentReport(c *cli.Context) {
 	log.Printf("Ping: %v\n", c.Bool("Ping"))
 	log.Printf("-------------------------------\n")
 }
-
