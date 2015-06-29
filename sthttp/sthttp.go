@@ -288,7 +288,7 @@ func GetFastestServer(servers []Server) Server {
 
 	for server := range servers {
 		if debug.DEBUG {
-			log.Printf("Doing %v runs of %s\n", settings.NUMCLOSEST, servers[server])
+			log.Printf("Doing %d runs of %v\n", settings.NUMCLOSEST, servers[server])
 		}
 		Latency := GetLatency(servers[server])
 
@@ -298,11 +298,11 @@ func GetFastestServer(servers []Server) Server {
 
 		if Latency > float64(time.Duration(1*time.Minute)) {
 			if debug.DEBUG {
-				log.Printf("Server %s was too slow, skipping...\n", server)
+				log.Printf("Server %d was too slow, skipping...\n", server)
 			}
 		} else {
 			if debug.DEBUG {
-				log.Printf("Server latency was ok %v adding to successful servers list", Latency)
+				log.Printf("Server latency was ok %f adding to successful servers list", Latency)
 			}
 			successfulServers = append(successfulServers, servers[server])
 			successfulServers[server].Latency = Latency
@@ -315,7 +315,7 @@ func GetFastestServer(servers []Server) Server {
 
 	sort.Sort(ByLatency(successfulServers))
 	if debug.DEBUG {
-		log.Printf("Server: %s is the fastest server\n", successfulServers[0])
+		log.Printf("Server: %v is the fastest server\n", successfulServers[0])
 	}
 	return successfulServers[0]
 }

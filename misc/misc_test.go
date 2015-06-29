@@ -20,7 +20,7 @@ func TestToFloat(t *testing.T) {
 	for i, test := range ToFloatTests {
 		output := ToFloat(test.in)
 		if output != test.out {
-			t.Errorf("#%d: Input %f; want %f, got %f", i, test.in, test.out, output)
+			t.Errorf("#%d: Input %s; want %f, got %f", i, test.in, test.out, output)
 		}
 	}
 }
