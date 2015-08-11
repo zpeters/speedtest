@@ -320,6 +320,21 @@ func GetFastestServer(servers []Server) Server {
 	return successfulServers[0]
 }
 
+//Use fix buffer to calculate the length of body
+func respBodyLen(resp *http.Response) int {
+	l := 0
+	buf := make([]byte, 4096)
+	for {
+		if n, err := resp.Body.Read(buf); err != nil {
+			break
+		} else {
+			l += n
+		}
+	}
+
+	return l
+}
+
 // DownloadSpeed measures the mbps of downloading a URL
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
@@ -336,13 +351,15 @@ func DownloadSpeed(url string) float64 {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
 	}
 	defer resp.Body.Close()
-	data, err2 := ioutil.ReadAll(resp.Body)
+	/*data, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
-	}
+	}*/
+	bodyLen := respBodyLen(resp)
 	finish := time.Now()
 
-	bits := float64(len(data) * 8)
+	//bits := float64(len(data) * 8)
+	bits := float64(bodyLen * 8)
 	megabits := bits / float64(1000) / float64(1000)
 	seconds := finish.Sub(start).Seconds()
 
