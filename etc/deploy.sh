@@ -2,7 +2,7 @@
 
 export GOPATH=~/go
 source ~/src/golang-crosscompile/crosscompile.bash
-BRANCH=`git describe` 
+BRANCH=`git describe --tags` 
 
 echo "Compiling..."
 etc/cross-compile.sh
