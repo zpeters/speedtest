@@ -108,6 +108,7 @@ Thank You
 - Graham Roach (Contact Info?) - Extensive user testing to help determine issues with latency and accuracy of upload and download speeds - #11 (and others)
 - @larray - slightly obscure issues with http caches interferring with test results - #20
 - Noric - reporting and help with testing issues with report formatting - #32
+- @jannson - submitting patch to reduce memory usage on download test - #37
 
 Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================

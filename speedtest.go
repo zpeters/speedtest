@@ -23,7 +23,7 @@ import (
 )
 
 // VERSION is the version of our software
-var VERSION = "v0.8.3-3-gd98c3f7"
+var VERSION = "v0.8.3-12-g7874c9d"
 
 func runTest(c *cli.Context) {
 	// create our server object and load initial config
