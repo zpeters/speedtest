@@ -3,7 +3,7 @@
 export GOPATH=~/go
 source ~/src/golang-crosscompile/crosscompile.bash
 
-BRANCH=`git describe --tags` 
+BRANCH=`git describe` 
 
 echo "Building darwin-amd64..."
 go-darwin-amd64 build -o bin/speedtest-mac-amd64-$BRANCH
