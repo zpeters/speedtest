@@ -20,10 +20,12 @@ import (
 )
 
 // SpeedtestConfigURL is where we pull the global 'config' from speedtest.net
-var SpeedtestConfigURL = "http://c.speedtest.net/speedtest-config.php"
+// Per #39 in some situations we need to have a ?=RANDOMNUMBER or the resulting page is blank
+var SpeedtestConfigURL = "http://c.speedtest.net/speedtest-config.php?x=5p33dy"
 
 // SpeedtestServersURL is the global list of speedtest servers
-var SpeedtestServersURL = "http://c.speedtest.net/speedtest-servers-static.php"
+// Per #39 in some situations we need to have a ?=RANDOMNUMBER or the resulting page is blank
+var SpeedtestServersURL = "http://c.speedtest.net/speedtest-servers-static.php?x=5p33dy"
 
 // HTTPConfigTimeout is how long we'll wait for a config download to timeout
 var HTTPConfigTimeout = time.Duration(15 * time.Second)
