@@ -161,7 +161,7 @@ func main() {
 	app.Name = "speedtest"
 	app.Usage = "Unofficial command line interface to speedtest.net (https://github.com/zpeters/speedtest)"
 	app.Author = "Zach Peters - zpeters@gmail.com - github.com/zpeters"
-	app.Version = VERSION
+	app.Version = Version
 
 	// setup cli flags
 	app.Flags = []cli.Flag{
