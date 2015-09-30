@@ -49,5 +49,5 @@ localweb: cross
 
 deploy: cross
 	echo "Uploading..."
-	ssh thehelpfulhacker.net "mkdir ~/media.thehelpfulhacker.net/speedtest/${VERSION}"
-	scp -v bin/*${VERSION}* thehelpfulhacker.net:~/media.thehelpfulhacker.net/speedtest/$BRANCH/
+	ssh thehelpfulhacker.net "mkdir -p ~/media.thehelpfulhacker.net/speedtest/${VERSION}"
+	scp -v bin/*${VERSION}* thehelpfulhacker.net:~/media.thehelpfulhacker.net/speedtest/${VERSION}/
