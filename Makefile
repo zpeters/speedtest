@@ -32,11 +32,14 @@ cross:
 	echo "Building windows-amd64..."
 	GOOS="windows" GOARCH="amd64" go build -o bin/speedtest-64-${VERSION}.exe
 
-	echo "Building freebsd-amd64..."
-	GOOS="freebsd" GOARCH="amd64" go build -o bin/speedtest-freebsd-amd64-${VERSION}
+	echo "Building freebsd-386..."
+	GOOS="freebsd" GOARCH="386" go build -o bin/speedtest-freebsd-386-${VERSION}
 
 	echo "Building linux-arm..."
 	GOOS="linux" GOARCH="arm" go  build -o bin/speedtest-linux-arm-${VERSION}
+
+	echo "Building linux-386..."
+	GOOS="linux" GOARCH="386" go build -o bin/speedtest-linux-386-${VERSION}
 
 	echo "Building linux-amd64..."
 	GOOS="linux" GOARCH="amd64" go build -o bin/speedtest-linux-amd64-${VERSION}
