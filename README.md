@@ -1,6 +1,18 @@
-speedtest
-=========
-This is a quick client for speedtest.net in go.  Patterned after https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
+The Unofficial Speedtest CLI
+============================
+The Unofficial Speedtest CLI is a command-line program to test
+bandwidth in situations where you don't have access to a full GUI
+environment and web browser.
+
+In [2013 I was feeling guilty](http://thehelpfulhacker.net/2013/07/29/giving-something-back/)
+about using Open Source software for most of my life without giving
+anything back in return.  I decided to create this project to my part
+to help the IT community.
+
+A lot of the initial algorithms here are based on different scripts I
+found when I was studying how speedtest.net works.  Mainly, @sivel's
+[speedtest-cli](https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli),
+thanks for your work!
 
 [![Build Status](https://drone.io/github.com/zpeters/speedtest/status.png)](https://drone.io/github.com/zpeters/speedtest/latest)
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/pr)](http://www.issuestats.com/github/zpeters/speedtest)
