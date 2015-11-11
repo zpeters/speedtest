@@ -97,6 +97,9 @@ func runTest(c *cli.Context) {
 		}
 		// ... and get the fastests NUMCLOSEST ones
 		testServer = sthttp.GetFastestServer(closestServers)
+		if !debug.REPORT {
+			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
+		}
 	}
 
 	// if ping only then just output latency results and exit nicely...
