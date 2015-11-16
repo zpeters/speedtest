@@ -20,7 +20,7 @@ build:
 	${GOCMD} build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
 
 clean:
-	rm bin/speedtest
+	rm bin/speedtest*
 
 cross:
 	echo "Building darwin-amd64..."

@@ -120,36 +120,48 @@ func runTest(c *cli.Context) {
 		os.Exit(0)
 		// ...otherwise run our full test
 	} else {
-
 		var dmbps float64
 		var umbps float64
 
-		// get our upload and/or download speeds
-		if c.Bool("downloadonly") {
-			dmbps = tests.DownloadTest(testServer)
-		} else if c.Bool("uploadonly") {
-			umbps = tests.UploadTest(testServer)
-		} else {
-			dmbps = tests.DownloadTest(testServer)
-			umbps = tests.UploadTest(testServer)
-		}
-
 		if !debug.REPORT {
+			if c.Bool("downloadonly") {
+				dmbps = tests.DownloadTest(testServer)
+			} else if c.Bool("uploadonly") {
+				umbps = tests.UploadTest(testServer)
+			} else {
+				dmbps = tests.DownloadTest(testServer)
+				umbps = tests.UploadTest(testServer)
+			}
 			if settings.ALGOTYPE == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
 			} else {
 				fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
 			}
+
 		} else {
-			//print.ServerReport(testServer)
-			dkbps := dmbps * 1000
-			ukbps := umbps * 1000
 
 			fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now().Format("2006-01-02 15:04:05 -0700"), settings.REPORTCHAR, testServer.ID, settings.REPORTCHAR, testServer.Sponsor, testServer.Name, testServer.Country, settings.REPORTCHAR)
-			fmt.Printf("%3.2f%s%d%s%d\n", testServer.Latency, settings.REPORTCHAR, int(dkbps), settings.REPORTCHAR, int(ukbps))
+			fmt.Printf("%3.2f%s", testServer.Latency, settings.REPORTCHAR)
+
+			if c.Bool("downloadonly") {
+				dmbps = tests.DownloadTest(testServer)
+				dkbps := dmbps * 1000
+				fmt.Printf("%d\n", int(dkbps))
+			} else if c.Bool("uploadonly") {
+				umbps = tests.UploadTest(testServer)
+				ukbps := umbps * 1000
+				fmt.Printf("%d\n", int(ukbps))
+			} else {
+				dmbps = tests.DownloadTest(testServer)
+				dkbps := dmbps * 1000
+				fmt.Printf("%d%s", int(dkbps), settings.REPORTCHAR)
+
+				umbps = tests.UploadTest(testServer)
+				ukbps := umbps * 1000
+				fmt.Printf("%d\n", int(ukbps))
+			}
 		}
 	}
-
 }
 
 func main() {
