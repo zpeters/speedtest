@@ -141,7 +141,6 @@ func runTest(c *cli.Context) {
 				fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
 			}
 		} else {
-			//print.ServerReport(testServer)
 			dkbps := dmbps * 1000
 			ukbps := umbps * 1000
 
