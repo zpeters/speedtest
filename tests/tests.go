@@ -113,7 +113,7 @@ func UploadTest(server sthttp.Server) float64 {
 
 	}
 
-	if !debug.QUIET {
+	if !debug.QUIET && !debug.REPORT {
 		fmt.Printf("\n")
 	}
 
