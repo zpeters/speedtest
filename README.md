@@ -118,7 +118,7 @@ Thank You
 - Cory Lievers - Testing and feedback. Suggestions for formatting to make this more useful for labtec - https://github.com/zpeters/speedtest/issues/9
 - Paul Baker (Network Manager - BMS Telecorp) - Located a bug in the speedtest.net server list generation and found the correct 'static' url
 - Graham Roach (Contact Info?) - Extensive user testing to help determine issues with latency and accuracy of upload and download speeds - #11 (and others)
-- @larray - slightly obscure issues with http caches interferring with test results - #20
+- @larray - slightly obscure issues with http caches interfering with test results - #20
 - Noric - reporting and help with testing issues with report formatting - #32
 - @jannson - submitting patch to reduce memory usage on download test - #37
 
@@ -126,7 +126,7 @@ Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================
 The calculation that is used for testing download speeds is literally measuring the amount of data we are downloading (we request a "random" image and count how many bytes are received) and how long it takes to download.  We multiply by the correct factors to get from bytes to megabits. I consider this to be an honest and accurate measurement.
 
-In speedtest.net's reference documentation they describe doing a lot of manipulation to the restults to return an "ideal" measurement (https://support.speedtest.net/entries/20862782-How-does-the-test-itself-work-How-is-the-result-calculated-). This, to me, is trading accuracy for speed and not what I'm looking for out of a testing tool.
+In speedtest.net's reference documentation they describe doing a lot of manipulation to the results to return an "ideal" measurement (https://support.speedtest.net/entries/20862782-How-does-the-test-itself-work-How-is-the-result-calculated-). This, to me, is trading accuracy for speed and not what I'm looking for out of a testing tool.
 
 For confirmation that my download calculations are correct I have tested against a few other speed testing sites, specifically http://testmy.net ("What makes TestMy.net better") who appear to use an "unfiltered" method of calculating bandwidth speeds.  These results typically match up with speedtest.net cli
 
@@ -134,5 +134,5 @@ For confirmation that my download calculations are correct I have tested against
 Reference
 =========
 - how does it work - https://support.speedtest.net/entries/20862782-How-does-the-test-itself-work-How-is-the-result-calculated-
-- why actual speedtest.net results may be innaccurate - http://testmy.net/
+- why actual speedtest.net results may be inaccurate - http://testmy.net/
    
