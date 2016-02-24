@@ -102,6 +102,10 @@ func UploadTest(server sthttp.Server) float64 {
 		if !debug.QUIET && !debug.DEBUG && !debug.REPORT {
 			fmt.Printf(".")
 		}
+		if debug.DEBUG {
+			log.Printf("Ul Amount: %v bytes\n", len(r))
+			log.Printf("Ul Speed: %vMbps\n", ulSpeed)
+		}
 
 		if settings.ALGOTYPE == "max" {
 			if ulSpeed > maxSpeed {

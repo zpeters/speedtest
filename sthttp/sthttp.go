@@ -353,14 +353,10 @@ func DownloadSpeed(url string) float64 {
 		log.Fatalf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
 	}
 	defer resp.Body.Close()
-	/*data, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Fatalf("Cannot test download speed of '%s' - 'Cannot read body'\n", url)
-	}*/
+
 	bodyLen := respBodyLen(resp)
 	finish := time.Now()
 
-	//bits := float64(len(data) * 8)
 	bits := float64(bodyLen * 8)
 	megabits := bits / float64(1000) / float64(1000)
 	seconds := finish.Sub(start).Seconds()
@@ -374,6 +370,7 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	start := time.Now()
 	if debug.DEBUG {
 		log.Printf("Starting test at: %s\n", start)
+		log.Printf("Starting test at: %d (nano)\n", start.UnixNano())
 	}
 
 	buf := bytes.NewBuffer(data)
@@ -390,6 +387,8 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 
 	if debug.DEBUG {
 		log.Printf("Finishing test at: %s\n", finish)
+		log.Printf("Finishing test at: %d (nano)\n", finish.UnixNano())
+		log.Printf("Took: %d (nano)\n", finish.Sub(start).Nanoseconds())
 	}
 
 	bits := float64(len(data) * 8)
