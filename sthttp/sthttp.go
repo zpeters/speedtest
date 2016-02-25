@@ -371,14 +371,16 @@ func DownloadSpeed(url string) float64 {
 
 // UploadSpeed measures the mbps to http.Post to a URL
 func UploadSpeed(url string, mimetype string, data []byte) float64 {
+	buf := bytes.NewBuffer(data)
+
 	start := time.Now()
 	if debug.DEBUG {
 		log.Printf("Starting test at: %s\n", start)
 		log.Printf("Starting test at: %d (nano)\n", start.UnixNano())
 	}
 
-	buf := bytes.NewBuffer(data)
 	resp, err := http.Post(url, mimetype, buf)
+	finish := time.Now()
 	if err != nil {
 		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot contact server'\n", url)
 	}
@@ -387,7 +389,6 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	if err2 != nil {
 		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
 	}
-	finish := time.Now()
 
 	if debug.DEBUG {
 		log.Printf("Finishing test at: %s\n", finish)
