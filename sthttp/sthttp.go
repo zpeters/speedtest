@@ -12,6 +12,10 @@ import (
 )
 
 import (
+	"github.com/dchest/uniuri"
+)
+
+import (
 	"github.com/zpeters/speedtest/coords"
 	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/misc"
@@ -21,11 +25,11 @@ import (
 
 // SpeedtestConfigURL is where we pull the global 'config' from speedtest.net
 // Per #39 in some situations we need to have a ?=RANDOMNUMBER or the resulting page is blank
-var SpeedtestConfigURL = "http://c.speedtest.net/speedtest-config.php?x=5p33dy"
+var SpeedtestConfigURL = "http://c.speedtest.net/speedtest-config.php?x=" + uniuri.New()
 
 // SpeedtestServersURL is the global list of speedtest servers
 // Per #39 in some situations we need to have a ?=RANDOMNUMBER or the resulting page is blank
-var SpeedtestServersURL = "http://c.speedtest.net/speedtest-servers-static.php?x=5p33dy"
+var SpeedtestServersURL = "http://c.speedtest.net/speedtest-servers-static.php?x=" + uniuri.New()
 
 // HTTPConfigTimeout is how long we'll wait for a config download to timeout
 var HTTPConfigTimeout = time.Duration(15 * time.Second)
