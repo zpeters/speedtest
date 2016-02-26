@@ -12,6 +12,7 @@ import (
 
 import (
 	"github.com/codegangsta/cli"
+	"github.com/google/go-github/github"
 )
 
 import (
@@ -272,6 +273,17 @@ func main() {
 
 		// run our test
 		runTest(c)
+	}
+
+	// Check if there is an update
+	client := github.NewClient(nil)
+	latestRelease, _, err := client.Repositories.GetLatestRelease("zpeters", "speedtest")
+	if err != nil {
+		log.Fatalf("github call: %s", err)
+	}
+	githubTag := *latestRelease.TagName
+	if Version != githubTag {
+		fmt.Printf("New version %s available at https://github.com/zpeters/speedtest/releases\n", githubTag)
 	}
 
 	// run the app
