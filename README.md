@@ -18,7 +18,6 @@ thanks for your work!
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/pr)](http://www.issuestats.com/github/zpeters/speedtest)
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/issue)](http://www.issuestats.com/github/zpeters/speedtest)
 [![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
-[![Github Releases](https://img.shields.io/github/downloads/zpeters/speedtest/latest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
 
 
 License
