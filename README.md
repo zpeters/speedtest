@@ -14,11 +14,10 @@ found when I was studying how speedtest.net works.  Mainly, @sivel's
 [speedtest-cli](https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli),
 thanks for your work!
 
+[![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
 [![Build Status](https://drone.io/github.com/zpeters/speedtest/status.png)](https://drone.io/github.com/zpeters/speedtest/latest)
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/pr)](http://www.issuestats.com/github/zpeters/speedtest)
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/issue)](http://www.issuestats.com/github/zpeters/speedtest)
-[![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
-
 
 License
 =======
