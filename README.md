@@ -17,6 +17,9 @@ thanks for your work!
 [![Build Status](https://drone.io/github.com/zpeters/speedtest/status.png)](https://drone.io/github.com/zpeters/speedtest/latest)
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/pr)](http://www.issuestats.com/github/zpeters/speedtest)
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/issue)](http://www.issuestats.com/github/zpeters/speedtest)
+[![Github All Releases](https://img.shields.io/github/downloads/atom/atom/total.svg)]()
+[![Github Releases](https://img.shields.io/github/downloads/atom/atom/latest/total.svg)]()
+
 
 License
 =======
