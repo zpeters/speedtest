@@ -194,6 +194,10 @@ func main() {
 			Usage: "List available servers",
 		},
 		cli.BoolFlag{
+			Name: "update, u",
+			Usage: "Check for a new version of speedtest",
+		},
+		cli.BoolFlag{
 			Name:  "ping, p",
 			Usage: "Ping only mode",
 		},
@@ -239,6 +243,22 @@ func main() {
 
 	// toggle our switches and setup variables
 	app.Action = func(c *cli.Context) {
+		// just check the version if that is what they want
+		if c.Bool("update") {
+			// Check if there is an update
+			client := github.NewClient(nil)
+			latestRelease, _, err := client.Repositories.GetLatestRelease("zpeters", "speedtest")
+			if err != nil {
+				log.Fatalf("github call: %s", err)
+			}
+			githubTag := *latestRelease.TagName
+			if Version != githubTag {
+				fmt.Printf("New version %s available at https://github.com/zpeters/speedtest/releases\n", githubTag)
+			} else {
+				fmt.Printf("You are up to date\n")
+			}
+			os.Exit(0)
+		}
 		// set our flags
 		if c.Bool("debug") {
 			debug.DEBUG = true
@@ -273,17 +293,6 @@ func main() {
 
 		// run our test
 		runTest(c)
-	}
-
-	// Check if there is an update
-	client := github.NewClient(nil)
-	latestRelease, _, err := client.Repositories.GetLatestRelease("zpeters", "speedtest")
-	if err != nil {
-		log.Fatalf("github call: %s", err)
-	}
-	githubTag := *latestRelease.TagName
-	if Version != githubTag {
-		fmt.Printf("New version %s available at https://github.com/zpeters/speedtest/releases\n", githubTag)
 	}
 
 	// run the app
