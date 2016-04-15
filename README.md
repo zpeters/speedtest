@@ -11,7 +11,7 @@ to help the IT community.
 
 A lot of the initial algorithms here are based on different scripts I
 found when I was studying how speedtest.net works.  Mainly, @sivel's
-[speedtest-cli](https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli),
+[speedtest-cli](https://github.com/sivel/speedtest-cli),
 thanks for your work!
 
 [![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
