@@ -13,9 +13,9 @@ import (
 )
 
 import (
-	"github.com/zpeters/speedtest/debug"
-	"github.com/zpeters/speedtest/settings"
-	"github.com/zpeters/speedtest/sthttp"
+	"../debug"
+	"../settings"
+	"../sthttp"
 )
 
 // Server prints the results in "human" format

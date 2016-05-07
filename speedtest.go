@@ -16,11 +16,11 @@ import (
 )
 
 import (
-	"github.com/zpeters/speedtest/debug"
-	"github.com/zpeters/speedtest/print"
-	"github.com/zpeters/speedtest/settings"
-	"github.com/zpeters/speedtest/sthttp"
-	"github.com/zpeters/speedtest/tests"
+	"./debug"
+	"./print"
+	"./settings"
+	"./sthttp"
+	"./tests"
 )
 
 // VERSION is the version of our software

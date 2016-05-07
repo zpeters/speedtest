@@ -16,11 +16,11 @@ import (
 )
 
 import (
-	"github.com/zpeters/speedtest/coords"
-	"github.com/zpeters/speedtest/debug"
-	"github.com/zpeters/speedtest/misc"
-	"github.com/zpeters/speedtest/settings"
-	"github.com/zpeters/speedtest/stxml"
+	"../coords"
+	"../debug"
+	"../misc"
+	"../settings"
+	"../stxml"
 )
 
 // SpeedtestConfigURL is where we pull the global 'config' from speedtest.net
