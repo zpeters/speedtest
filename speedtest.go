@@ -194,7 +194,7 @@ func main() {
 			Usage: "List available servers",
 		},
 		cli.BoolFlag{
-			Name: "update, u",
+			Name:  "update, u",
 			Usage: "Check for a new version of speedtest",
 		},
 		cli.BoolFlag{
@@ -293,6 +293,9 @@ func main() {
 
 		// run our test
 		runTest(c)
+
+		// exit nicely
+		os.Exit(0)
 	}
 
 	// run the app
