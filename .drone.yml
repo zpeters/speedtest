@@ -2,6 +2,9 @@ image: go1.6
 env:
   - GOPATH=/var/cache/drone
 script:
+  - go get github.com/codegangsta/cli
+  - go get github.com/google/go-github/github
+  - go build
   - make
 notify:
   email:
