@@ -6,7 +6,7 @@ install:
   - go get "github.com/codegangsta/cli"
   - go get "github.com/google/go-github/github"
 script:
-  - go build
+  - make
 notifications:
   email:
     recipients:
