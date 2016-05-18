@@ -1,5 +1,5 @@
 build:
   image: golang:1.6
   commands:
-    - go get
+    - go get github.com/zpeters/speedtest
     - make
