@@ -3,15 +3,12 @@ package tests
 import (
 	"fmt"
 	"log"
+	"speedtest/internal/debug"
+	"speedtest/internal/misc"
+	"speedtest/internal/print"
+	"speedtest/internal/settings"
+	"speedtest/internal/sthttp"
 	"strings"
-)
-
-import (
-	"../debug"
-	"../misc"
-	"../print"
-	"../settings"
-	"../sthttp"
 )
 
 // DownloadTest will perform the "normal" speedtest download test
