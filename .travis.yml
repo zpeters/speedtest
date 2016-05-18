@@ -1,13 +1,18 @@
 language: go
 sudo: false
+go:
+  - 1.5
+  - 1.6
+  - tip
+
+script:
+   - go get "github.com/codegangsta/cli"
+   - go get "github.com/google/go-github/github"
+   - make
+
 notifications:
    email:
       recipients:
          - zpeters@gmail.com
       on_success: always
       on_failure: always
-
-script:
-   - go get "github.com/codegangsta/cli"
-   - go get "github.com/google/go-github/github"
-   - make
