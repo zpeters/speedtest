@@ -2,7 +2,7 @@ image: go1.6
 env:
   - GOPATH=/var/cache/drone
 script:
-  - go build
+  - make
 notify:
   email:
     recipients:
