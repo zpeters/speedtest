@@ -13,4 +13,5 @@ notifications:
   email:
     recipients:
       - zpeters@gmail.com
-        on_failure: always
+    on_failure: always
+    on_success: always
