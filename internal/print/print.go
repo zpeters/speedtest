@@ -4,18 +4,13 @@ import (
 	"fmt"
 	"log"
 	"runtime"
+	"speedtest/internal/debug"
+	"speedtest/internal/settings"
+	"speedtest/internal/sthttp"
 	"time"
-)
 
-import (
 	"github.com/codegangsta/cli"
 	"github.com/dchest/uniuri"
-)
-
-import (
-	"../debug"
-	"../settings"
-	"../sthttp"
 )
 
 // Server prints the results in "human" format
