@@ -13,9 +13,9 @@ import (
 )
 
 import (
-	"../debug"
-	"../settings"
-	"../sthttp"
+	"speedtest/internal/debug"
+	"speedtest/internal/settings"
+	"speedtest/internal/sthttp"
 )
 
 // Server prints the results in "human" format

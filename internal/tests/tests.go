@@ -7,11 +7,11 @@ import (
 )
 
 import (
-	"../debug"
-	"../misc"
-	"../print"
-	"../settings"
-	"../sthttp"
+	"speedtest/internal/debug"
+	"speedtest/internal/misc"
+	"speedtest/internal/print"
+	"speedtest/internal/settings"
+	"speedtest/internal/sthttp"
 )
 
 // DownloadTest will perform the "normal" speedtest download test

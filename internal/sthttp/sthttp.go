@@ -16,11 +16,11 @@ import (
 )
 
 import (
-	"../coords"
-	"../debug"
-	"../misc"
-	"../settings"
-	"../stxml"
+	"speedtest/internal/coords"
+	"speedtest/internal/debug"
+	"speedtest/internal/misc"
+	"speedtest/internal/settings"
+	"speedtest/internal/stxml"
 )
 
 // SpeedtestConfigURL is where we pull the global 'config' from speedtest.net

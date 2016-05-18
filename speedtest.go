@@ -16,11 +16,11 @@ import (
 )
 
 import (
-	"./debug"
-	"./print"
-	"./settings"
-	"./sthttp"
-	"./tests"
+	"speedtest/internal/debug"
+	"speedtest/internal/print"
+	"speedtest/internal/settings"
+	"speedtest/internal/sthttp"
+	"speedtest/internal/tests"
 )
 
 // VERSION is the version of our software
