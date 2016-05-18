@@ -17,7 +17,7 @@ VERSION=$(shell git describe --tags --always)
 default: build
 
 build:
-	${GOCMD} build -ldflags="-X main.Version ${VERSION}" -o bin/speedtest
+	${GOCMD} build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
 
 clean:
 	rm bin/speedtest*
