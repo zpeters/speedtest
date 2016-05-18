@@ -1,5 +1,6 @@
-image: go1.6
-script:
+build:
+  image: danielsreichenbach/drone-golang:1.6
+  commands:
     - go get github.com/codegangsta/cli
     - go get github.com/google/go-github/github
     - make
