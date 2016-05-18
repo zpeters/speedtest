@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"log"
 	"runtime"
-	"speedtest/internal/debug"
-	"speedtest/internal/settings"
-	"speedtest/internal/sthttp"
 	"time"
+
+	"github.com/zpeters/speedtest/debug"
+	"github.com/zpeters/speedtest/settings"
+	"github.com/zpeters/speedtest/sthttp"
 
 	"github.com/codegangsta/cli"
 	"github.com/dchest/uniuri"
