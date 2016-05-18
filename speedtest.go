@@ -6,21 +6,16 @@ import (
 	"math/rand"
 	"net/url"
 	"os"
-	"strings"
-	"time"
-)
-
-import (
-	"github.com/codegangsta/cli"
-	"github.com/google/go-github/github"
-)
-
-import (
 	"speedtest/internal/debug"
 	"speedtest/internal/print"
 	"speedtest/internal/settings"
 	"speedtest/internal/sthttp"
 	"speedtest/internal/tests"
+	"strings"
+	"time"
+
+	"github.com/codegangsta/cli"
+	"github.com/google/go-github/github"
 )
 
 // VERSION is the version of our software

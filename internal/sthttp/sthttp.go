@@ -7,20 +7,15 @@ import (
 	"log"
 	"net/http"
 	"sort"
-	"strings"
-	"time"
-)
-
-import (
-	"github.com/dchest/uniuri"
-)
-
-import (
 	"speedtest/internal/coords"
 	"speedtest/internal/debug"
 	"speedtest/internal/misc"
 	"speedtest/internal/settings"
 	"speedtest/internal/stxml"
+	"strings"
+	"time"
+
+	"github.com/dchest/uniuri"
 )
 
 // SpeedtestConfigURL is where we pull the global 'config' from speedtest.net
