@@ -1,10 +1,5 @@
-build:
-  image: go1.6
-  commands:
+image: go1.6
+script:
     - go get github.com/codegangsta/cli
     - go get github.com/google/go-github/github
     - make
-  notify:
-    email:
-      recipients:
-        - zpeters@gmail.com
