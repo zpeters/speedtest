@@ -1,2 +1,9 @@
-build:
-  image: golang:1.6
+image: go:1.6
+env:
+  - GOPATH=/var/cache/drone
+script:
+  - go build
+notify:
+  email:
+    recipients:
+      - zpeters@gmail.com
