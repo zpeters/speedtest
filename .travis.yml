@@ -5,6 +5,7 @@ go:
 install:
   - go get "github.com/codegangsta/cli"
   - go get "github.com/google/go-github/github"
+  - go get "github.com/dchest/uniuri"
 script:
   - make
 notifications:
