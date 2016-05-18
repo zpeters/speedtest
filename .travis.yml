@@ -8,4 +8,5 @@ notifications:
       on_failure: always
 
 script:
-   - go test -v ./...
+   - go get "github.com/codegangsta/cli"
+   - go get "github.com/google/go-github/github"
