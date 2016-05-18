@@ -4,15 +4,14 @@ go:
   - 1.5
   - 1.6
   - tip
-
+install:
+  - go get "github.com/codegangsta/cli"
+  - go get "github.com/google/go-github/github"
 script:
-   - go get "github.com/codegangsta/cli"
-   - go get "github.com/google/go-github/github"
-   - make
-
+  - go build
 notifications:
-   email:
-      recipients:
-         - zpeters@gmail.com
-      on_success: always
-      on_failure: always
+  email:
+    recipients:
+      - zpeters@gmail.com
+        on_success: always
+        on_failure: always
