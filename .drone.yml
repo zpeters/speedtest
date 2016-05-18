@@ -1,12 +1,10 @@
-image: go1.6
-env:
-  - GOPATH=/var/cache/drone
-script:
-  - go get github.com/codegangsta/cli
-  - go get github.com/google/go-github/github
-  - go build
-  - make
-notify:
-  email:
-    recipients:
-      - zpeters@gmail.com
+build:
+  image: go1.6
+  commands:
+    - go get github.com/codegangsta/cli
+    - go get github.com/google/go-github/github
+    - make
+  notify:
+    email:
+      recipients:
+        - zpeters@gmail.com
