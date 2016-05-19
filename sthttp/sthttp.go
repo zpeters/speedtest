@@ -27,13 +27,13 @@ var SpeedtestConfigURL = "http://c.speedtest.net/speedtest-config.php?x=" + uniu
 var SpeedtestServersURL = "http://c.speedtest.net/speedtest-servers-static.php?x=" + uniuri.New()
 
 // HTTPConfigTimeout is how long we'll wait for a config download to timeout
-var HTTPConfigTimeout = time.Duration(time.Duration(viper.GetInt("httpconfigtimeout")) * time.Second)
+var HTTPConfigTimeout = time.Duration(viper.GetDuration("httpconfigtimeout") * time.Second)
 
 // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-var HTTPLatencyTimeout = time.Duration(time.Duration(viper.GetInt("httplatencytimeout")) * time.Second)
+var HTTPLatencyTimeout = time.Duration(viper.GetDuration("httplatencytimeout") * time.Second)
 
 // HTTPDownloadTimeout is how long we'll wait for a download to timeout
-var HTTPDownloadTimeout = time.Duration(time.Duration(viper.GetInt("httpdownloadtimeout")) * time.Minute)
+var HTTPDownloadTimeout = time.Duration(viper.GetDuration("httpdownloadtimeout") * time.Minute)
 
 // CONFIG is our global config space
 var CONFIG Config
