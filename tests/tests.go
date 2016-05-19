@@ -5,10 +5,9 @@ import (
 	"log"
 	"strings"
 
-	"github.com/zpeters/speedtest/debug"
+	"github.com/spf13/viper"
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/print"
-	"github.com/zpeters/speedtest/settings"
 	"github.com/zpeters/speedtest/sthttp"
 )
 
@@ -30,24 +29,24 @@ func DownloadTest(server sthttp.Server) float64 {
 		urls = append(urls, downloadURL)
 	}
 
-	if !debug.QUIET && !debug.REPORT {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		log.Printf("Testing download speed")
 	}
 
 	for u := range urls {
 
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Download Test Run: %s\n", urls[u])
 		}
 		dlSpeed := sthttp.DownloadSpeed(urls[u])
-		if !debug.QUIET && !debug.DEBUG && !debug.REPORT {
+		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Dl Speed: %v\n", dlSpeed)
 		}
 
-		if settings.ALGOTYPE == "max" {
+		if viper.GetString("algotype") == "max" {
 			if dlSpeed > maxSpeed {
 				maxSpeed = dlSpeed
 			}
@@ -57,11 +56,11 @@ func DownloadTest(server sthttp.Server) float64 {
 
 	}
 
-	if !debug.QUIET && !debug.REPORT {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		fmt.Printf("\n")
 	}
 
-	if settings.ALGOTYPE != "max" {
+	if viper.GetString("algotype") != "max" {
 		return avgSpeed / float64(len(urls))
 	}
 	return maxSpeed
@@ -87,25 +86,25 @@ func UploadTest(server sthttp.Server) float64 {
 		ulsize = append(ulsize, ulsizesizes[size])
 	}
 
-	if !debug.QUIET && !debug.REPORT {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		log.Printf("Testing upload speed")
 	}
 
 	for i := 0; i < len(ulsize); i++ {
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Upload Test Run: %v\n", i)
 		}
 		r := misc.Urandom(ulsize[i])
 		ulSpeed := sthttp.UploadSpeed(server.URL, "text/xml", r)
-		if !debug.QUIET && !debug.DEBUG && !debug.REPORT {
+		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Ul Amount: %v bytes\n", len(r))
 			log.Printf("Ul Speed: %vMbps\n", ulSpeed)
 		}
 
-		if settings.ALGOTYPE == "max" {
+		if viper.GetString("algotype") == "max" {
 			if ulSpeed > maxSpeed {
 				maxSpeed = ulSpeed
 			}
@@ -115,11 +114,11 @@ func UploadTest(server sthttp.Server) float64 {
 
 	}
 
-	if !debug.QUIET && !debug.REPORT {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		fmt.Printf("\n")
 	}
 
-	if settings.ALGOTYPE != "max" {
+	if viper.GetString("algotype") != "max" {
 		return avgSpeed / float64(len(ulsizesizes))
 	}
 	return maxSpeed
@@ -141,19 +140,19 @@ func FindServer(id string, serversList []sthttp.Server) sthttp.Server {
 
 // ListServers prints a list of all "global" servers
 func ListServers() {
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}
 	sthttp.CONFIG = sthttp.GetConfig()
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		fmt.Printf("\n")
 	}
 
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		fmt.Printf("Getting servers list...")
 	}
 	allServers := sthttp.GetServers()
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		fmt.Printf("(%d) found\n", len(allServers))
 	}
 	for s := range allServers {

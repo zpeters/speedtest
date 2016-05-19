@@ -10,10 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
 	"github.com/zpeters/speedtest/coords"
-	"github.com/zpeters/speedtest/debug"
 	"github.com/zpeters/speedtest/misc"
-	"github.com/zpeters/speedtest/settings"
 	"github.com/zpeters/speedtest/stxml"
 
 	"github.com/dchest/uniuri"
@@ -185,7 +184,7 @@ func GetServers() []Server {
 
 // GetClosestServers takes the full server list and sorts by distance
 func GetClosestServers(servers []Server) []Server {
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		log.Printf("Sorting all servers by distance...\n")
 	}
 
@@ -219,12 +218,12 @@ func GetLatency(server Server) float64 {
 	var minLatency time.Duration
 	var avgLatency time.Duration
 
-	for i := 0; i < settings.NUMLATENCYTESTS; i++ {
+	for i := 0; i < viper.GetInt("numlatencytests"); i++ {
 		var failed bool
 		var finish time.Time
 
 		latencyURL := getLatencyURL(server)
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor)
 		}
 
@@ -257,11 +256,11 @@ func GetLatency(server Server) float64 {
 			latency = finish.Sub(start)
 		}
 
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("\tRun took: %v\n", latency)
 		}
 
-		if settings.ALGOTYPE == "max" {
+		if viper.GetString("algotype") == "max" {
 			if minLatency == 0 {
 				minLatency = latency
 			} else if latency < minLatency {
@@ -273,10 +272,10 @@ func GetLatency(server Server) float64 {
 
 	}
 
-	if settings.ALGOTYPE == "max" {
+	if viper.GetString("algotype") == "max" {
 		return float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
 	}
-	return float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(settings.NUMLATENCYTESTS)
+	return float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(viper.GetInt("numlatencytests"))
 
 }
 
@@ -289,34 +288,34 @@ func GetFastestServer(servers []Server) Server {
 	var successfulServers []Server
 
 	for server := range servers {
-		if debug.DEBUG {
-			log.Printf("Doing %d runs of %v\n", settings.NUMCLOSEST, servers[server])
+		if viper.GetBool("debug") {
+			log.Printf("Doing %d runs of %v\n", viper.GetInt("numclosest"), servers[server])
 		}
 		Latency := GetLatency(servers[server])
 
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Total runs took: %v\n", Latency)
 		}
 
 		if Latency > float64(time.Duration(1*time.Minute)) {
-			if debug.DEBUG {
+			if viper.GetBool("debug") {
 				log.Printf("Server %d was too slow, skipping...\n", server)
 			}
 		} else {
-			if debug.DEBUG {
+			if viper.GetBool("debug") {
 				log.Printf("Server latency was ok %f adding to successful servers list", Latency)
 			}
 			successfulServers = append(successfulServers, servers[server])
 			successfulServers[server].Latency = Latency
 		}
 
-		if len(successfulServers) == settings.NUMCLOSEST {
+		if len(successfulServers) == viper.GetInt("numclosest") {
 			break
 		}
 	}
 
 	sort.Sort(ByLatency(successfulServers))
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		log.Printf("Server: %v is the fastest server\n", successfulServers[0])
 	}
 	return successfulServers[0]
@@ -340,7 +339,7 @@ func respBodyLen(resp *http.Response) int {
 // DownloadSpeed measures the mbps of downloading a URL
 func DownloadSpeed(url string) float64 {
 	start := time.Now()
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		log.Printf("Starting test at: %s\n", start)
 	}
 	client := &http.Client{
@@ -370,7 +369,7 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	buf := bytes.NewBuffer(data)
 
 	start := time.Now()
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		log.Printf("Starting test at: %s\n", start)
 		log.Printf("Starting test at: %d (nano)\n", start.UnixNano())
 	}
@@ -386,7 +385,7 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
 	}
 
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		log.Printf("Finishing test at: %s\n", finish)
 		log.Printf("Finishing test at: %d (nano)\n", finish.UnixNano())
 		log.Printf("Took: %d (nano)\n", finish.Sub(start).Nanoseconds())
