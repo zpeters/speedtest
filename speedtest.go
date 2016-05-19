@@ -171,6 +171,9 @@ func init() {
 	viper.SetDefault("httpconfigtimeout", 15)
 	viper.SetDefault("httplatencytimeout", 15)
 	viper.SetDefault("httpdownloadimeout", 15)
+	viper.SetDefault("dlsizes", []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000})
+	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
+
 }
 
 func main() {

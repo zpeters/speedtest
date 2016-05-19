@@ -18,13 +18,11 @@ func DownloadTest(server sthttp.Server) float64 {
 	var avgSpeed float64
 
 	// http://speedtest1.newbreakcommunications.net/speedtest/speedtest/
-	dlsizes := []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
-
-	for size := range dlsizes {
+	for size := range viper.Get("dlsizes").([]int) {
 		url := server.URL
 		splits := strings.Split(url, "/")
 		baseURL := strings.Join(splits[1:len(splits)-1], "/")
-		randomImage := fmt.Sprintf("random%dx%d.jpg", dlsizes[size], dlsizes[size])
+		randomImage := fmt.Sprintf("random%dx%d.jpg", viper.Get("dlsizes").([]int)[size], viper.Get("dlsizes").([]int)[size])
 		downloadURL := "http:/" + baseURL + "/" + randomImage
 		urls = append(urls, downloadURL)
 	}
@@ -74,16 +72,8 @@ func UploadTest(server sthttp.Server) float64 {
 	var maxSpeed float64
 	var avgSpeed float64
 
-	ulsizesizes := []int{
-		int(0.25 * 1024 * 1024),
-		int(0.5 * 1024 * 1024),
-		int(1.0 * 1024 * 1024),
-		int(1.5 * 1024 * 1024),
-		int(2.0 * 1024 * 1024),
-	}
-
-	for size := range ulsizesizes {
-		ulsize = append(ulsize, ulsizesizes[size])
+	for size := range viper.Get("ulsizes").([]int) {
+		ulsize = append(ulsize, viper.Get("ulsizes").([]int)[size])
 	}
 
 	if !viper.GetBool("quiet") && !viper.GetBool("report") {
@@ -119,7 +109,7 @@ func UploadTest(server sthttp.Server) float64 {
 	}
 
 	if viper.GetString("algotype") != "max" {
-		return avgSpeed / float64(len(ulsizesizes))
+		return avgSpeed / float64(len(viper.Get("ulsizes").([]int)))
 	}
 	return maxSpeed
 }
