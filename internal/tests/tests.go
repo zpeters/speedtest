@@ -3,12 +3,13 @@ package tests
 import (
 	"fmt"
 	"log"
-	"speedtest/internal/debug"
-	"speedtest/internal/misc"
-	"speedtest/internal/print"
-	"speedtest/internal/settings"
-	"speedtest/internal/sthttp"
 	"strings"
+
+	"github.com/zpeters/speedtest/internal/debug"
+	"github.com/zpeters/speedtest/internal/misc"
+	"github.com/zpeters/speedtest/internal/print"
+	"github.com/zpeters/speedtest/internal/settings"
+	"github.com/zpeters/speedtest/internal/sthttp"
 )
 
 // DownloadTest will perform the "normal" speedtest download test
