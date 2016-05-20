@@ -7,13 +7,14 @@ import (
 	"log"
 	"net/http"
 	"sort"
-	"speedtest/internal/coords"
-	"speedtest/internal/debug"
-	"speedtest/internal/misc"
-	"speedtest/internal/settings"
-	"speedtest/internal/stxml"
 	"strings"
 	"time"
+
+	"github.com/zpeters/speedtest/internal/coords"
+	"github.com/zpeters/speedtest/internal/debug"
+	"github.com/zpeters/speedtest/internal/misc"
+	"github.com/zpeters/speedtest/internal/settings"
+	"github.com/zpeters/speedtest/internal/stxml"
 
 	"github.com/dchest/uniuri"
 )

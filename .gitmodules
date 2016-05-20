@@ -1,0 +1,9 @@
+[submodule "vendor/github.com/google/go-github"]
+	path = vendor/github.com/google/go-github
+	url = git://github.com/google/go-github.git
+[submodule "vendor/github.com/google/go-querystring"]
+	path = vendor/github.com/google/go-querystring
+	url = git://github.com/google/go-querystring.git
+[submodule "vendor/github.com/dchest/uniuri"]
+	path = vendor/github.com/dchest/uniuri
+	url = git://github.com/dchest/uniuri.git
