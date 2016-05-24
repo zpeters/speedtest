@@ -7,3 +7,6 @@
 [submodule "vendor/github.com/dchest/uniuri"]
 	path = vendor/github.com/dchest/uniuri
 	url = git://github.com/dchest/uniuri.git
+[submodule "vendor/github.com/spf13/viper"]
+	path = vendor/github.com/spf13/viper
+	url = git://github.com/spf13/viper.git
