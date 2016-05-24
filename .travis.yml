@@ -3,10 +3,8 @@ sudo: false
 go:
   - 1.6
 install:
-  - go get "github.com/codegangsta/cli"
-  - go get "github.com/google/go-github/github"
-  - go get "github.com/dchest/uniuri"
-  - go get "github.com/spf13/viper"
+  - git submodule init
+  - git submodule update
 script:
   - make
 notifications:
