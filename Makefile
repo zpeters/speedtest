@@ -10,8 +10,7 @@ VERSION=$(shell git describe --tags --always)
 default: build
 
 build:
-	git submodule init
-	git submodule update
+	git submodule update --init --recursive
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
 
 clean:
