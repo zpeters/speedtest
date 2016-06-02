@@ -4,6 +4,7 @@
 SHELL=/usr/bin/env bash
 
 GOCMD = go
+GITCMD = git
 GOFMTCMD = gofmt
 GOLINTCMD = golint
 GOPATH := ${HOME}/go:${GOPATH}
@@ -17,6 +18,8 @@ VERSION=$(shell git describe --tags --always)
 default: build
 
 build:
+	${GITCMD} submodule init
+	${GITCMD} submodule update
 	${GOCMD} build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
 
 clean:
