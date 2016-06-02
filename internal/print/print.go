@@ -8,7 +8,7 @@ import (
 
 	"github.com/zpeters/speedtest/internal/sthttp"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/dchest/uniuri"
 	"github.com/spf13/viper"
 )
