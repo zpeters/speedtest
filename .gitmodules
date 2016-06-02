@@ -40,6 +40,6 @@
 [submodule "vendor/gopkg.in/yaml.v2"]
 	path = vendor/gopkg.in/yaml.v2
 	url = https://gopkg.in/yaml.v2
-[submodule "vendor/github.com/golang/sys"]
-	path = vendor/github.com/golang/sys
-	url = https://github.com/golang/sys
+[submodule "vendor/golang.org/x/sys/unix"]
+	path = vendor/golang.org/x/sys/unix
+	url = https://go.googlesource.com/sys/
