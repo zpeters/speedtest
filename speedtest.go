@@ -13,7 +13,7 @@ import (
 	"github.com/zpeters/speedtest/internal/sthttp"
 	"github.com/zpeters/speedtest/internal/tests"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/google/go-github/github"
 	"github.com/spf13/viper"
 )
