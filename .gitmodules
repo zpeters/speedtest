@@ -42,4 +42,4 @@
 	url = https://gopkg.in/yaml.v2
 [submodule "vendor/golang.org/x/sys"]
 	path = vendor/golang.org/x/sys
-	url = https://go.googlesource.com/sys/
+	url = https://go.googlesource.com/sys
