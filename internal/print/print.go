@@ -6,12 +6,11 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/zpeters/speedtest/internal/debug"
-	"github.com/zpeters/speedtest/internal/settings"
 	"github.com/zpeters/speedtest/internal/sthttp"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/dchest/uniuri"
+	"github.com/spf13/viper"
 )
 
 // Server prints the results in "human" format
@@ -21,7 +20,7 @@ func Server(server sthttp.Server) {
 
 // ServerReport prints restults in a machine useable format
 func ServerReport(server sthttp.Server) {
-	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), settings.REPORTCHAR, server.ID, settings.REPORTCHAR, server.Sponsor, server.Name, server.Country, settings.REPORTCHAR)
+	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), viper.GetString("reportchar"), server.ID, viper.GetString("reportchar"), server.Sponsor, server.Name, server.Country, viper.GetString("reportchar"))
 }
 
 // EnvironmentReport is a debugging report helpful for debugging
@@ -42,25 +41,25 @@ func EnvironmentReport(c *cli.Context) {
 	log.Printf("-------------------------------\n")
 	log.Printf("[Settings]\n")
 	if c.Bool("debug") {
-		log.Printf("Debug (user): %v\n", debug.DEBUG)
+		log.Printf("Debug (user): %v\n", viper.GetBool("debug"))
 	} else {
-		log.Printf("Debug (default): %v\n", debug.DEBUG)
+		log.Printf("Debug (default): %v\n", viper.GetBool("debug"))
 	}
 	if c.Bool("quiet") {
-		log.Printf("Quiet (user): %v\n", debug.QUIET)
+		log.Printf("Quiet (user): %v\n", viper.GetBool("quiet"))
 	} else {
-		log.Printf("Quiet (default): %v\n", debug.QUIET)
+		log.Printf("Quiet (default): %v\n", viper.GetBool("quiet"))
 	}
 	if c.Int("numclosest") == 0 {
-		log.Printf("NUMCLOSEST (default): %v\n", settings.NUMCLOSEST)
+		log.Printf("NUMCLOSEST (default): %v\n", viper.GetInt("numclosest"))
 	} else {
-		log.Printf("NUMCLOSEST (user): %v\n", settings.NUMCLOSEST)
+		log.Printf("NUMCLOSEST (user): %v\n", viper.GetInt("numclosest"))
 
 	}
 	if c.Int("numlatency") == 0 {
-		log.Printf("NUMLATENCYTESTS (default): %v\n", settings.NUMLATENCYTESTS)
+		log.Printf("NUMLATENCYTESTS (default): %v\n", viper.GetInt("numlatencytests"))
 	} else {
-		log.Printf("NUMLATENCYTESTS (user): %v\n", settings.NUMLATENCYTESTS)
+		log.Printf("NUMLATENCYTESTS (user): %v\n", viper.GetInt("numlatencytests"))
 	}
 	if c.String("server") == "" {
 		log.Printf("server (default none specified)\n")
@@ -68,12 +67,12 @@ func EnvironmentReport(c *cli.Context) {
 		log.Printf("server (user): %s\n", c.String("server"))
 	}
 	if c.String("reportchar") == "" {
-		log.Printf("reportchar (default): %s\n", settings.REPORTCHAR)
+		log.Printf("reportchar (default): %s\n", viper.GetString("reportchar"))
 	} else {
 		log.Printf("reportchar (user): %s\n", c.String("reportchar"))
 	}
 	if c.String("algo") == "" {
-		log.Printf("algo (default): %s\n", settings.ALGOTYPE)
+		log.Printf("algo (default): %s\n", viper.GetString("algotype"))
 	} else {
 		log.Printf("algo (user): %s\n", c.String("algo"))
 	}

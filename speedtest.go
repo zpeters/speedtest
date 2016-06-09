@@ -9,14 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zpeters/speedtest/internal/debug"
 	"github.com/zpeters/speedtest/internal/print"
-	"github.com/zpeters/speedtest/internal/settings"
 	"github.com/zpeters/speedtest/internal/sthttp"
 	"github.com/zpeters/speedtest/internal/tests"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 	"github.com/google/go-github/github"
+	"github.com/spf13/viper"
 )
 
 // VERSION is the version of our software
@@ -28,17 +27,17 @@ func runTest(c *cli.Context) {
 	sthttp.CONFIG = sthttp.GetConfig()
 
 	// if we are *not* running a report then say hello to everyone
-	if !debug.REPORT {
+	if !viper.GetBool("report") {
 		fmt.Printf("github.com/zpeters/speedtest -- unofficial cli for speedtest.net\n")
 	}
 
 	// if we are in debug mode print outa an environment report
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		print.EnvironmentReport(c)
 	}
 
 	// get all possible servers
-	if debug.DEBUG {
+	if viper.GetBool("debug") {
 		log.Printf("Getting all servers for our test list")
 	}
 	var allServers []sthttp.Server
@@ -55,7 +54,7 @@ func runTest(c *cli.Context) {
 			log.Fatalf("Speedtest mini server URL is not a valid URL: %s", err)
 		}
 
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Using Mini Server '%s'", c.String("mini"))
 		}
 		testServer.URL = c.String("mini")
@@ -71,7 +70,7 @@ func runTest(c *cli.Context) {
 
 		// if they specified a specific speedtest.net server, test against that...
 	} else if c.String("server") != "" {
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Server '%s' specified, getting info...", c.String("server"))
 		}
 		// find server and load latency report
@@ -79,22 +78,22 @@ func runTest(c *cli.Context) {
 		// load latency
 		testServer.Latency = sthttp.GetLatency(testServer)
 
-		if !debug.REPORT {
+		if !viper.GetBool("report") {
 			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
 		}
 
 		// ...otherwise get a list of all servers sorted by distance...
 	} else {
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Getting closest servers...")
 		}
 		closestServers := sthttp.GetClosestServers(allServers)
-		if debug.DEBUG {
+		if viper.GetBool("debug") {
 			log.Printf("Getting the fastests of our closest servers...")
 		}
 		// ... and get the fastests NUMCLOSEST ones
 		testServer = sthttp.GetFastestServer(closestServers)
-		if !debug.REPORT {
+		if !viper.GetBool("report") {
 			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
 		}
 	}
@@ -102,13 +101,13 @@ func runTest(c *cli.Context) {
 	// if ping only then just output latency results and exit nicely...
 	if c.Bool("ping") {
 		if c.Bool("report") {
-			if settings.ALGOTYPE == "max" {
+			if viper.GetString("algotype") == "max" {
 				fmt.Printf("%3.2f (Lowest)\n", testServer.Latency)
 			} else {
 				fmt.Printf("%3.2f (Avg)\n", testServer.Latency)
 			}
 		} else {
-			if settings.ALGOTYPE == "max" {
+			if viper.GetString("algotype") == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms\n", testServer.Latency)
 			} else {
 				fmt.Printf("Ping (Avg): %3.2f ms\n", testServer.Latency)
@@ -120,7 +119,7 @@ func runTest(c *cli.Context) {
 		var dmbps float64
 		var umbps float64
 
-		if !debug.REPORT {
+		if !viper.GetBool("report") {
 			if c.Bool("downloadonly") {
 				dmbps = tests.DownloadTest(testServer)
 			} else if c.Bool("uploadonly") {
@@ -129,7 +128,7 @@ func runTest(c *cli.Context) {
 				dmbps = tests.DownloadTest(testServer)
 				umbps = tests.UploadTest(testServer)
 			}
-			if settings.ALGOTYPE == "max" {
+			if viper.GetString("algotype") == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
 			} else {
 				fmt.Printf("Ping (Avg): %3.2f ms | Download (Avg): %3.2f Mbps | Upload (Avg): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
@@ -137,8 +136,8 @@ func runTest(c *cli.Context) {
 
 		} else {
 
-			fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now().Format("2006-01-02 15:04:05 -0700"), settings.REPORTCHAR, testServer.ID, settings.REPORTCHAR, testServer.Sponsor, testServer.Name, testServer.Country, settings.REPORTCHAR)
-			fmt.Printf("%3.2f%s", testServer.Latency, settings.REPORTCHAR)
+			fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now().Format("2006-01-02 15:04:05 -0700"), viper.GetString("reportchar"), testServer.ID, viper.GetString("reportchar"), testServer.Sponsor, testServer.Name, testServer.Country, viper.GetString("reportchar"))
+			fmt.Printf("%3.2f%s", testServer.Latency, viper.GetString("reportchar"))
 
 			if c.Bool("downloadonly") {
 				dmbps = tests.DownloadTest(testServer)
@@ -151,7 +150,7 @@ func runTest(c *cli.Context) {
 			} else {
 				dmbps = tests.DownloadTest(testServer)
 				dkbps := dmbps * 1000
-				fmt.Printf("%d%s", int(dkbps), settings.REPORTCHAR)
+				fmt.Printf("%d%s", int(dkbps), viper.GetString("reportchar"))
 
 				umbps = tests.UploadTest(testServer)
 				ukbps := umbps * 1000
@@ -159,6 +158,22 @@ func runTest(c *cli.Context) {
 			}
 		}
 	}
+}
+
+func init() {
+	viper.SetDefault("debug", false)
+	viper.SetDefault("quiet", false)
+	viper.SetDefault("report", false)
+	viper.SetDefault("numclosest", 3)
+	viper.SetDefault("numlatencytests", 5)
+	viper.SetDefault("reportchar", "|")
+	viper.SetDefault("algotype", "max")
+	viper.SetDefault("httpconfigtimeout", 15)
+	viper.SetDefault("httplatencytimeout", 15)
+	viper.SetDefault("httpdownloadimeout", 15)
+	viper.SetDefault("dlsizes", []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000})
+	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
+
 }
 
 func main() {
@@ -227,12 +242,12 @@ func main() {
 		},
 		cli.IntFlag{
 			Name:  "numclosest, nc",
-			Value: settings.NUMCLOSEST,
+			Value: viper.GetInt("numclosest"),
 			Usage: "Number of 'closest' servers to find",
 		},
 		cli.IntFlag{
 			Name:  "numlatency, nl",
-			Value: settings.NUMLATENCYTESTS,
+			Value: viper.GetInt("numlatencytests"),
 			Usage: "Number of latency tests to perform",
 		},
 	}
@@ -257,28 +272,28 @@ func main() {
 		}
 		// set our flags
 		if c.Bool("debug") {
-			debug.DEBUG = true
+			viper.Set("debug", true)
 		}
 		if c.Bool("quiet") {
-			debug.QUIET = true
+			viper.Set("quiet", true)
 		}
 		if c.Bool("report") {
-			debug.REPORT = true
+			viper.Set("report", true)
 		}
 		if c.String("algo") != "" {
 			if c.String("algo") == "max" {
-				settings.ALGOTYPE = "max"
+				viper.Set("algotype", "max")
 			} else if c.String("algo") == "avg" {
-				settings.ALGOTYPE = "avg"
+				viper.Set("algotype", "avg")
 			} else {
 				fmt.Printf("** Invalid algorithm '%s'\n", c.String("algo"))
 				os.Exit(1)
 			}
 		}
-		settings.NUMCLOSEST = c.Int("numclosest")
-		settings.NUMLATENCYTESTS = c.Int("numlatency")
+		viper.Set("numclosest", c.Int("numclosest"))
+		viper.Set("numlatencytests", c.Int("numlatency"))
 		if c.String("reportchar") != "" {
-			settings.REPORTCHAR = c.String("reportchar")
+			viper.Set("reportchar", c.String("reportchar"))
 		}
 
 		// run a oneshot list
