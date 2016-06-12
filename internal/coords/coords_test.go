@@ -21,3 +21,14 @@ func TestHalversine(t *testing.T) {
 		}
 	}
 }
+
+func TestDegPos(t *testing.T) {
+	p := DegPos(63.506144, 9.20091)
+	lat := 1.1083913080456418
+	lon := 0.16058617367967148
+
+	if (p.φ != lat) || (p.ψ != lon) {
+		t.Logf("Got: %#v\n", p)
+		t.Errorf("Should be: %#v %#v\n", lat, lon)
+	}
+}

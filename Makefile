@@ -16,6 +16,10 @@ build:
 clean:
 	rm bin/speedtest*
 
+test:
+	go test -cover
+	go test ./internal/... -cover
+
 cross:
 	echo "Building darwin-amd64..."
 	GOOS="darwin" GOARCH="amd64" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-mac-amd64-${VERSION}
