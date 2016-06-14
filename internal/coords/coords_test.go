@@ -66,3 +66,12 @@ func TestHsDist(t *testing.T) {
 		assert.Equal(t, res, expect)
 	}
 }
+
+func TestHsDist(t *testing.T) {
+	p1 := Pos{0.7102, -1.2923}
+	p2 := Pos{0.8527, 0.400}
+	expect := 7174.056241819571
+
+	res := HsDist(p1, p2)
+	assert.Equal(t, res, expect)
+}
