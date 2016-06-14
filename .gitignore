@@ -7,3 +7,5 @@ pkg/
 speedtest
 Godeps/_workspace
 vendor/
+coverage-all.out
+coverage.out
