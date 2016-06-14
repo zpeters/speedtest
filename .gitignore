@@ -5,4 +5,5 @@ pkg/
 \#*\#
 .\#*
 speedtest
-Godeps/_workspace
+coverage-all.out
+coverage.out
