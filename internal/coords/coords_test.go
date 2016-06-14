@@ -2,6 +2,8 @@ package coords
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type HalversineTest struct {
@@ -31,4 +33,13 @@ func TestDegPos(t *testing.T) {
 		t.Logf("Got: %#v\n", p)
 		t.Errorf("Should be: %#v %#v\n", lat, lon)
 	}
+}
+
+func TestHsDist(t *testing.T) {
+	p1 := Pos{0.7102, -1.2923}
+	p2 := Pos{0.8527, 0.400}
+	expect := 7174.056241819571
+
+	res := HsDist(p1, p2)
+	assert.Equal(t, res, expect)
 }
