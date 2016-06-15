@@ -15,3 +15,12 @@ func TestServer(t *testing.T) {
 
 	Server(s)
 }
+
+func TestServerReport(t *testing.T) {
+	s := sthttp.Server{}
+	s.ID = "123"
+	s.Sponsor = "Sponsor"
+	s.Name = "Name"
+	s.Country = "Country"
+	ServerReport(s)
+}
