@@ -13,9 +13,9 @@ import (
 	"github.com/zpeters/speedtest/internal/sthttp"
 	"github.com/zpeters/speedtest/internal/tests"
 
-	"github.com/urfave/cli"
 	"github.com/google/go-github/github"
 	"github.com/spf13/viper"
+	"github.com/urfave/cli"
 )
 
 // VERSION is the version of our software
@@ -170,7 +170,7 @@ func init() {
 	viper.SetDefault("algotype", "max")
 	viper.SetDefault("httpconfigtimeout", 15)
 	viper.SetDefault("httplatencytimeout", 15)
-	viper.SetDefault("httpdownloadimeout", 15)
+	viper.SetDefault("httpdownloadtimeout", 15)
 	viper.SetDefault("dlsizes", []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000})
 	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
 
