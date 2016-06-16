@@ -1,0 +1,18 @@
+hash: cadc39b1a6c615bd5bc424d9a6d091cdea895b5161a16036869b7946356f5466
+updated: 2016-06-16T18:17:12.081944488-05:00
+imports:
+- name: github.com/dchest/uniuri
+  version: 8902c56451e9b58ff940bbe5fec35d5f9c04584a
+- name: github.com/google/go-github
+  version: e1bc3a7920210b40648e9f31f4ee4e9dd7a57450
+  subpackages:
+  - github
+- name: github.com/google/go-querystring
+  version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
+  subpackages:
+  - query
+- name: github.com/spf13/viper
+  version: c1ccc378a054ea8d4e38d8c67f6938d4760b53dd
+- name: github.com/urfave/cli
+  version: b438abf775124d32be72016935a9553dbffe8473
+devImports: []
