@@ -6,3 +6,4 @@ pkg/
 .\#*
 speedtest
 Godeps/_workspace
+vendor/
