@@ -130,11 +130,16 @@ func FindServer(id string, serversList []sthttp.Server) sthttp.Server {
 }
 
 // ListServers prints a list of all "global" servers
-func ListServers() {
+func ListServers() (err error) {
 	if viper.GetBool("debug") {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}
-	sthttp.CONFIG = sthttp.GetConfig()
+	c, err := sthttp.GetConfig(viper.GetString("speedtestconfigurl"))
+	if err != nil {
+		return err
+	}
+
+	sthttp.CONFIG = c
 	if viper.GetBool("debug") {
 		fmt.Printf("\n")
 	}
@@ -150,4 +155,5 @@ func ListServers() {
 		server := allServers[s]
 		print.Server(server)
 	}
+	return nil
 }
