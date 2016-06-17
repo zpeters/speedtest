@@ -9,7 +9,8 @@ before_install:
 install:
   - glide up
 script:
-  - speedtest -p
+  - make
+  - ./bin/speedtest -p
 notifications:
   email:
     recipients:
