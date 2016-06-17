@@ -26,42 +26,11 @@ func TestServerReport(t *testing.T) {
 	ServerReport(s)
 }
 
-func TestEnvironmentReportDebugQuietOn(t *testing.T) {
+func TestEnvironmentReport(t *testing.T) {
 	app := cli.NewApp()
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "debug, d",
-			Usage: "Turn on debugging",
-		},
-		cli.BoolFlag{
-			Name:  "quiet, q",
-			Usage: "Quiet mode",
-		},
-	}
 	app.Action = func(c *cli.Context) error {
 		EnvironmentReport(c)
 		return nil
 	}
-	args := []string{"testing", "-d", "-q"}
-	app.Run(args)
-}
-
-func TestEnvironmentReportDebugQuietOff(t *testing.T) {
-	app := cli.NewApp()
-	app.Flags = []cli.Flag{
-		cli.BoolFlag{
-			Name:  "debug, d",
-			Usage: "Turn on debugging",
-		},
-		cli.BoolFlag{
-			Name:  "quiet, q",
-			Usage: "Quiet mode",
-		},
-	}
-	app.Action = func(c *cli.Context) error {
-		EnvironmentReport(c)
-		return nil
-	}
-	args := []string{"testing"}
-	app.Run(args)
+	app.Run([]string{"testing"})
 }
