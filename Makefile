@@ -11,7 +11,6 @@ PACKAGES = $(shell find ./ -type d | grep -v 'vendor' | grep -v '.git' | grep -v
 default: build
 
 build:
-	git submodule update --init --recursive
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
 
 clean:
