@@ -18,7 +18,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-// VERSION is the version of our software
+// Version placeholder, injected in Makefile
 var Version string
 
 func runTest(c *cli.Context) {

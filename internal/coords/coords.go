@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-// Radius of the Earth
+// RadiusEarth is the radius of the Earth
 const RadiusEarth = 6372.8
 
 // Coordinate on the Earth
