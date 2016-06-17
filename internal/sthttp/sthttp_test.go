@@ -104,3 +104,55 @@ func TestGetConfigNoConnection(t *testing.T) {
 	_, err := GetConfig("fail")
 	assert.Error(t, err, "An error was expected")
 }
+
+func TestGetServers(t *testing.T) {
+	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	if err != nil {
+		t.Logf("Cannot read sthttp_test_servers.xml")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, string(x))
+	}))
+	defer ts.Close()
+
+	servers, err := GetServers(ts.URL)
+	if err != nil {
+		t.Logf("Cannot get servers")
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, len(servers), 4636, "Should be exactly 4636 servers")
+
+	//sthttp_test.go:127: Server 0: sthttp.Server{URL:"http://88.84.191.230/speedtest/upload.php", Lat:70.0733, Lon:29.7497, Name:"Vadso", Country:"Norway", CC:"NO", Sponsor:"Varanger KraftUtvikling AS", ID:"4600", Distance:0, Latency:0}
+	expectURL := "http://88.84.191.230/speedtest/upload.php"
+	assert.Equal(t, servers[0].URL, expectURL, fmt.Sprintf("Server 0 url should be: '%s'\n", expectURL))
+
+	expectLat := 59.8833
+	assert.Equal(t, servers[100].Lat, expectLat, fmt.Sprintf("Server 10 lat should be: '%s'\n", expectLat))
+
+	expectLon := 15.2
+	assert.Equal(t, servers[1005].Lon, expectLon, fmt.Sprintf("Server 1050 lat should be: '%s'\n", expectLat))
+
+	expectName := "Chirchiq"
+	assert.Equal(t, servers[2021].Name, expectName, fmt.Sprintf("Server 2021 name should be: '%s'\n", expectName))
+
+	expectCountry := "Lao PDR"
+	assert.Equal(t, servers[3321].Country, expectCountry, fmt.Sprintf("Server 3321 name should be: '%s'\n", expectCountry))
+
+	expectCC := "US"
+	assert.Equal(t, servers[2222].CC, expectCC, fmt.Sprintf("Server 2222 name should be: '%s'\n", expectCC))
+
+	expectSponsor := "SRT Communications"
+	assert.Equal(t, servers[1234].Sponsor, expectSponsor, fmt.Sprintf("Server 1234 name should be: '%s'\n", expectSponsor))
+
+	expectID := "2804"
+	assert.Equal(t, servers[666].ID, expectID, fmt.Sprintf("Server 666 name should be: '%s'\n", expectID))
+
+	expectDistance := 0
+	assert.EqualValues(t, servers[1].Distance, expectDistance, fmt.Sprintf("Server 1 name should be: '%s'\n", expectDistance))
+
+	expectLatency := 0
+	assert.EqualValues(t, servers[21].Latency, expectLatency, fmt.Sprintf("Server 21 name should be: '%s'\n", expectLatency))
+
+}

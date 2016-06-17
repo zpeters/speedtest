@@ -147,7 +147,10 @@ func ListServers() (err error) {
 	if viper.GetBool("debug") {
 		fmt.Printf("Getting servers list...")
 	}
-	allServers := sthttp.GetServers()
+	allServers, err := sthttp.GetServers(viper.GetString("speedtestserversurl"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	if viper.GetBool("debug") {
 		fmt.Printf("(%d) found\n", len(allServers))
 	}

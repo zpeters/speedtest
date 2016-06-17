@@ -10,17 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dchest/uniuri"
 	"github.com/zpeters/speedtest/internal/coords"
 	"github.com/zpeters/speedtest/internal/misc"
 	"github.com/zpeters/speedtest/internal/stxml"
 
 	"github.com/spf13/viper"
 )
-
-// SpeedtestServersURL is the global list of speedtest servers
-// Per #39 in some situations we need to have a ?=RANDOMNUMBER or the resulting page is blank
-var SpeedtestServersURL = "http://c.speedtest.net/speedtest-servers-static.php?x=" + uniuri.New()
 
 // HTTPConfigTimeout is how long we'll wait for a config download to timeout
 var HTTPConfigTimeout = time.Duration(viper.GetDuration("httpconfigtimeout") * time.Second)
@@ -134,31 +129,29 @@ func GetConfig(url string) (c Config, err error) {
 }
 
 // GetServers will get the full server list
-func GetServers() []Server {
-	var servers []Server
-
+func GetServers(url string) (servers []Server, err error) {
 	client := &http.Client{
 		Timeout: HTTPConfigTimeout,
 	}
-	req, _ := http.NewRequest("GET", SpeedtestServersURL, nil)
+	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Cache-Control", "no-cache")
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot contact server'\n")
+		return servers, err
 	}
 	defer resp.Body.Close()
 
 	body, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
-		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot read body'\n")
+		return servers, err2
 	}
 
 	s := new(stxml.ServerSettings)
 
 	err3 := xml.Unmarshal(body, &s)
 	if err3 != nil {
-		log.Fatalf("Cannot get servers list from speedtest.net: 'Cannot unmarshal XML'\n")
+		return servers, err3
 	}
 
 	for xmlServer := range s.ServersContainer.XMLServers {
@@ -173,7 +166,7 @@ func GetServers() []Server {
 		server.ID = s.ServersContainer.XMLServers[xmlServer].ID
 		servers = append(servers, *server)
 	}
-	return servers
+	return servers, nil
 }
 
 // GetClosestServers takes the full server list and sorts by distance
