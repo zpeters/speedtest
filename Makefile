@@ -19,9 +19,16 @@ clean:
 test:
 	go test $(shell glide nv)
 
-coverage:
+cover:
 	go test -cover
 	go test ./internal/... -cover
+
+coverage:
+	echo "mode: count" > coverage-all.out
+	$(foreach pkg,$(PACKAGES),\
+		go test -coverprofile=coverage.out -covermode=count $(pkg);\
+		tail -n +2 coverage.out >> coverage-all.out;)
+	go tool cover -html=coverage-all.out
 
 cross:
 	echo "Building darwin-amd64..."
