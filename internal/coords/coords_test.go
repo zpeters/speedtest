@@ -66,25 +66,3 @@ func TestHsDist(t *testing.T) {
 		assert.Equal(t, res, expect)
 	}
 }
-
-func TestHsDist(t *testing.T) {
-	type TestExpect struct {
-		Pos1Lat  float64
-		Pos1Lon  float64
-		Pos2Lat  float64
-		Pos2Lon  float64
-		Distance float64
-	}
-
-	tests := []TestExpect{
-		{0.7102, -1.2923, 0.8527, 0.400, 7174.056241819571},
-	}
-
-	for test := range tests {
-		pos1 := Pos{tests[test].Pos1Lat, tests[test].Pos1Lon}
-		pos2 := Pos{tests[test].Pos2Lat, tests[test].Pos2Lon}
-		expect := tests[test].Distance
-		res := HsDist(pos1, pos2)
-		assert.Equal(t, res, expect)
-	}
-}
