@@ -8,9 +8,9 @@ import (
 
 	"github.com/zpeters/speedtest/internal/sthttp"
 
-	"github.com/urfave/cli"
 	"github.com/dchest/uniuri"
 	"github.com/spf13/viper"
+	"github.com/urfave/cli"
 )
 
 // Server prints the results in "human" format
