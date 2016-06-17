@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dchest/uniuri"
 	"github.com/zpeters/speedtest/internal/print"
 	"github.com/zpeters/speedtest/internal/sthttp"
 	"github.com/zpeters/speedtest/internal/tests"
@@ -24,7 +25,12 @@ var Version string
 func runTest(c *cli.Context) {
 	// create our server object and load initial config
 	var testServer sthttp.Server
-	sthttp.CONFIG = sthttp.GetConfig()
+	config, err := sthttp.GetConfig(viper.GetString("speedtestconfigurl"))
+	if err != nil {
+		log.Printf("Cannot get speedtest config\n")
+		log.Fatal(err)
+	}
+	sthttp.CONFIG = config
 
 	// if we are *not* running a report then say hello to everyone
 	if !viper.GetBool("report") {
@@ -173,7 +179,7 @@ func init() {
 	viper.SetDefault("httpdownloadtimeout", 15)
 	viper.SetDefault("dlsizes", []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000})
 	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
-
+	viper.SetDefault("speedtestconfigurl", "http://c.speedtest.net/speedtest-config.php?x="+uniuri.New())
 }
 
 func main() {

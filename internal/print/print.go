@@ -34,7 +34,7 @@ func EnvironmentReport(c *cli.Context) {
 	log.Printf("Lat: %v\n", sthttp.CONFIG.Lat)
 	log.Printf("Lon: %v\n", sthttp.CONFIG.Lon)
 	log.Printf("ISP: %v\n", sthttp.CONFIG.Isp)
-	log.Printf("Config: %s\n", sthttp.SpeedtestConfigURL)
+	log.Printf("Config: %s\n", viper.GetString("speedtestconfigurl"))
 	log.Printf("Servers: %s\n", sthttp.SpeedtestServersURL)
 	r := uniuri.New()
 	log.Printf("TEST: %v\n", r)

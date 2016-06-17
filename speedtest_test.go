@@ -8,6 +8,7 @@ import (
 )
 
 func TestInit(t *testing.T) {
+	t.Parallel()
 	assert.NotNil(t, viper.GetBool("debug"))
 	assert.NotNil(t, viper.GetBool("quiet"))
 	assert.NotNil(t, viper.GetBool("report"))

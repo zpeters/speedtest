@@ -10,17 +10,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dchest/uniuri"
 	"github.com/zpeters/speedtest/internal/coords"
 	"github.com/zpeters/speedtest/internal/misc"
 	"github.com/zpeters/speedtest/internal/stxml"
 
-	"github.com/dchest/uniuri"
 	"github.com/spf13/viper"
 )
-
-// SpeedtestConfigURL is where we pull the global 'config' from speedtest.net
-// Per #39 in some situations we need to have a ?=RANDOMNUMBER or the resulting page is blank
-var SpeedtestConfigURL = "http://c.speedtest.net/speedtest-config.php?x=" + uniuri.New()
 
 // SpeedtestServersURL is the global list of speedtest servers
 // Per #39 in some situations we need to have a ?=RANDOMNUMBER or the resulting page is blank
@@ -102,41 +98,39 @@ func checkHTTP(resp *http.Response) bool {
 }
 
 // GetConfig downloads the master config from speedtest.net
-func GetConfig() Config {
+func GetConfig(url string) (c Config, err error) {
+	c = Config{}
+
 	client := &http.Client{
 		Timeout: HTTPConfigTimeout,
 	}
-	req, _ := http.NewRequest("GET", SpeedtestConfigURL, nil)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return c, err
+	}
 	req.Header.Set("Cache-Control", "no-cache")
 	resp, err := client.Do(req)
-
 	if err != nil {
-		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Could not create connection'\n")
+		return c, err
 	}
 	defer resp.Body.Close()
 	if checkHTTP(resp) != true {
 		log.Fatalf("Couldn't retrieve our config from speedtest.net: '%s'\n", resp.Status)
 	}
 
-	body, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Cannot read body'\n")
-	}
+	body, err := ioutil.ReadAll(resp.Body)
 
 	cx := new(stxml.XMLConfigSettings)
 
-	err3 := xml.Unmarshal(body, &cx)
-	if err3 != nil {
-		log.Fatalf("Couldn't retrieve our config from speedtest.net: 'Cannot unmarshal XML'\n")
-	}
+	err = xml.Unmarshal(body, &cx)
 
-	c := new(Config)
 	c.IP = cx.Client.IP
 	c.Lat = misc.ToFloat(cx.Client.Lat)
 	c.Lon = misc.ToFloat(cx.Client.Lon)
 	c.Isp = cx.Client.Isp
 
-	return *c
+	return c, err
 }
 
 // GetServers will get the full server list
