@@ -2,8 +2,6 @@ language: go
 sudo: true
 go:
   - 1.6
-script:
-  - go test -v ./...
 before_install:
   - sudo add-apt-repository ppa:masterminds/glide -y
   - sudo apt-get update -y
