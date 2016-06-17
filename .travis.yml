@@ -8,6 +8,8 @@ before_install:
   - sudo apt-get install glide -y
 install:
   - glide up
+script:
+  - speedtest -p
 notifications:
   email:
     recipients:
