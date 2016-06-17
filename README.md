@@ -14,11 +14,18 @@ found when I was studying how speedtest.net works.  Mainly, @sivel's
 [speedtest-cli](https://github.com/sivel/speedtest-cli),
 thanks for your work!
 
+**master branch**
 [![Go Report Card](https://goreportcard.com/badge/github.com/zpeters/speedtest)](https://goreportcard.com/report/github.com/zpeters/speedtest)
 [![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
 [![Build Status](https://travis-ci.org/zpeters/speedtest.svg?branch=master)](https://travis-ci.org/zpeters/speedtest)
+
+**development branch**
+[![Build Status](https://travis-ci.org/zpeters/speedtest.svg?branch=develop)](https://travis-ci.org/zpeters/speedtest)
+
+**issues**
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/pr)](http://www.issuestats.com/github/zpeters/speedtest)
 [![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/issue)](http://www.issuestats.com/github/zpeters/speedtest)
+
 
 License
 =======
