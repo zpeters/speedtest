@@ -170,14 +170,12 @@ func GetServers(url string) (servers []Server, err error) {
 }
 
 // GetClosestServers takes the full server list and sorts by distance
-func GetClosestServers(servers []Server) []Server {
+func GetClosestServers(servers []Server, lat float64, lon float64) []Server {
 	if viper.GetBool("debug") {
 		log.Printf("Sorting all servers by distance...\n")
 	}
 
-	mylat := CONFIG.Lat
-	mylon := CONFIG.Lon
-	myCoords := coords.Coordinate{Lat: mylat, Lon: mylon}
+	myCoords := coords.Coordinate{Lat: lat, Lon: lon}
 	for server := range servers {
 		theirlat := servers[server].Lat
 		theirlon := servers[server].Lon
@@ -191,7 +189,7 @@ func GetClosestServers(servers []Server) []Server {
 	return servers
 }
 
-func getLatencyURL(server Server) string {
+func GetLatencyURL(server Server) string {
 	u := server.URL
 	splits := strings.Split(u, "/")
 	baseURL := strings.Join(splits[1:len(splits)-1], "/")
@@ -200,16 +198,15 @@ func getLatencyURL(server Server) string {
 }
 
 // GetLatency will test the latency (ping) the given server NUMLATENCYTESTS times and return either the lowest or average depending on what algorithm is set
-func GetLatency(server Server) float64 {
+func GetLatency(server Server, url string, numtests int) (result float64, err error) {
 	var latency time.Duration
 	var minLatency time.Duration
 	var avgLatency time.Duration
 
-	for i := 0; i < viper.GetInt("numlatencytests"); i++ {
+	for i := 0; i < numtests; i++ {
 		var failed bool
 		var finish time.Time
 
-		latencyURL := getLatencyURL(server)
 		if viper.GetBool("debug") {
 			log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor)
 		}
@@ -219,20 +216,18 @@ func GetLatency(server Server) float64 {
 		client := &http.Client{
 			Timeout: HTTPLatencyTimeout,
 		}
-		req, _ := http.NewRequest("GET", latencyURL, nil)
+		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Set("Cache-Control", "no-cache")
 		resp, err := client.Do(req)
 
 		if err != nil {
-			log.Printf("Cannot test latency of '%s' - 'Cannot contact server'\n", latencyURL)
-			failed = true
+			return result, err
 		} else {
 			defer resp.Body.Close()
 			finish = time.Now()
 			_, err2 := ioutil.ReadAll(resp.Body)
 			if err2 != nil {
-				log.Printf("Cannot test latency of '%s' - 'Cannot read body'\n", latencyURL)
-				failed = true
+				return result, err
 			}
 
 		}
@@ -260,9 +255,12 @@ func GetLatency(server Server) float64 {
 	}
 
 	if viper.GetString("algotype") == "max" {
-		return float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
+		result = float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
+	} else {
+		result = float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(numtests)
 	}
-	return float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(viper.GetInt("numlatencytests"))
+
+	return result, nil
 
 }
 
@@ -278,7 +276,10 @@ func GetFastestServer(servers []Server) Server {
 		if viper.GetBool("debug") {
 			log.Printf("Doing %d runs of %v\n", viper.GetInt("numclosest"), servers[server])
 		}
-		Latency := GetLatency(servers[server])
+		Latency, err := GetLatency(servers[server], GetLatencyURL(servers[server]), viper.GetInt("numlatencytests"))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		if viper.GetBool("debug") {
 			log.Printf("Total runs took: %v\n", Latency)

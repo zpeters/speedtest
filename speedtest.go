@@ -75,7 +75,10 @@ func runTest(c *cli.Context) {
 		testServer.Sponsor = "speedtest-mini"
 		testServer.ID = "0"
 
-		testServer.Latency = sthttp.GetLatency(testServer)
+		testServer.Latency, err = sthttp.GetLatency(testServer, sthttp.GetLatencyURL(testServer), viper.GetInt("numlatencytests"))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		// if they specified a specific speedtest.net server, test against that...
 	} else if c.String("server") != "" {
@@ -85,7 +88,10 @@ func runTest(c *cli.Context) {
 		// find server and load latency report
 		testServer = tests.FindServer(c.String("server"), allServers)
 		// load latency
-		testServer.Latency = sthttp.GetLatency(testServer)
+		testServer.Latency, err = sthttp.GetLatency(testServer, sthttp.GetLatencyURL(testServer), viper.GetInt("numlatencytests"))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		if !viper.GetBool("report") {
 			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
@@ -96,7 +102,7 @@ func runTest(c *cli.Context) {
 		if viper.GetBool("debug") {
 			log.Printf("Getting closest servers...")
 		}
-		closestServers := sthttp.GetClosestServers(allServers)
+		closestServers := sthttp.GetClosestServers(allServers, sthttp.CONFIG.Lat, sthttp.CONFIG.Lon)
 		if viper.GetBool("debug") {
 			log.Printf("Getting the fastests of our closest servers...")
 		}

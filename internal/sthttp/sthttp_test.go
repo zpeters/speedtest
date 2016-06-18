@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -32,7 +33,7 @@ func TestCheckHTTPFail(t *testing.T) {
 func TestGetLatencyURL(t *testing.T) {
 	s := Server{}
 	s.URL = "http://example.com/speedtest/"
-	u := getLatencyURL(s)
+	u := GetLatencyURL(s)
 	if u != "http://example.com/speedtest/latency.txt" {
 		t.Logf("Got latency URL: %s\n", u)
 		t.Fail()
@@ -155,4 +156,63 @@ func TestGetServers(t *testing.T) {
 	expectLatency := 0
 	assert.EqualValues(t, servers[21].Latency, expectLatency, fmt.Sprintf("Server 21 name should be: '%s'\n", expectLatency))
 
+}
+
+func TestGetClosestServers(t *testing.T) {
+	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	if err != nil {
+		t.Logf("Cannot read sthttp_test_servers.xml")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, string(x))
+	}))
+	defer ts.Close()
+
+	servers, err := GetServers(ts.URL)
+	if err != nil {
+		t.Logf("Cannot get servers")
+		t.Fatal(err)
+	}
+
+	lat := 32.5155
+	lon := -90.1118
+
+	sorted := GetClosestServers(servers, lat, lon)
+
+	assert.Equal(t, sorted[0].ID, "2630", "Closest server ID should be 2630")
+}
+
+func TestGetLatency(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Fprintln(w, "Hello World")
+	}))
+	defer ts.Close()
+
+	s := Server{}
+	latency, err := GetLatency(s, ts.URL, 5)
+	assert.NoError(t, err, "Error getting latency")
+	assert.True(t, latency > 100, "Latency faster than expected")
+}
+
+func TestGetFastestServer(t *testing.T) {
+	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	if err != nil {
+		t.Logf("Cannot read sthttp_test_servers.xml")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, string(x))
+	}))
+	defer ts.Close()
+
+	servers, err := GetServers(ts.URL)
+	if err != nil {
+		t.Logf("Cannot get servers")
+		t.Fatal(err)
+	}
+
+	fs := GetFastestServer(servers)
+	assert.NotNil(t, fs, "No fastest server returned")
 }

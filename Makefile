@@ -15,6 +15,8 @@ build:
 
 clean:
 	rm bin/speedtest*
+	rm coverage-all.out
+	rm coverage.out
 
 test:
 	go test $(shell glide nv)
