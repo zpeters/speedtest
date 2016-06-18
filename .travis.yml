@@ -1,7 +1,16 @@
 language: go
-sudo: false
+sudo: true
 go:
   - 1.6
+before_install:
+  - sudo add-apt-repository ppa:masterminds/glide -y
+  - sudo apt-get update -y
+  - sudo apt-get install glide -y
+install:
+  - glide up
+script:
+  - make
+  - ./bin/speedtest -p
 notifications:
   email:
     recipients:
