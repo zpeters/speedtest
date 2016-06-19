@@ -37,7 +37,11 @@ func DownloadTest(server sthttp.Server) float64 {
 		if viper.GetBool("debug") {
 			log.Printf("Download Test Run: %s\n", urls[u])
 		}
-		dlSpeed := sthttp.DownloadSpeed(urls[u])
+		dlSpeed, err := sthttp.DownloadSpeed(urls[u])
+		if err != nil {
+			log.Printf("Can't get download speed")
+			log.Fatal(err)
+		}
 		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}

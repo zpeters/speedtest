@@ -325,7 +325,7 @@ func respBodyLen(resp *http.Response) int {
 }
 
 // DownloadSpeed measures the mbps of downloading a URL
-func DownloadSpeed(url string) float64 {
+func DownloadSpeed(url string) (speed float64, err error) {
 	start := time.Now()
 	if viper.GetBool("debug") {
 		log.Printf("Starting test at: %s\n", start)
@@ -333,11 +333,14 @@ func DownloadSpeed(url string) float64 {
 	client := &http.Client{
 		Timeout: HTTPDownloadTimeout,
 	}
-	req, _ := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return 0, err
+	}
 	req.Header.Set("Cache-Control", "no-cache")
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("Cannot test download speed of '%s' - 'Cannot contact server'\n", url)
+		return 0, err
 	}
 	defer resp.Body.Close()
 
@@ -349,7 +352,7 @@ func DownloadSpeed(url string) float64 {
 	seconds := finish.Sub(start).Seconds()
 
 	mbps := megabits / float64(seconds)
-	return mbps
+	return mbps, err
 }
 
 // UploadSpeed measures the mbps to http.Post to a URL

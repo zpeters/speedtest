@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"sort"
 	"testing"
 	"time"
@@ -215,4 +216,28 @@ func TestGetFastestServer(t *testing.T) {
 
 	fs := GetFastestServer(servers)
 	assert.NotNil(t, fs, "No fastest server returned")
+}
+
+func TestDownloadSpeed(t *testing.T) {
+	f, err := os.Open("random750x750.jpg")
+	assert.NoError(t, err, "Can't open test file")
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+	assert.NoError(t, err, "Can't read test file")
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, b)
+	}))
+	defer ts.Close()
+
+	res, err := DownloadSpeed(ts.URL)
+	assert.NoError(t, err, "There should be no error")
+	assert.True(t, res > 0, "Download speed should be faster than zero")
+}
+
+func TestDownloadSpeedBadUrl(t *testing.T) {
+	res, err := DownloadSpeed("http://0.0.0.0")
+	t.Logf("Res: %#v\n", res)
+	assert.Error(t, err, "This should fail")
 }
