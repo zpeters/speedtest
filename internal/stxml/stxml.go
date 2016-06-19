@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 )
 
-// TheClient is our users informatoin
+// TheClient is our users information
 type TheClient struct {
 	IP  string `xml:"ip,attr"`
 	Lat string `xml:"lat,attr"`
