@@ -8,6 +8,7 @@ before_install:
   - sudo apt-get install glide -y
 install:
   - glide up
+  - make test
 script:
   - make
   - ./bin/speedtest -p
