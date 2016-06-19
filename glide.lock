@@ -1,6 +1,8 @@
-hash: cadc39b1a6c615bd5bc424d9a6d091cdea895b5161a16036869b7946356f5466
-updated: 2016-06-16T18:17:12.081944488-05:00
+hash: 1a307526648c4c8c8d15662ad57b47c81ee044068af8f9340130bc478b7450c6
+updated: 2016-06-17T12:28:11.972496105-05:00
 imports:
+- name: github.com/BurntSushi/toml
+  version: bbd5bb678321a0d6e58f1099321dfa73391c1b6f
 - name: github.com/dchest/uniuri
   version: 8902c56451e9b58ff940bbe5fec35d5f9c04584a
 - name: github.com/google/go-github
@@ -13,6 +15,8 @@ imports:
   - query
 - name: github.com/spf13/viper
   version: c1ccc378a054ea8d4e38d8c67f6938d4760b53dd
+- name: github.com/stretchr/testify
+  version: f390dcf405f7b83c997eac1b06768bb9f44dec18
 - name: github.com/urfave/cli
   version: b438abf775124d32be72016935a9553dbffe8473
 devImports: []

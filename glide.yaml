@@ -9,3 +9,7 @@ import:
 - package: github.com/google/go-querystring
   subpackages:
   - query
+- package: github.com/BurntSushi/toml
+  version: v0.2.0
+- package: github.com/stretchr/testify
+  version: v1.1.3

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dchest/uniuri"
 	"github.com/zpeters/speedtest/internal/print"
 	"github.com/zpeters/speedtest/internal/sthttp"
 	"github.com/zpeters/speedtest/internal/tests"
@@ -24,7 +25,12 @@ var Version string
 func runTest(c *cli.Context) {
 	// create our server object and load initial config
 	var testServer sthttp.Server
-	sthttp.CONFIG = sthttp.GetConfig()
+	config, err := sthttp.GetConfig(viper.GetString("speedtestconfigurl"))
+	if err != nil {
+		log.Printf("Cannot get speedtest config\n")
+		log.Fatal(err)
+	}
+	sthttp.CONFIG = config
 
 	// if we are *not* running a report then say hello to everyone
 	if !viper.GetBool("report") {
@@ -42,7 +48,10 @@ func runTest(c *cli.Context) {
 	}
 	var allServers []sthttp.Server
 	if c.String("mini") == "" {
-		allServers = sthttp.GetServers()
+		allServers, err = sthttp.GetServers(viper.GetString("speedtestserversurl"))
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	// if a mini speedtest installation was specified, use that...
@@ -66,7 +75,10 @@ func runTest(c *cli.Context) {
 		testServer.Sponsor = "speedtest-mini"
 		testServer.ID = "0"
 
-		testServer.Latency = sthttp.GetLatency(testServer)
+		testServer.Latency, err = sthttp.GetLatency(testServer, sthttp.GetLatencyURL(testServer), viper.GetInt("numlatencytests"))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		// if they specified a specific speedtest.net server, test against that...
 	} else if c.String("server") != "" {
@@ -76,7 +88,10 @@ func runTest(c *cli.Context) {
 		// find server and load latency report
 		testServer = tests.FindServer(c.String("server"), allServers)
 		// load latency
-		testServer.Latency = sthttp.GetLatency(testServer)
+		testServer.Latency, err = sthttp.GetLatency(testServer, sthttp.GetLatencyURL(testServer), viper.GetInt("numlatencytests"))
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		if !viper.GetBool("report") {
 			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
@@ -87,7 +102,7 @@ func runTest(c *cli.Context) {
 		if viper.GetBool("debug") {
 			log.Printf("Getting closest servers...")
 		}
-		closestServers := sthttp.GetClosestServers(allServers)
+		closestServers := sthttp.GetClosestServers(allServers, sthttp.CONFIG.Lat, sthttp.CONFIG.Lon)
 		if viper.GetBool("debug") {
 			log.Printf("Getting the fastests of our closest servers...")
 		}
@@ -170,10 +185,11 @@ func init() {
 	viper.SetDefault("algotype", "max")
 	viper.SetDefault("httpconfigtimeout", 15)
 	viper.SetDefault("httplatencytimeout", 15)
-	viper.SetDefault("httpdownloadimeout", 15)
+	viper.SetDefault("httpdownloadtimeout", 15)
 	viper.SetDefault("dlsizes", []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000})
 	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
-
+	viper.SetDefault("speedtestconfigurl", "http://c.speedtest.net/speedtest-config.php?x="+uniuri.New())
+	viper.SetDefault("speedtestserversurl", "http://c.speedtest.net/speedtest-servers-static.php?x="+uniuri.New())
 }
 
 func main() {

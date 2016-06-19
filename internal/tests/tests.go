@@ -37,7 +37,11 @@ func DownloadTest(server sthttp.Server) float64 {
 		if viper.GetBool("debug") {
 			log.Printf("Download Test Run: %s\n", urls[u])
 		}
-		dlSpeed := sthttp.DownloadSpeed(urls[u])
+		dlSpeed, err := sthttp.DownloadSpeed(urls[u])
+		if err != nil {
+			log.Printf("Can't get download speed")
+			log.Fatal(err)
+		}
 		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}
@@ -86,7 +90,10 @@ func UploadTest(server sthttp.Server) float64 {
 			log.Printf("Upload Test Run: %v\n", i)
 		}
 		r := misc.Urandom(ulsize[i])
-		ulSpeed := sthttp.UploadSpeed(server.URL, "text/xml", r)
+		ulSpeed, err := sthttp.UploadSpeed(server.URL, "text/xml", r)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}
@@ -130,11 +137,16 @@ func FindServer(id string, serversList []sthttp.Server) sthttp.Server {
 }
 
 // ListServers prints a list of all "global" servers
-func ListServers() {
+func ListServers() (err error) {
 	if viper.GetBool("debug") {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}
-	sthttp.CONFIG = sthttp.GetConfig()
+	c, err := sthttp.GetConfig(viper.GetString("speedtestconfigurl"))
+	if err != nil {
+		return err
+	}
+
+	sthttp.CONFIG = c
 	if viper.GetBool("debug") {
 		fmt.Printf("\n")
 	}
@@ -142,7 +154,10 @@ func ListServers() {
 	if viper.GetBool("debug") {
 		fmt.Printf("Getting servers list...")
 	}
-	allServers := sthttp.GetServers()
+	allServers, err := sthttp.GetServers(viper.GetString("speedtestserversurl"))
+	if err != nil {
+		log.Fatal(err)
+	}
 	if viper.GetBool("debug") {
 		fmt.Printf("(%d) found\n", len(allServers))
 	}
@@ -150,4 +165,5 @@ func ListServers() {
 		server := allServers[s]
 		print.Server(server)
 	}
+	return nil
 }

@@ -2,19 +2,35 @@
 #  Makefile for Go
 #
 SHELL=/usr/bin/env bash
-
 VERSION=$(shell git describe --tags --always)
+PACKAGES = $(shell find ./ -type d | grep -v 'vendor' | grep -v '.git' | grep -v 'bin')
 
 .PHONY: list
+.PHONY: test-cover-html
 
 default: build
 
 build:
-	git submodule update --init --recursive
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
 
 clean:
 	rm bin/speedtest*
+	rm coverage-all.out
+	rm coverage.out
+
+test:
+	go test $(shell glide nv)
+
+cover:
+	go test -cover
+	go test ./internal/... -cover
+
+coverage:
+	echo "mode: count" > coverage-all.out
+	$(foreach pkg,$(PACKAGES),\
+		go test -coverprofile=coverage.out -covermode=count $(pkg);\
+		tail -n +2 coverage.out >> coverage-all.out;)
+	go tool cover -html=coverage-all.out
 
 cross:
 	echo "Building darwin-amd64..."
