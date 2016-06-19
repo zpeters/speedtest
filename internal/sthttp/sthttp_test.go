@@ -238,6 +238,24 @@ func TestDownloadSpeed(t *testing.T) {
 
 func TestDownloadSpeedBadUrl(t *testing.T) {
 	res, err := DownloadSpeed("http://0.0.0.0")
-	t.Logf("Res: %#v\n", res)
 	assert.Error(t, err, "This should fail")
+	assert.EqualValues(t, res, 0, "Failed download, so speed should be 0")
+}
+
+func TestUploadSpeed(t *testing.T) {
+	f, err := os.Open("random750x750.jpg")
+	assert.NoError(t, err, "Can't open test file")
+	defer f.Close()
+
+	b, err := ioutil.ReadAll(f)
+	assert.NoError(t, err, "Can't read test file")
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, b)
+	}))
+	defer ts.Close()
+
+	res, err := UploadSpeed(ts.URL, "text/xml", b)
+	assert.True(t, res > 0, "Upload speed should be greater than 0")
+	assert.NoError(t, err, "Upload should not error out")
 }

@@ -356,7 +356,7 @@ func DownloadSpeed(url string) (speed float64, err error) {
 }
 
 // UploadSpeed measures the mbps to http.Post to a URL
-func UploadSpeed(url string, mimetype string, data []byte) float64 {
+func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err error) {
 	buf := bytes.NewBuffer(data)
 
 	start := time.Now()
@@ -368,12 +368,12 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	resp, err := http.Post(url, mimetype, buf)
 	finish := time.Now()
 	if err != nil {
-		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot contact server'\n", url)
+		return 0, err
 	}
 	defer resp.Body.Close()
-	_, err2 := ioutil.ReadAll(resp.Body)
-	if err2 != nil {
-		log.Fatalf("Cannot test upload speed of '%s' - 'Cannot read body'\n", url)
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
 	}
 
 	if viper.GetBool("debug") {
@@ -387,5 +387,5 @@ func UploadSpeed(url string, mimetype string, data []byte) float64 {
 	seconds := finish.Sub(start).Seconds()
 
 	mbps := megabits / float64(seconds)
-	return mbps
+	return mbps, nil
 }

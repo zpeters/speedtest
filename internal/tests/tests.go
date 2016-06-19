@@ -90,7 +90,10 @@ func UploadTest(server sthttp.Server) float64 {
 			log.Printf("Upload Test Run: %v\n", i)
 		}
 		r := misc.Urandom(ulsize[i])
-		ulSpeed := sthttp.UploadSpeed(server.URL, "text/xml", r)
+		ulSpeed, err := sthttp.UploadSpeed(server.URL, "text/xml", r)
+		if err != nil {
+			log.Fatal(err)
+		}
 		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}
