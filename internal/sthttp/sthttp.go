@@ -189,6 +189,8 @@ func GetClosestServers(servers []Server, lat float64, lon float64) []Server {
 	return servers
 }
 
+// GetLatencyURL will return the proper url for the latency
+// test file when given a server name
 func GetLatencyURL(server Server) string {
 	u := server.URL
 	splits := strings.Split(u, "/")
@@ -222,14 +224,13 @@ func GetLatency(server Server, url string, numtests int) (result float64, err er
 
 		if err != nil {
 			return result, err
-		} else {
-			defer resp.Body.Close()
-			finish = time.Now()
-			_, err2 := ioutil.ReadAll(resp.Body)
-			if err2 != nil {
-				return result, err
-			}
+		}
 
+		defer resp.Body.Close()
+		finish = time.Now()
+		_, err2 := ioutil.ReadAll(resp.Body)
+		if err2 != nil {
+			return result, err
 		}
 
 		if failed == true {

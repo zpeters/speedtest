@@ -53,11 +53,3 @@ cross:
 
 	echo "Building linux-amd64..."
 	GOOS="linux" GOARCH="amd64" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-linux-amd64-${VERSION}
-
-localweb: cross
-	scp -v -P 22 bin/speed* root@zachpeters.org:/var/www/html/files/speedtest/
-
-deploy: cross
-	echo "Uploading..."
-	ssh thehelpfulhacker.net "mkdir -p ~/media.thehelpfulhacker.net/speedtest/${VERSION}"
-	scp -v bin/*${VERSION}* thehelpfulhacker.net:~/media.thehelpfulhacker.net/speedtest/${VERSION}/
