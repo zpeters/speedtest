@@ -18,14 +18,10 @@ thanks for your work!
 [![Go Report Card](https://goreportcard.com/badge/github.com/zpeters/speedtest)](https://goreportcard.com/report/github.com/zpeters/speedtest)
 [![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
 [![Build Status](https://travis-ci.org/zpeters/speedtest.svg?branch=master)](https://travis-ci.org/zpeters/speedtest)
+[![GoDoc](https://godoc.org/github.com/zpeters/speedtest?status.svg)](https://godoc.org/github.com/zpeters/speedtest)
 
 **development branch**
 [![Build Status](https://travis-ci.org/zpeters/speedtest.svg?branch=develop)](https://travis-ci.org/zpeters/speedtest)
-
-**issues**
-[![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/pr)](http://www.issuestats.com/github/zpeters/speedtest)
-[![Issue Stats](http://www.issuestats.com/github/zpeters/speedtest/badge/issue)](http://www.issuestats.com/github/zpeters/speedtest)
-
 
 License
 =======
@@ -132,6 +128,11 @@ Thank You
 - @larray - slightly obscure issues with http caches interfering with test results - #20
 - Noric - reporting and help with testing issues with report formatting - #32
 - @jannson - submitting patch to reduce memory usage on download test - #37
+- @vendion - teaching me how to import packages the corret way - #67
+- @invalid-email-address - various formatting
+- @l2dy - cleaned up README and broken links
+- @m01 - speed test mini support
+- @pra85 - fixed types in README
 
 Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================
