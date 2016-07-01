@@ -272,6 +272,10 @@ func main() {
 			Value: viper.GetInt("numlatencytests"),
 			Usage: "Number of latency tests to perform",
 		},
+		cli.StringFlag{
+			Name:  "interface, I",
+			Usage: "Source IP address or name of an interface",
+		},
 	}
 
 	// toggle our switches and setup variables
@@ -316,6 +320,9 @@ func main() {
 		viper.Set("numlatencytests", c.Int("numlatency"))
 		if c.String("reportchar") != "" {
 			viper.Set("reportchar", c.String("reportchar"))
+		}
+		if c.String("interface") != "" {
+			viper.Set("interface", c.String("interface"))
 		}
 
 		// run a oneshot list

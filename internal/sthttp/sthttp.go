@@ -5,10 +5,12 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
+	"errors"
 
 	"github.com/zpeters/speedtest/internal/coords"
 	"github.com/zpeters/speedtest/internal/misc"
@@ -215,8 +217,9 @@ func GetLatency(server Server, url string, numtests int) (result float64, err er
 
 		start := time.Now()
 
-		client := &http.Client{
-			Timeout: HTTPLatencyTimeout,
+		client, err := getHttpClient()
+		if err != nil {
+			return result, err
 		}
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Set("Cache-Control", "no-cache")
@@ -331,8 +334,9 @@ func DownloadSpeed(url string) (speed float64, err error) {
 	if viper.GetBool("debug") {
 		log.Printf("Starting test at: %s\n", start)
 	}
-	client := &http.Client{
-		Timeout: HTTPDownloadTimeout,
+	client, err := getHttpClient()
+	if err != nil {
+		return 0, err
 	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -366,7 +370,11 @@ func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err e
 		log.Printf("Starting test at: %d (nano)\n", start.UnixNano())
 	}
 
-	resp, err := http.Post(url, mimetype, buf)
+	client, err := getHttpClient()
+	if err != nil {
+		return 0, err
+	}
+	resp, err := client.Post(url, mimetype, buf)
 	finish := time.Now()
 	if err != nil {
 		return 0, err
@@ -389,4 +397,73 @@ func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err e
 
 	mbps := megabits / float64(seconds)
 	return mbps, nil
+}
+
+func getSourceIP() (string, error) {
+	interfaceOption := viper.GetString("interface")
+	if(interfaceOption == "") {
+		return "", nil
+	}
+
+	// does it look like an IP address?
+	if net.ParseIP(interfaceOption) != nil {
+		return interfaceOption, nil
+	}
+	
+	// assume that it is the name of an interface
+	iface, err := net.InterfaceByName(interfaceOption)
+	if err != nil { return "", err }
+
+	addrs, err := iface.Addrs()
+	if err != nil { return "", err }
+
+	for _,addr := range addrs {
+		switch v := addr.(type) {
+			case *net.IPNet:
+				// fixme: IPv6 support is missing
+				if v.IP.To4() != nil {
+					return v.IP.String(), nil
+				}
+			case *net.IPAddr:
+				if v.IP.To4() != nil {
+					return v.IP.String(), nil
+				}
+		}
+	}
+
+	return "", errors.New("no address found")
+}
+
+func getHttpClient() (*http.Client, error) {
+	var dialer net.Dialer
+
+	sourceIP, err := getSourceIP()
+	if err != nil { return nil, err }
+	if sourceIP != "" {
+		bindAddrIP, err := net.ResolveIPAddr("ip", sourceIP)
+		if err != nil { return nil, err }
+		bindAddr := net.TCPAddr{
+			IP: bindAddrIP.IP,
+		}
+		dialer = net.Dialer{
+			LocalAddr: &bindAddr,
+			Timeout:   HTTPConfigTimeout,
+			KeepAlive: HTTPConfigTimeout,
+		}
+	} else {
+		dialer = net.Dialer{
+			Timeout:   HTTPConfigTimeout,
+			KeepAlive: HTTPConfigTimeout,
+		}
+	}
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		Dial:  dialer.Dial,
+		TLSHandshakeTimeout: HTTPConfigTimeout,
+	}
+	client := &http.Client{
+		Timeout: HTTPConfigTimeout,
+                Transport: transport,
+	}
+        return client, nil
 }

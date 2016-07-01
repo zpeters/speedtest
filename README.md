@@ -106,6 +106,7 @@ GLOBAL OPTIONS:
    --mini, -m 			URL of speedtest mini server
    --numclosest, --nc "3"	Number of 'closest' servers to find
    --numlatency, --nl "5"	Number of latency tests to perform
+   --interface value, -I value     Source IP address or name of an interface
    --help, -h			show help
    --version, -v		print the version
 
