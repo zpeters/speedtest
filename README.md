@@ -134,6 +134,7 @@ Thank You
 - @l2dy - cleaned up README and broken links
 - @m01 - speed test mini support
 - @pra85 - fixed types in README
+- @schweikert - for adding the interface selection code
 
 Why don't my speeds match those reported from the speedtest.net website?
 ========================================================================
