@@ -83,33 +83,30 @@ USAGE:
    speedtest [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.8.6
+   v.1.0.1
 
 AUTHOR(S):
    Zach Peters - zpeters@gmail.com - github.com/zpeters
 
 COMMANDS:
-   help, h	Shows a list of commands or help for one command
-
 GLOBAL OPTIONS:
-   --algo, -a 			Specify the measurement method to use ('max', 'avg')
-   --debug, -d			Turn on debugging
-   --list, -l			List available servers
-   --update, -u			Check for a new version of speedtest
-   --ping, -p			Ping only mode
-   --quiet, -q			Quiet mode
-   --report, -r			Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
-   --downloadonly, --do		Only perform download test
-   --uploadonly, --uo		Only perform upload test
-   --reportchar, --rc 		Set the report separator. Example: --rc=','
-   --server, -s 		Use a specific server
-   --mini, -m 			URL of speedtest mini server
-   --numclosest, --nc "3"	Number of 'closest' servers to find
-   --numlatency, --nl "5"	Number of latency tests to perform
+   --algo value, -a value          Specify the measurement method to use ('max', 'avg')
+   --debug, -d                     Turn on debugging
+   --list, -l                      List available servers
+   --update, -u                    Check for a new version of speedtest
+   --ping, -p                      Ping only mode
+   --quiet, -q                     Quiet mode
+   --report, -r                    Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
+   --downloadonly, --do            Only perform download test
+   --uploadonly, --uo              Only perform upload test
+   --reportchar value, --rc value  Set the report separator. Example: --rc=','
+   --server value, -s value        Use a specific server
+   --mini value, -m value          URL of speedtest mini server
+   --numclosest value, --nc value  Number of 'closest' servers to find (default: 3)
+   --numlatency value, --nl value  Number of latency tests to perform (default: 5)
    --interface value, -I value     Source IP address or name of an interface
-   --help, -h			show help
-   --version, -v		print the version
-
+   --help, -h                      show help
+   --version, -v                   print the version
 ```
 
 Feedback / Contributing
