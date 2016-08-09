@@ -32,6 +32,10 @@ Download
 - Github (Windows/Linux/Mac) - https://github.com/zpeters/speedtest/releases
 - Mirror (Windows/Linux/Mac) - http://media.thehelpfulhacker.net/index.php?dir=speedtest/
 
+Build
+=====
+See the wiki
+
 Bugs and Features
 =================
 See github issues tracker - https://github.com/zpeters/speedtest/issues
