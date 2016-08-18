@@ -3,6 +3,7 @@ package sthttp
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"io/ioutil"
 	"log"
 	"net"
@@ -10,7 +11,6 @@ import (
 	"sort"
 	"strings"
 	"time"
-	"errors"
 
 	"github.com/zpeters/speedtest/internal/coords"
 	"github.com/zpeters/speedtest/internal/misc"
@@ -83,6 +83,19 @@ func (server ByLatency) Swap(i, j int) {
 	server[i], server[j] = server[j], server[i]
 }
 
+// checkBlacklisted tests if the server is on the specified blacklist
+func checkBlacklisted(blacklist string, server string) bool {
+	var isBlacklisted bool = false
+	bl := strings.Split(blacklist, ",")
+	for b := range bl {
+		blServer := strings.TrimSpace(bl[b])
+		if server == blServer {
+			isBlacklisted = true
+		}
+	}
+	return isBlacklisted
+}
+
 // checkHTTP tests if http response is successful (200) or not
 func checkHTTP(resp *http.Response) bool {
 	var ok bool
@@ -131,7 +144,7 @@ func GetConfig(url string) (c Config, err error) {
 }
 
 // GetServers will get the full server list
-func GetServers(url string) (servers []Server, err error) {
+func GetServers(url string, blacklist string) (servers []Server, err error) {
 	client := &http.Client{
 		Timeout: HTTPConfigTimeout,
 	}
@@ -157,16 +170,19 @@ func GetServers(url string) (servers []Server, err error) {
 	}
 
 	for xmlServer := range s.ServersContainer.XMLServers {
-		server := new(Server)
-		server.URL = s.ServersContainer.XMLServers[xmlServer].URL
-		server.Lat = misc.ToFloat(s.ServersContainer.XMLServers[xmlServer].Lat)
-		server.Lon = misc.ToFloat(s.ServersContainer.XMLServers[xmlServer].Lon)
-		server.Name = s.ServersContainer.XMLServers[xmlServer].Name
-		server.Country = s.ServersContainer.XMLServers[xmlServer].Country
-		server.CC = s.ServersContainer.XMLServers[xmlServer].CC
-		server.Sponsor = s.ServersContainer.XMLServers[xmlServer].Sponsor
-		server.ID = s.ServersContainer.XMLServers[xmlServer].ID
-		servers = append(servers, *server)
+		// check if server is blacklisted
+		if checkBlacklisted(blacklist, s.ServersContainer.XMLServers[xmlServer].ID) == false {
+			server := new(Server)
+			server.URL = s.ServersContainer.XMLServers[xmlServer].URL
+			server.Lat = misc.ToFloat(s.ServersContainer.XMLServers[xmlServer].Lat)
+			server.Lon = misc.ToFloat(s.ServersContainer.XMLServers[xmlServer].Lon)
+			server.Name = s.ServersContainer.XMLServers[xmlServer].Name
+			server.Country = s.ServersContainer.XMLServers[xmlServer].Country
+			server.CC = s.ServersContainer.XMLServers[xmlServer].CC
+			server.Sponsor = s.ServersContainer.XMLServers[xmlServer].Sponsor
+			server.ID = s.ServersContainer.XMLServers[xmlServer].ID
+			servers = append(servers, *server)
+		}
 	}
 	return servers, nil
 }
@@ -401,7 +417,7 @@ func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err e
 
 func getSourceIP() (string, error) {
 	interfaceOption := viper.GetString("interface")
-	if(interfaceOption == "") {
+	if interfaceOption == "" {
 		return "", nil
 	}
 
@@ -409,25 +425,29 @@ func getSourceIP() (string, error) {
 	if net.ParseIP(interfaceOption) != nil {
 		return interfaceOption, nil
 	}
-	
+
 	// assume that it is the name of an interface
 	iface, err := net.InterfaceByName(interfaceOption)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 
 	addrs, err := iface.Addrs()
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 
-	for _,addr := range addrs {
+	for _, addr := range addrs {
 		switch v := addr.(type) {
-			case *net.IPNet:
-				// fixme: IPv6 support is missing
-				if v.IP.To4() != nil {
-					return v.IP.String(), nil
-				}
-			case *net.IPAddr:
-				if v.IP.To4() != nil {
-					return v.IP.String(), nil
-				}
+		case *net.IPNet:
+			// fixme: IPv6 support is missing
+			if v.IP.To4() != nil {
+				return v.IP.String(), nil
+			}
+		case *net.IPAddr:
+			if v.IP.To4() != nil {
+				return v.IP.String(), nil
+			}
 		}
 	}
 
@@ -438,10 +458,14 @@ func getHttpClient() (*http.Client, error) {
 	var dialer net.Dialer
 
 	sourceIP, err := getSourceIP()
-	if err != nil { return nil, err }
+	if err != nil {
+		return nil, err
+	}
 	if sourceIP != "" {
 		bindAddrIP, err := net.ResolveIPAddr("ip", sourceIP)
-		if err != nil { return nil, err }
+		if err != nil {
+			return nil, err
+		}
 		bindAddr := net.TCPAddr{
 			IP: bindAddrIP.IP,
 		}
@@ -457,13 +481,13 @@ func getHttpClient() (*http.Client, error) {
 		}
 	}
 	transport := &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		Dial:  dialer.Dial,
+		Proxy:               http.ProxyFromEnvironment,
+		Dial:                dialer.Dial,
 		TLSHandshakeTimeout: HTTPConfigTimeout,
 	}
 	client := &http.Client{
-		Timeout: HTTPConfigTimeout,
-                Transport: transport,
+		Timeout:   HTTPConfigTimeout,
+		Transport: transport,
 	}
-        return client, nil
+	return client, nil
 }

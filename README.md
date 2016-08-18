@@ -80,18 +80,6 @@ Report Fields: Server ID, Server Name (Location), Ping time in ms, Download spee
 ```
 
 ```shell
-NAME:
-   speedtest - Unofficial command line interface to speedtest.net (https://github.com/zpeters/speedtest)
-
-USAGE:
-   speedtest [global options] command [command options] [arguments...]
-
-VERSION:
-   v.1.0.1
-
-AUTHOR(S):
-   Zach Peters - zpeters@gmail.com - github.com/zpeters
-
 COMMANDS:
 GLOBAL OPTIONS:
    --algo value, -a value          Specify the measurement method to use ('max', 'avg')
@@ -105,6 +93,7 @@ GLOBAL OPTIONS:
    --uploadonly, --uo              Only perform upload test
    --reportchar value, --rc value  Set the report separator. Example: --rc=','
    --server value, -s value        Use a specific server
+   --blacklist value, -b value     Blacklist a server/list of servers
    --mini value, -m value          URL of speedtest mini server
    --numclosest value, --nc value  Number of 'closest' servers to find (default: 3)
    --numlatency value, --nl value  Number of latency tests to perform (default: 5)
