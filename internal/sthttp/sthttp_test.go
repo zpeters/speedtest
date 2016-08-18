@@ -118,7 +118,7 @@ func TestGetServers(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	servers, err := GetServers(ts.URL)
+	servers, err := GetServers(ts.URL, "")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
@@ -170,7 +170,7 @@ func TestGetClosestServers(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	servers, err := GetServers(ts.URL)
+	servers, err := GetServers(ts.URL, "")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
@@ -208,7 +208,7 @@ func TestGetFastestServer(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	servers, err := GetServers(ts.URL)
+	servers, err := GetServers(ts.URL, "")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
