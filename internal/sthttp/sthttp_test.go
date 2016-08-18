@@ -124,8 +124,6 @@ func TestGetServers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(servers), 4636, "Should be exactly 4636 servers")
-
 	//sthttp_test.go:127: Server 0: sthttp.Server{URL:"http://88.84.191.230/speedtest/upload.php", Lat:70.0733, Lon:29.7497, Name:"Vadso", Country:"Norway", CC:"NO", Sponsor:"Varanger KraftUtvikling AS", ID:"4600", Distance:0, Latency:0}
 	expectURL := "http://88.84.191.230/speedtest/upload.php"
 	assert.Equal(t, servers[0].URL, expectURL, fmt.Sprintf("Server 0 url should be: '%s'\n", expectURL))
@@ -156,6 +154,32 @@ func TestGetServers(t *testing.T) {
 
 	expectLatency := 0
 	assert.EqualValues(t, servers[21].Latency, expectLatency, fmt.Sprintf("Server 21 name should be: '%s'\n", expectLatency))
+
+}
+
+func TestGetServersBlacklist(t *testing.T) {
+	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	if err != nil {
+		t.Logf("Cannot read sthttp_test_servers.xml")
+	}
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, string(x))
+	}))
+	defer ts.Close()
+
+	serversBlacklist, err := GetServers(ts.URL, "3484")
+	if err != nil {
+		t.Logf("Cannot get servers")
+		t.Fatal(err)
+	}
+	serversAll, err := GetServers(ts.URL, "")
+	if err != nil {
+		t.Logf("Cannot get servers")
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, len(serversAll)-1, len(serversBlacklist), "All servers should be one less than blacklist list")
 
 }
 
