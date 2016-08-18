@@ -54,7 +54,7 @@ func runTest(c *cli.Context) {
 	}
 	var allServers []sthttp.Server
 	if c.String("mini") == "" {
-		allServers, err = sthttp.GetServers(viper.GetString("speedtestserversurl"))
+		allServers, err = sthttp.GetServers(viper.GetString("speedtestserversurl"), c.String("blacklist"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -259,6 +259,10 @@ func main() {
 			Usage: "Use a specific server",
 		},
 		cli.StringFlag{
+			Name:  "blacklist, b",
+			Usage: "Blacklist a server/list of servers",
+		},
+		cli.StringFlag{
 			Name:  "mini, m",
 			Usage: "URL of speedtest mini server",
 		},
@@ -327,7 +331,7 @@ func main() {
 
 		// run a oneshot list
 		if c.Bool("list") {
-			tests.ListServers()
+			tests.ListServers(c.String("blacklist"))
 			os.Exit(0)
 		}
 
