@@ -1,8 +1,6 @@
 Notice
 ======
-Several people are reporting an issue today with the "Can not get speedtest config" error.  I am actively looking at this and will send out an update one this is fixed
-
-https://github.com/zpeters/speedtest/issues/84#issuecomment-242408721
+Several people are reporting a "Can not get speedtest config" error.  This should be resolved in the latest release: https://github.com/zpeters/speedtest/releases/tag/v1.0.2-b
 
 
 The Unofficial Speedtest CLI
