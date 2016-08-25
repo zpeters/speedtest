@@ -120,6 +120,8 @@ func GetConfig(url string) (c Config, err error) {
 		return c, err
 	}
 	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("User-Agent", "Unofficial CLI")
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return c, err
@@ -150,6 +152,8 @@ func GetServers(url string, blacklist string) (servers []Server, err error) {
 	}
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("User-Agent", "Unofficial CLI")
+
 	resp, err := client.Do(req)
 
 	if err != nil {
@@ -239,6 +243,8 @@ func GetLatency(server Server, url string, numtests int) (result float64, err er
 		}
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Set("Cache-Control", "no-cache")
+		req.Header.Set("User-Agent", "Unofficial CLI")
+		
 		resp, err := client.Do(req)
 
 		if err != nil {
@@ -359,6 +365,8 @@ func DownloadSpeed(url string) (speed float64, err error) {
 		return 0, err
 	}
 	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("User-Agent", "Unofficial CLI")
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return 0, err
