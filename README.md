@@ -1,3 +1,10 @@
+Notice
+======
+Several people are reporting an issue today with the "Can not get speedtest config" error.  I am actively looking at this and will send out an update one this is fixed
+
+https://github.com/zpeters/speedtest/issues/84#issuecomment-242408721
+
+
 The Unofficial Speedtest CLI
 ============================
 The Unofficial Speedtest CLI is a command-line program to test
