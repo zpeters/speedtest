@@ -11,7 +11,7 @@ PACKAGES = $(shell find ./ -type d | grep -v 'vendor' | grep -v '.git' | grep -v
 default: build
 
 build:
-	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
+	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION}
 
 clean:
 	rm bin/speedtest*
