@@ -244,7 +244,7 @@ func GetLatency(server Server, url string, numtests int) (result float64, err er
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Set("Cache-Control", "no-cache")
 		req.Header.Set("User-Agent", "Unofficial CLI")
-		
+
 		resp, err := client.Do(req)
 
 		if err != nil {
@@ -335,21 +335,6 @@ func GetFastestServer(servers []Server) Server {
 	return successfulServers[0]
 }
 
-//Use fix buffer to calculate the length of body
-func respBodyLen(resp *http.Response) int {
-	l := 0
-	buf := make([]byte, 4096)
-	for {
-		if n, err := resp.Body.Read(buf); err != nil {
-			break
-		} else {
-			l += n
-		}
-	}
-
-	return l
-}
-
 // DownloadSpeed measures the mbps of downloading a URL
 func DownloadSpeed(url string) (speed float64, err error) {
 	start := time.Now()
@@ -373,14 +358,18 @@ func DownloadSpeed(url string) (speed float64, err error) {
 	}
 	defer resp.Body.Close()
 
-	bodyLen := respBodyLen(resp)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bodyLen := len(body)
 	finish := time.Now()
 
 	bits := float64(bodyLen * 8)
 	megabits := bits / float64(1000) / float64(1000)
 	seconds := finish.Sub(start).Seconds()
-
 	mbps := megabits / float64(seconds)
+
 	return mbps, err
 }
 
@@ -403,6 +392,7 @@ func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err e
 	if err != nil {
 		return 0, err
 	}
+
 	defer resp.Body.Close()
 	_, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
