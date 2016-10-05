@@ -16,9 +16,9 @@ import (
 	"time"
 
 	"github.com/dchest/uniuri"
-	"github.com/zpeters/speedtest/internal/print"
-	"github.com/zpeters/speedtest/internal/sthttp"
-	"github.com/zpeters/speedtest/internal/tests"
+	"github.com/zpeters/speedtest/print"
+	"github.com/zpeters/speedtest/sthttp"
+	"github.com/zpeters/speedtest/tests"
 
 	"github.com/google/go-github/github"
 	"github.com/spf13/viper"

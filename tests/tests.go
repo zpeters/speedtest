@@ -5,9 +5,9 @@ import (
 	"log"
 	"strings"
 
-	"github.com/zpeters/speedtest/internal/misc"
-	"github.com/zpeters/speedtest/internal/print"
-	"github.com/zpeters/speedtest/internal/sthttp"
+	"github.com/zpeters/speedtest/misc"
+	"github.com/zpeters/speedtest/print"
+	"github.com/zpeters/speedtest/sthttp"
 
 	"github.com/spf13/viper"
 )

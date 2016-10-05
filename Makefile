@@ -23,7 +23,7 @@ test:
 
 cover:
 	go test -cover
-	go test ./internal/... -cover
+	go test ./... -cover
 
 coverage:
 	echo "mode: count" > coverage-all.out

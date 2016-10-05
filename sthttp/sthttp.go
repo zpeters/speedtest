@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zpeters/speedtest/internal/coords"
-	"github.com/zpeters/speedtest/internal/misc"
-	"github.com/zpeters/speedtest/internal/stxml"
+	"github.com/zpeters/speedtest/coords"
+	"github.com/zpeters/speedtest/misc"
+	"github.com/zpeters/speedtest/stxml"
 
 	"github.com/spf13/viper"
 )
