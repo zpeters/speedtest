@@ -28,7 +28,10 @@ func TestServerReport(t *testing.T) {
 }
 
 func TestEnvironmentReport(t *testing.T) {
-	stc := sthttp.Client{Config: &sthttp.Config{}}
+	stc := sthttp.Client{
+		Config:          &sthttp.Config{},
+		SpeedtestConfig: &sthttp.SpeedtestConfig{},
+	}
 	app := cli.NewApp()
 	app.Action = func(c *cli.Context) error {
 		EnvironmentReport(&stc)

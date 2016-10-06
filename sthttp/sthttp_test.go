@@ -91,7 +91,11 @@ func TestGetConfig(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	stc := Client{ConfigURL: ts.URL}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{ConfigURL: ts.URL},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	c, err := stc.GetConfig()
 	if err != nil {
 		t.Logf("Cannot get config")
@@ -105,7 +109,11 @@ func TestGetConfig(t *testing.T) {
 }
 
 func TestGetConfigNoConnection(t *testing.T) {
-	stc := Client{ConfigURL: "fail"}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{ConfigURL: "fail"},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	_, err := stc.GetConfig()
 	assert.Error(t, err, "An error was expected")
 }
@@ -121,7 +129,11 @@ func TestGetServers(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	stc := Client{ServersURL: ts.URL}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	servers, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
@@ -172,13 +184,17 @@ func TestGetServersBlacklist(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	stc := Client{ServersURL: ts.URL, Blacklist: "3484"}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL, Blacklist: "3484"},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	serversBlacklist, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
 	}
-	stc.Blacklist = ""
+	stc.SpeedtestConfig.Blacklist = ""
 	serversAll, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
@@ -200,7 +216,11 @@ func TestGetClosestServers(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	stc := Client{ServersURL: ts.URL, Config: &Config{}}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL}, Config: &Config{},
+		HTTPConfig: &HTTPConfig{ConfigTimeout: timeout},
+	}
 	servers, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
@@ -224,8 +244,12 @@ func TestGetLatency(t *testing.T) {
 	defer ts.Close()
 
 	s := Server{}
-	t.Logf("Latency server: %s", s.URL)
-	stc := Client{NumLatencyTests: 5}
+
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{NumLatencyTests: 5},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	latency, err := stc.GetLatency(s, ts.URL)
 	assert.NoError(t, err, "Error getting latency")
 	assert.True(t, latency > 100, "Latency faster than expected")
@@ -242,7 +266,11 @@ func TestGetFastestServer(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	stc := Client{ServersURL: ts.URL}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	servers, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
@@ -266,14 +294,22 @@ func TestDownloadSpeed(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	stc := Client{}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	res, err := stc.DownloadSpeed(ts.URL)
 	assert.NoError(t, err, "There should be no error")
 	assert.True(t, res > 0, "Download speed should be faster than zero")
 }
 
 func TestDownloadSpeedBadUrl(t *testing.T) {
-	stc := Client{}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	res, err := stc.DownloadSpeed("http://0.0.0.0")
 	assert.Error(t, err, "This should fail")
 	assert.EqualValues(t, res, 0, "Failed download, so speed should be 0")
@@ -292,7 +328,11 @@ func TestUploadSpeed(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	stc := Client{}
+	timeout, _ := time.ParseDuration("15s")
+	stc := Client{
+		SpeedtestConfig: &SpeedtestConfig{},
+		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
+	}
 	res, err := stc.UploadSpeed(ts.URL, "text/xml", b)
 	assert.True(t, res > 0, "Upload speed should be greater than 0")
 	assert.NoError(t, err, "Upload should not error out")

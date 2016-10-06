@@ -331,18 +331,23 @@ func main() {
 		}
 
 		stClient := sthttp.NewClient(
-			viper.GetString("speedtestconfigurl"),
-			viper.GetString("speedtestserversurl"),
-			viper.GetDuration("httpconfigtimeout"),
-			viper.GetDuration("httplatencytimeout"),
-			viper.GetDuration("httpdownloadtimeout"),
+			&sthttp.SpeedtestConfig{
+				ConfigURL:       viper.GetString("speedtestconfigurl"),
+				ServersURL:      viper.GetString("speedtestserversurl"),
+				AlgoType:        viper.GetString("algotype"),
+				NumClosest:      viper.GetInt("numclosest"),
+				NumLatencyTests: viper.GetInt("numlatencytests"),
+				Interface:       viper.GetString("interface"),
+				Blacklist:       viper.GetString("blacklist"),
+			},
+			&sthttp.HTTPConfig{
+				ConfigTimeout:   viper.GetDuration("httpconfigtimeout"),
+				LatencyTimeout:  viper.GetDuration("httplatencytimeout"),
+				DownloadTimeout: viper.GetDuration("httpdownloadtimeout"),
+			},
 			viper.GetBool("debug"),
-			viper.GetString("algotype"),
-			viper.GetInt("numclosest"),
-			viper.GetInt("numlatencytests"),
-			viper.GetString("interface"),
-			viper.GetString("reportchar"),
-			viper.GetString("blacklist"))
+			viper.GetString("reportchar"))
+
 		tester := tests.NewTester(
 			stClient,
 			viper.Get("dlsizes").([]int),
@@ -352,7 +357,7 @@ func main() {
 
 		// run a oneshot list
 		if c.Bool("list") {
-			tester.ListServers(stClient.ConfigURL, stClient.ServersURL, stClient.Blacklist)
+			tester.ListServers(stClient.SpeedtestConfig.ConfigURL, stClient.SpeedtestConfig.ServersURL, stClient.SpeedtestConfig.Blacklist)
 			os.Exit(0)
 		}
 
