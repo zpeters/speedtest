@@ -15,21 +15,19 @@ import (
 	"github.com/zpeters/speedtest/coords"
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/stxml"
-
-	"github.com/spf13/viper"
 )
 
 // HTTPConfigTimeout is how long we'll wait for a config download to timeout
-var HTTPConfigTimeout = time.Duration(viper.GetDuration("httpconfigtimeout") * time.Second)
+// var HTTPConfigTimeout = time.Duration(viper.GetDuration("httpconfigtimeout") * time.Second)
 
-// HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-var HTTPLatencyTimeout = time.Duration(viper.GetDuration("httplatencytimeout") * time.Second)
+// // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
+// var HTTPLatencyTimeout = time.Duration(viper.GetDuration("httplatencytimeout") * time.Second)
 
-// HTTPDownloadTimeout is how long we'll wait for a download to timeout
-var HTTPDownloadTimeout = time.Duration(viper.GetDuration("httpdownloadtimeout") * time.Minute)
+// // HTTPDownloadTimeout is how long we'll wait for a download to timeout
+// var HTTPDownloadTimeout = time.Duration(viper.GetDuration("httpdownloadtimeout") * time.Minute)
 
 // CONFIG is our global config space
-var CONFIG Config
+// var CONFIG Config
 
 // Config struct holds our config (users current ip, lat, lon and isp)
 type Config struct {
@@ -37,6 +35,77 @@ type Config struct {
 	Lat float64
 	Lon float64
 	Isp string
+}
+
+// Client define a Speedtest HTTP client
+type Client struct {
+	// Config defines the client configuration
+	Config          *Config
+	SpeedtestConfig *SpeedtestConfig
+	HTTPConfig      *HTTPConfig
+
+	// ConfigURL  string
+	// ServersURL string
+	// // HTTPConfigTimeout is how long we'll wait for a config download to timeout
+	// HTTPConfigTimeout time.Duration
+	// // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
+	// HTTPLatencyTimeout time.Duration
+	// // HTTPDownloadTimeout is how long we'll wait for a download to timeout
+	// HTTPDownloadTimeout time.Duration
+
+	Debug bool
+	// AlgoType        string
+	// NumClosest      int
+	// NumLatencyTests int
+	// Interface       string
+	// Blacklist       string
+
+	ReportChar string
+}
+
+// SpeedtestConfig define Speedtest settings
+type SpeedtestConfig struct {
+	ConfigURL       string
+	ServersURL      string
+	AlgoType        string
+	NumClosest      int
+	NumLatencyTests int
+	Interface       string
+	Blacklist       string
+}
+
+// HTTPConfig define settings for HTTP requests
+type HTTPConfig struct {
+	// HTTPConfigTimeout is how long we'll wait for a config download to timeout
+	ConfigTimeout time.Duration
+	// HTTPLatencyTimeout is how long we'll wait for a ping to timeout
+	LatencyTimeout time.Duration
+	// HTTPDownloadTimeout is how long we'll wait for a download to timeout
+	DownloadTimeout time.Duration
+}
+
+// NewClient define a new Speedtest client.
+func NewClient(speedtestConfig *SpeedtestConfig, httpConfig *HTTPConfig, debug bool, reportChar string) *Client {
+	return &Client{
+		// ConfigURL:           configURL,
+		// ServersURL:          serversURL,
+		// HTTPConfigTimeout:   time.Duration(configTimeout * time.Second),
+		// HTTPLatencyTimeout:  time.Duration(latencyTimeout * time.Second),
+		// HTTPDownloadTimeout: time.Duration(downloadTimeout * time.Second),
+		// Debug:               debug,
+		// AlgoType:            algotype,
+		// NumClosest:          numClosest,
+		// NumLatencyTests:     numLatencyTests,
+		// Interface:           eth,
+		// Blacklist:           blacklist,
+
+		Config:          &Config{},
+		HTTPConfig:      httpConfig,
+		SpeedtestConfig: speedtestConfig,
+		Debug:           debug,
+		ReportChar:      reportChar,
+	}
+
 }
 
 // Server struct is a speedtest candidate server
@@ -108,14 +177,14 @@ func checkHTTP(resp *http.Response) bool {
 }
 
 // GetConfig downloads the master config from speedtest.net
-func GetConfig(url string) (c Config, err error) {
+func (stClient *Client) GetConfig() (c Config, err error) {
 	c = Config{}
 
 	client := &http.Client{
-		Timeout: HTTPConfigTimeout,
+		Timeout: stClient.HTTPConfig.ConfigTimeout,
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", stClient.SpeedtestConfig.ConfigURL, nil)
 	if err != nil {
 		return c, err
 	}
@@ -146,11 +215,11 @@ func GetConfig(url string) (c Config, err error) {
 }
 
 // GetServers will get the full server list
-func GetServers(url string, blacklist string) (servers []Server, err error) {
+func (stClient *Client) GetServers() (servers []Server, err error) {
 	client := &http.Client{
-		Timeout: HTTPConfigTimeout,
+		Timeout: stClient.HTTPConfig.ConfigTimeout,
 	}
-	req, _ := http.NewRequest("GET", url, nil)
+	req, _ := http.NewRequest("GET", stClient.SpeedtestConfig.ServersURL, nil)
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("User-Agent", "Unofficial CLI")
 
@@ -175,7 +244,7 @@ func GetServers(url string, blacklist string) (servers []Server, err error) {
 
 	for xmlServer := range s.ServersContainer.XMLServers {
 		// check if server is blacklisted
-		if checkBlacklisted(blacklist, s.ServersContainer.XMLServers[xmlServer].ID) == false {
+		if checkBlacklisted(stClient.SpeedtestConfig.Blacklist, s.ServersContainer.XMLServers[xmlServer].ID) == false {
 			server := new(Server)
 			server.URL = s.ServersContainer.XMLServers[xmlServer].URL
 			server.Lat = misc.ToFloat(s.ServersContainer.XMLServers[xmlServer].Lat)
@@ -192,12 +261,15 @@ func GetServers(url string, blacklist string) (servers []Server, err error) {
 }
 
 // GetClosestServers takes the full server list and sorts by distance
-func GetClosestServers(servers []Server, lat float64, lon float64) []Server {
-	if viper.GetBool("debug") {
+func (stClient *Client) GetClosestServers(servers []Server) []Server {
+	if stClient.Debug {
 		log.Printf("Sorting all servers by distance...\n")
 	}
 
-	myCoords := coords.Coordinate{Lat: lat, Lon: lon}
+	myCoords := coords.Coordinate{
+		Lat: stClient.Config.Lat,
+		Lon: stClient.Config.Lon,
+	}
 	for server := range servers {
 		theirlat := servers[server].Lat
 		theirlon := servers[server].Lon
@@ -213,7 +285,7 @@ func GetClosestServers(servers []Server, lat float64, lon float64) []Server {
 
 // GetLatencyURL will return the proper url for the latency
 // test file when given a server name
-func GetLatencyURL(server Server) string {
+func (stClient *Client) GetLatencyURL(server Server) string {
 	u := server.URL
 	splits := strings.Split(u, "/")
 	baseURL := strings.Join(splits[1:len(splits)-1], "/")
@@ -222,22 +294,24 @@ func GetLatencyURL(server Server) string {
 }
 
 // GetLatency will test the latency (ping) the given server NUMLATENCYTESTS times and return either the lowest or average depending on what algorithm is set
-func GetLatency(server Server, url string, numtests int) (result float64, err error) {
+func (stClient *Client) GetLatency(server Server, url string) (result float64, err error) {
 	var latency time.Duration
 	var minLatency time.Duration
 	var avgLatency time.Duration
 
-	for i := 0; i < numtests; i++ {
+	// url := stClient.GetLatencyURL(server)
+
+	for i := 0; i < stClient.SpeedtestConfig.NumLatencyTests; i++ {
 		var failed bool
 		var finish time.Time
 
-		if viper.GetBool("debug") {
+		if stClient.Debug {
 			log.Printf("Testing latency: %s (%s)\n", server.Name, server.Sponsor)
 		}
 
 		start := time.Now()
 
-		client, err := getHttpClient()
+		client, err := stClient.getHTTPClient()
 		if err != nil {
 			return result, err
 		}
@@ -264,11 +338,11 @@ func GetLatency(server Server, url string, numtests int) (result float64, err er
 			latency = finish.Sub(start)
 		}
 
-		if viper.GetBool("debug") {
+		if stClient.Debug {
 			log.Printf("\tRun took: %v\n", latency)
 		}
 
-		if viper.GetString("algotype") == "max" {
+		if stClient.SpeedtestConfig.AlgoType == "max" {
 			if minLatency == 0 {
 				minLatency = latency
 			} else if latency < minLatency {
@@ -280,10 +354,10 @@ func GetLatency(server Server, url string, numtests int) (result float64, err er
 
 	}
 
-	if viper.GetString("algotype") == "max" {
+	if stClient.SpeedtestConfig.AlgoType == "max" {
 		result = float64(time.Duration(minLatency.Nanoseconds())*time.Nanosecond) / 1000000
 	} else {
-		result = float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(numtests)
+		result = float64(time.Duration(avgLatency.Nanoseconds())*time.Nanosecond) / 1000000 / float64(stClient.SpeedtestConfig.NumLatencyTests)
 	}
 
 	return result, nil
@@ -295,53 +369,53 @@ func GetLatency(server Server, url string, numtests int) (result float64, err er
 // master list but timeout or are "corrupt" therefore we bump their
 // latency to something really high (1 minute) and they will drop out of
 // this test
-func GetFastestServer(servers []Server) Server {
+func (stClient *Client) GetFastestServer(servers []Server) Server {
 	var successfulServers []Server
 
 	for server := range servers {
-		if viper.GetBool("debug") {
-			log.Printf("Doing %d runs of %v\n", viper.GetInt("numclosest"), servers[server])
+		if stClient.Debug {
+			log.Printf("Doing %d runs of %v\n", stClient.SpeedtestConfig.NumClosest, servers[server])
 		}
-		Latency, err := GetLatency(servers[server], GetLatencyURL(servers[server]), viper.GetInt("numlatencytests"))
+		latency, err := stClient.GetLatency(servers[server], stClient.GetLatencyURL(servers[server]))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if viper.GetBool("debug") {
-			log.Printf("Total runs took: %v\n", Latency)
+		if stClient.Debug {
+			log.Printf("Total runs took: %v\n", latency)
 		}
 
-		if Latency > float64(time.Duration(1*time.Minute)) {
-			if viper.GetBool("debug") {
+		if latency > float64(time.Duration(1*time.Minute)) {
+			if stClient.Debug {
 				log.Printf("Server %d was too slow, skipping...\n", server)
 			}
 		} else {
-			if viper.GetBool("debug") {
-				log.Printf("Server latency was ok %f adding to successful servers list", Latency)
+			if stClient.Debug {
+				log.Printf("Server latency was ok %f adding to successful servers list", latency)
 			}
 			successfulServers = append(successfulServers, servers[server])
-			successfulServers[server].Latency = Latency
+			successfulServers[server].Latency = latency
 		}
 
-		if len(successfulServers) == viper.GetInt("numclosest") {
+		if len(successfulServers) == stClient.SpeedtestConfig.NumClosest {
 			break
 		}
 	}
 
 	sort.Sort(ByLatency(successfulServers))
-	if viper.GetBool("debug") {
+	if stClient.Debug {
 		log.Printf("Server: %v is the fastest server\n", successfulServers[0])
 	}
 	return successfulServers[0]
 }
 
 // DownloadSpeed measures the mbps of downloading a URL
-func DownloadSpeed(url string) (speed float64, err error) {
+func (stClient *Client) DownloadSpeed(url string) (speed float64, err error) {
 	start := time.Now()
-	if viper.GetBool("debug") {
+	if stClient.Debug {
 		log.Printf("Starting test at: %s\n", start)
 	}
-	client, err := getHttpClient()
+	client, err := stClient.getHTTPClient()
 	if err != nil {
 		return 0, err
 	}
@@ -374,16 +448,16 @@ func DownloadSpeed(url string) (speed float64, err error) {
 }
 
 // UploadSpeed measures the mbps to http.Post to a URL
-func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err error) {
+func (stClient *Client) UploadSpeed(url string, mimetype string, data []byte) (speed float64, err error) {
 	buf := bytes.NewBuffer(data)
 
 	start := time.Now()
-	if viper.GetBool("debug") {
+	if stClient.Debug {
 		log.Printf("Starting test at: %s\n", start)
 		log.Printf("Starting test at: %d (nano)\n", start.UnixNano())
 	}
 
-	client, err := getHttpClient()
+	client, err := stClient.getHTTPClient()
 	if err != nil {
 		return 0, err
 	}
@@ -399,7 +473,7 @@ func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err e
 		return 0, err
 	}
 
-	if viper.GetBool("debug") {
+	if stClient.Debug {
 		log.Printf("Finishing test at: %s\n", finish)
 		log.Printf("Finishing test at: %d (nano)\n", finish.UnixNano())
 		log.Printf("Took: %d (nano)\n", finish.Sub(start).Nanoseconds())
@@ -413,8 +487,8 @@ func UploadSpeed(url string, mimetype string, data []byte) (speed float64, err e
 	return mbps, nil
 }
 
-func getSourceIP() (string, error) {
-	interfaceOption := viper.GetString("interface")
+func (stClient *Client) getSourceIP() (string, error) {
+	interfaceOption := stClient.SpeedtestConfig.Interface
 	if interfaceOption == "" {
 		return "", nil
 	}
@@ -452,10 +526,10 @@ func getSourceIP() (string, error) {
 	return "", errors.New("no address found")
 }
 
-func getHttpClient() (*http.Client, error) {
+func (stClient *Client) getHTTPClient() (*http.Client, error) {
 	var dialer net.Dialer
 
-	sourceIP, err := getSourceIP()
+	sourceIP, err := stClient.getSourceIP()
 	if err != nil {
 		return nil, err
 	}
@@ -469,22 +543,22 @@ func getHttpClient() (*http.Client, error) {
 		}
 		dialer = net.Dialer{
 			LocalAddr: &bindAddr,
-			Timeout:   HTTPConfigTimeout,
-			KeepAlive: HTTPConfigTimeout,
+			Timeout:   stClient.HTTPConfig.ConfigTimeout,
+			KeepAlive: stClient.HTTPConfig.ConfigTimeout,
 		}
 	} else {
 		dialer = net.Dialer{
-			Timeout:   HTTPConfigTimeout,
-			KeepAlive: HTTPConfigTimeout,
+			Timeout:   stClient.HTTPConfig.ConfigTimeout,
+			KeepAlive: stClient.HTTPConfig.ConfigTimeout,
 		}
 	}
 	transport := &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
 		Dial:                dialer.Dial,
-		TLSHandshakeTimeout: HTTPConfigTimeout,
+		TLSHandshakeTimeout: stClient.HTTPConfig.ConfigTimeout,
 	}
 	client := &http.Client{
-		Timeout:   HTTPConfigTimeout,
+		Timeout:   stClient.HTTPConfig.ConfigTimeout,
 		Transport: transport,
 	}
 	return client, nil
