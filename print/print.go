@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/zpeters/speedtest/internal/sthttp"
+	"github.com/zpeters/speedtest/sthttp"
 
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
