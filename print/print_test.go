@@ -18,23 +18,18 @@ func TestServer(t *testing.T) {
 }
 
 func TestServerReport(t *testing.T) {
-	stc := sthttp.Client{}
 	s := sthttp.Server{}
 	s.ID = "123"
 	s.Sponsor = "Sponsor"
 	s.Name = "Name"
 	s.Country = "Country"
-	ServerReport(&stc, s)
+	ServerReport(s)
 }
 
 func TestEnvironmentReport(t *testing.T) {
-	stc := sthttp.Client{
-		Config:          &sthttp.Config{},
-		SpeedtestConfig: &sthttp.SpeedtestConfig{},
-	}
 	app := cli.NewApp()
 	app.Action = func(c *cli.Context) error {
-		EnvironmentReport(&stc)
+		EnvironmentReport(c)
 		return nil
 	}
 	app.Run([]string{"testing"})

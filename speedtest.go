@@ -28,34 +28,33 @@ import (
 // Version placeholder, injected in Makefile
 var Version string
 
-func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
+func runTest(c *cli.Context) {
 	// create our server object and load initial config
 	var testServer sthttp.Server
-
-	config, err := stClient.GetConfig()
+	config, err := sthttp.GetConfig(viper.GetString("speedtestconfigurl"))
 	if err != nil {
 		log.Printf("Cannot get speedtest config\n")
 		log.Fatal(err)
 	}
-	stClient.Config = &config
+	sthttp.CONFIG = config
 
 	// if we are *not* running a report then say hello to everyone
-	if tester.Report {
+	if !viper.GetBool("report") {
 		fmt.Printf("github.com/zpeters/speedtest -- unofficial cli for speedtest.net\n")
 	}
 
 	// if we are in debug mode print outa an environment report
-	if stClient.Debug {
-		print.EnvironmentReport(stClient)
+	if viper.GetBool("debug") {
+		print.EnvironmentReport(c)
 	}
 
 	// get all possible servers
-	if stClient.Debug {
+	if viper.GetBool("debug") {
 		log.Printf("Getting all servers for our test list")
 	}
 	var allServers []sthttp.Server
 	if c.String("mini") == "" {
-		allServers, err = stClient.GetServers()
+		allServers, err = sthttp.GetServers(viper.GetString("speedtestserversurl"), c.String("blacklist"))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -63,14 +62,14 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 
 	// if a mini speedtest installation was specified, use that...
 	if c.String("mini") != "" {
-
 		//construct testserver object manually
 		u, err := url.Parse(c.String("mini"))
+
 		if err != nil {
 			log.Fatalf("Speedtest mini server URL is not a valid URL: %s", err)
 		}
 
-		if stClient.Debug {
+		if viper.GetBool("debug") {
 			log.Printf("Using Mini Server '%s'", c.String("mini"))
 		}
 		testServer.URL = c.String("mini")
@@ -82,39 +81,39 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 		testServer.Sponsor = "speedtest-mini"
 		testServer.ID = "0"
 
-		testServer.Latency, err = stClient.GetLatency(testServer, stClient.GetLatencyURL(testServer))
+		testServer.Latency, err = sthttp.GetLatency(testServer, sthttp.GetLatencyURL(testServer), viper.GetInt("numlatencytests"))
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		// if they specified a specific speedtest.net server, test against that...
 	} else if c.String("server") != "" {
-		if stClient.Debug {
+		if viper.GetBool("debug") {
 			log.Printf("Server '%s' specified, getting info...", c.String("server"))
 		}
 		// find server and load latency report
-		testServer = tester.FindServer(c.String("server"), allServers)
+		testServer = tests.FindServer(c.String("server"), allServers)
 		// load latency
-		testServer.Latency, err = stClient.GetLatency(testServer, stClient.GetLatencyURL(testServer))
+		testServer.Latency, err = sthttp.GetLatency(testServer, sthttp.GetLatencyURL(testServer), viper.GetInt("numlatencytests"))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if !tester.Report {
+		if !viper.GetBool("report") {
 			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
 		}
 
 		// ...otherwise get a list of all servers sorted by distance...
 	} else {
-		if stClient.Debug {
+		if viper.GetBool("debug") {
 			log.Printf("Getting closest servers...")
 		}
-		closestServers := stClient.GetClosestServers(allServers)
-		if stClient.Debug {
+		closestServers := sthttp.GetClosestServers(allServers, sthttp.CONFIG.Lat, sthttp.CONFIG.Lon)
+		if viper.GetBool("debug") {
 			log.Printf("Getting the fastests of our closest servers...")
 		}
 		// ... and get the fastests NUMCLOSEST ones
-		testServer = stClient.GetFastestServer(closestServers)
+		testServer = sthttp.GetFastestServer(closestServers)
 		if !viper.GetBool("report") {
 			fmt.Printf("Server: %s - %s (%s)\n", testServer.ID, testServer.Name, testServer.Sponsor)
 		}
@@ -143,12 +142,12 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 
 		if !viper.GetBool("report") {
 			if c.Bool("downloadonly") {
-				dmbps = tester.Download(testServer)
+				dmbps = tests.DownloadTest(testServer)
 			} else if c.Bool("uploadonly") {
-				umbps = tester.Upload(testServer)
+				umbps = tests.UploadTest(testServer)
 			} else {
-				dmbps = tester.Download(testServer)
-				umbps = tester.Upload(testServer)
+				dmbps = tests.DownloadTest(testServer)
+				umbps = tests.UploadTest(testServer)
 			}
 			if viper.GetString("algotype") == "max" {
 				fmt.Printf("Ping (Lowest): %3.2f ms | Download (Max): %3.2f Mbps | Upload (Max): %3.2f Mbps\n", testServer.Latency, dmbps, umbps)
@@ -162,19 +161,19 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 			fmt.Printf("%3.2f%s", testServer.Latency, viper.GetString("reportchar"))
 
 			if c.Bool("downloadonly") {
-				dmbps = tester.Download(testServer)
+				dmbps = tests.DownloadTest(testServer)
 				dkbps := dmbps * 1000
 				fmt.Printf("%d\n", int(dkbps))
 			} else if c.Bool("uploadonly") {
-				umbps = tester.Upload(testServer)
+				umbps = tests.UploadTest(testServer)
 				ukbps := umbps * 1000
 				fmt.Printf("%d\n", int(ukbps))
 			} else {
-				dmbps = tester.Download(testServer)
+				dmbps = tests.DownloadTest(testServer)
 				dkbps := dmbps * 1000
 				fmt.Printf("%d%s", int(dkbps), viper.GetString("reportchar"))
 
-				umbps = tester.Upload(testServer)
+				umbps = tests.UploadTest(testServer)
 				ukbps := umbps * 1000
 				fmt.Printf("%d\n", int(ukbps))
 			}
@@ -330,39 +329,14 @@ func main() {
 			viper.Set("interface", c.String("interface"))
 		}
 
-		stClient := sthttp.NewClient(
-			&sthttp.SpeedtestConfig{
-				ConfigURL:       viper.GetString("speedtestconfigurl"),
-				ServersURL:      viper.GetString("speedtestserversurl"),
-				AlgoType:        viper.GetString("algotype"),
-				NumClosest:      viper.GetInt("numclosest"),
-				NumLatencyTests: viper.GetInt("numlatencytests"),
-				Interface:       viper.GetString("interface"),
-				Blacklist:       viper.GetString("blacklist"),
-			},
-			&sthttp.HTTPConfig{
-				ConfigTimeout:   viper.GetDuration("httpconfigtimeout"),
-				LatencyTimeout:  viper.GetDuration("httplatencytimeout"),
-				DownloadTimeout: viper.GetDuration("httpdownloadtimeout"),
-			},
-			viper.GetBool("debug"),
-			viper.GetString("reportchar"))
-
-		tester := tests.NewTester(
-			stClient,
-			viper.Get("dlsizes").([]int),
-			viper.Get("dlsizes").([]int),
-			viper.GetBool("quiet"),
-			viper.GetBool("report"))
-
 		// run a oneshot list
 		if c.Bool("list") {
-			tester.ListServers(stClient.SpeedtestConfig.ConfigURL, stClient.SpeedtestConfig.ServersURL, stClient.SpeedtestConfig.Blacklist)
+			tests.ListServers(c.String("blacklist"))
 			os.Exit(0)
 		}
 
 		// run our test
-		runTest(c, stClient, tester)
+		runTest(c)
 
 		// exit nicely
 		os.Exit(0)
