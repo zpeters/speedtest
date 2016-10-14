@@ -11,7 +11,7 @@ install:
   - make test
 script:
   - go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
-  - ./bin/speedtest -v
+  - ./bin/speedtest -p
 notifications:
   email:
     recipients:
