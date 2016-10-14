@@ -33,9 +33,8 @@ func TestCheckHTTPFail(t *testing.T) {
 
 func TestGetLatencyURL(t *testing.T) {
 	s := Server{}
-	stc := Client{}
 	s.URL = "http://example.com/speedtest/"
-	u := stc.GetLatencyURL(s)
+	u := GetLatencyURL(s)
 	if u != "http://example.com/speedtest/latency.txt" {
 		t.Logf("Got latency URL: %s\n", u)
 		t.Fail()
@@ -91,12 +90,7 @@ func TestGetConfig(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{ConfigURL: ts.URL},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	c, err := stc.GetConfig()
+	c, err := GetConfig(ts.URL)
 	if err != nil {
 		t.Logf("Cannot get config")
 		t.Fatal(err)
@@ -109,12 +103,7 @@ func TestGetConfig(t *testing.T) {
 }
 
 func TestGetConfigNoConnection(t *testing.T) {
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{ConfigURL: "fail"},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	_, err := stc.GetConfig()
+	_, err := GetConfig("fail")
 	assert.Error(t, err, "An error was expected")
 }
 
@@ -129,12 +118,7 @@ func TestGetServers(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	servers, err := stc.GetServers()
+	servers, err := GetServers(ts.URL, "")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
@@ -184,18 +168,12 @@ func TestGetServersBlacklist(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL, Blacklist: "3484"},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	serversBlacklist, err := stc.GetServers()
+	serversBlacklist, err := GetServers(ts.URL, "3484")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
 	}
-	stc.SpeedtestConfig.Blacklist = ""
-	serversAll, err := stc.GetServers()
+	serversAll, err := GetServers(ts.URL, "")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
@@ -216,12 +194,7 @@ func TestGetClosestServers(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL}, Config: &Config{},
-		HTTPConfig: &HTTPConfig{ConfigTimeout: timeout},
-	}
-	servers, err := stc.GetServers()
+	servers, err := GetServers(ts.URL, "")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
@@ -229,9 +202,8 @@ func TestGetClosestServers(t *testing.T) {
 
 	lat := 32.5155
 	lon := -90.1118
-	stc.Config.Lat = lat
-	stc.Config.Lon = lon
-	sorted := stc.GetClosestServers(servers)
+
+	sorted := GetClosestServers(servers, lat, lon)
 
 	assert.Equal(t, sorted[0].ID, "2630", "Closest server ID should be 2630")
 }
@@ -244,13 +216,7 @@ func TestGetLatency(t *testing.T) {
 	defer ts.Close()
 
 	s := Server{}
-
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{NumLatencyTests: 5},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	latency, err := stc.GetLatency(s, ts.URL)
+	latency, err := GetLatency(s, ts.URL, 5)
 	assert.NoError(t, err, "Error getting latency")
 	assert.True(t, latency > 100, "Latency faster than expected")
 }
@@ -266,18 +232,13 @@ func TestGetFastestServer(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	servers, err := stc.GetServers()
+	servers, err := GetServers(ts.URL, "")
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
 	}
 
-	fs := stc.GetFastestServer(servers)
+	fs := GetFastestServer(servers)
 	assert.NotNil(t, fs, "No fastest server returned")
 }
 
@@ -294,23 +255,13 @@ func TestDownloadSpeed(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	res, err := stc.DownloadSpeed(ts.URL)
+	res, err := DownloadSpeed(ts.URL)
 	assert.NoError(t, err, "There should be no error")
 	assert.True(t, res > 0, "Download speed should be faster than zero")
 }
 
 func TestDownloadSpeedBadUrl(t *testing.T) {
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	res, err := stc.DownloadSpeed("http://0.0.0.0")
+	res, err := DownloadSpeed("http://0.0.0.0")
 	assert.Error(t, err, "This should fail")
 	assert.EqualValues(t, res, 0, "Failed download, so speed should be 0")
 }
@@ -328,12 +279,7 @@ func TestUploadSpeed(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	timeout, _ := time.ParseDuration("15s")
-	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{},
-		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
-	}
-	res, err := stc.UploadSpeed(ts.URL, "text/xml", b)
+	res, err := UploadSpeed(ts.URL, "text/xml", b)
 	assert.True(t, res > 0, "Upload speed should be greater than 0")
 	assert.NoError(t, err, "Upload should not error out")
 }

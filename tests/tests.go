@@ -8,125 +8,101 @@ import (
 	"github.com/zpeters/speedtest/misc"
 	"github.com/zpeters/speedtest/print"
 	"github.com/zpeters/speedtest/sthttp"
+
+	"github.com/spf13/viper"
 )
 
-var (
-	// DefaultDLSizes defines the default download sizes
-	DefaultDLSizes = []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000}
-	// DefaultULSizes defines the default upload sizes
-	DefaultULSizes = []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)}
-)
-
-// Tester defines a Speedtester client tester
-type Tester struct {
-	Client   *sthttp.Client
-	DLSizes  []int
-	ULSizes  []int
-	Quiet    bool
-	Report   bool
-	Debug    bool
-	AlgoType string
-}
-
-func NewTester(client *sthttp.Client, dlsizes []int, ulsizes []int, quiet bool, report bool) *Tester {
-	return &Tester{
-		Client:  client,
-		DLSizes: dlsizes,
-		ULSizes: ulsizes,
-		Quiet:   quiet,
-		Report:  report,
-	}
-}
-
-// Download will perform the "normal" speedtest download test
-func (tester *Tester) Download(server sthttp.Server) float64 {
+// DownloadTest will perform the "normal" speedtest download test
+func DownloadTest(server sthttp.Server) float64 {
 	var urls []string
 	var maxSpeed float64
 	var avgSpeed float64
 
 	// http://speedtest1.newbreakcommunications.net/speedtest/speedtest/
-	for size := range tester.DLSizes {
+	for size := range viper.Get("dlsizes").([]int) {
 		url := server.URL
 		splits := strings.Split(url, "/")
 		baseURL := strings.Join(splits[1:len(splits)-1], "/")
-		randomImage := fmt.Sprintf("random%dx%d.jpg", tester.DLSizes[size], tester.DLSizes[size])
+		randomImage := fmt.Sprintf("random%dx%d.jpg", viper.Get("dlsizes").([]int)[size], viper.Get("dlsizes").([]int)[size])
 		downloadURL := "http:/" + baseURL + "/" + randomImage
 		urls = append(urls, downloadURL)
 	}
 
-	if !tester.Quiet && !tester.Report {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		log.Printf("Testing download speed")
 	}
 
 	for u := range urls {
-		if tester.Debug {
+
+		if viper.GetBool("debug") {
 			log.Printf("Download Test Run: %s\n", urls[u])
 		}
-		dlSpeed, err := tester.Client.DownloadSpeed(urls[u])
+		dlSpeed, err := sthttp.DownloadSpeed(urls[u])
 		if err != nil {
 			log.Printf("Can't get download speed")
 			log.Fatal(err)
 		}
-		if !tester.Quiet && !tester.Debug && !tester.Report {
+		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}
-		if tester.Debug {
+		if viper.GetBool("debug") {
 			log.Printf("Dl Speed: %v\n", dlSpeed)
 		}
 
-		if tester.AlgoType == "max" {
+		if viper.GetString("algotype") == "max" {
 			if dlSpeed > maxSpeed {
 				maxSpeed = dlSpeed
 			}
 		} else {
 			avgSpeed = avgSpeed + dlSpeed
 		}
+
 	}
 
-	if !tester.Quiet && !tester.Report {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		fmt.Printf("\n")
 	}
 
-	if tester.AlgoType != "max" {
+	if viper.GetString("algotype") != "max" {
 		return avgSpeed / float64(len(urls))
 	}
 	return maxSpeed
 
 }
 
-// Upload runs a "normal" speedtest upload test
-func (tester *Tester) Upload(server sthttp.Server) float64 {
+// UploadTest runs a "normal" speedtest upload test
+func UploadTest(server sthttp.Server) float64 {
 	// https://github.com/sivel/speedtest-cli/blob/master/speedtest-cli
 	var ulsize []int
 	var maxSpeed float64
 	var avgSpeed float64
 
-	for size := range tester.ULSizes {
-		ulsize = append(ulsize, tester.ULSizes[size])
+	for size := range viper.Get("ulsizes").([]int) {
+		ulsize = append(ulsize, viper.Get("ulsizes").([]int)[size])
 	}
 
-	if !tester.Quiet && !tester.Report {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		log.Printf("Testing upload speed")
 	}
 
 	for i := 0; i < len(ulsize); i++ {
-		if tester.Debug {
+		if viper.GetBool("debug") {
 			log.Printf("Upload Test Run: %v\n", i)
 		}
 		r := misc.Urandom(ulsize[i])
-		ulSpeed, err := tester.Client.UploadSpeed(server.URL, "text/xml", r)
+		ulSpeed, err := sthttp.UploadSpeed(server.URL, "text/xml", r)
 		if err != nil {
 			log.Fatal(err)
 		}
-		if !tester.Quiet && !tester.Debug && !tester.Report {
+		if !viper.GetBool("quiet") && !viper.GetBool("debug") && !viper.GetBool("report") {
 			fmt.Printf(".")
 		}
-		if tester.Debug {
+		if viper.GetBool("debug") {
 			log.Printf("Ul Amount: %v bytes\n", len(r))
 			log.Printf("Ul Speed: %vMbps\n", ulSpeed)
 		}
 
-		if tester.AlgoType == "max" {
+		if viper.GetString("algotype") == "max" {
 			if ulSpeed > maxSpeed {
 				maxSpeed = ulSpeed
 			}
@@ -136,18 +112,18 @@ func (tester *Tester) Upload(server sthttp.Server) float64 {
 
 	}
 
-	if !tester.Quiet && !tester.Report {
+	if !viper.GetBool("quiet") && !viper.GetBool("report") {
 		fmt.Printf("\n")
 	}
 
-	if tester.AlgoType != "max" {
-		return avgSpeed / float64(len(ulsize))
+	if viper.GetString("algotype") != "max" {
+		return avgSpeed / float64(len(viper.Get("ulsizes").([]int)))
 	}
 	return maxSpeed
 }
 
 // FindServer will find a specific server in the servers list
-func (tester *Tester) FindServer(id string, serversList []sthttp.Server) sthttp.Server {
+func FindServer(id string, serversList []sthttp.Server) sthttp.Server {
 	var foundServer sthttp.Server
 	for s := range serversList {
 		if serversList[s].ID == id {
@@ -161,28 +137,28 @@ func (tester *Tester) FindServer(id string, serversList []sthttp.Server) sthttp.
 }
 
 // ListServers prints a list of all "global" servers
-func (tester *Tester) ListServers(configURL string, serversURL string, blacklist string) (err error) {
-	if tester.Debug {
+func ListServers(blacklist string) (err error) {
+	if viper.GetBool("debug") {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}
-	c, err := tester.Client.GetConfig()
+	c, err := sthttp.GetConfig(viper.GetString("speedtestconfigurl"))
 	if err != nil {
 		return err
 	}
-	tester.Client.Config = &c
 
-	if tester.Debug {
+	sthttp.CONFIG = c
+	if viper.GetBool("debug") {
 		fmt.Printf("\n")
 	}
 
-	if tester.Debug {
+	if viper.GetBool("debug") {
 		fmt.Printf("Getting servers list...")
 	}
-	allServers, err := tester.Client.GetServers()
+	allServers, err := sthttp.GetServers(viper.GetString("speedtestserversurl"), blacklist)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if tester.Debug {
+	if viper.GetBool("debug") {
 		fmt.Printf("(%d) found\n", len(allServers))
 	}
 	for s := range allServers {
