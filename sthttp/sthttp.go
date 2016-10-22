@@ -43,6 +43,7 @@ type SpeedtestConfig struct {
 	NumLatencyTests int
 	Interface       string
 	Blacklist       []string
+	UserAgent       string
 }
 
 // HTTPConfig define settings for HTTP requests
@@ -146,7 +147,7 @@ func (stClient *Client) GetConfig() (c Config, err error) {
 		return c, err
 	}
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("User-Agent", "Unofficial CLI")
+	req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -178,7 +179,7 @@ func (stClient *Client) GetServers() (servers []Server, err error) {
 	}
 	req, _ := http.NewRequest("GET", stClient.SpeedtestConfig.ServersURL, nil)
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("User-Agent", "Unofficial CLI")
+	req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 	resp, err := client.Do(req)
 
@@ -271,7 +272,7 @@ func (stClient *Client) GetLatency(server Server, url string) (result float64, e
 		}
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Set("Cache-Control", "no-cache")
-		req.Header.Set("User-Agent", "Unofficial CLI")
+		req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 		resp, err := client.Do(req)
 
@@ -378,7 +379,7 @@ func (stClient *Client) DownloadSpeed(url string) (speed float64, err error) {
 		return 0, err
 	}
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("User-Agent", "Unofficial CLI")
+	req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {

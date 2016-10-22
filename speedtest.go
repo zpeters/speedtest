@@ -197,6 +197,7 @@ func init() {
 	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
 	viper.SetDefault("speedtestconfigurl", "http://c.speedtest.net/speedtest-config.php?x="+uniuri.New())
 	viper.SetDefault("speedtestserversurl", "http://c.speedtest.net/speedtest-servers-static.php?x="+uniuri.New())
+	viper.SetDefault("useragent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.21 Safari/537.36")
 }
 
 func main() {
@@ -266,6 +267,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "mini, m",
 			Usage: "URL of speedtest mini server",
+		},
+		cli.StringFlag{
+			Name:  "useragent, ua",
+			Usage: "Specify a useragent string",
 		},
 		cli.IntFlag{
 			Name:  "numclosest, nc",
@@ -342,6 +347,7 @@ func main() {
 				NumLatencyTests: viper.GetInt("numlatencytests"),
 				Interface:       viper.GetString("interface"),
 				Blacklist:       viper.GetStringSlice("blacklist"),
+				UserAgent:       viper.GetString("useragent"),
 			},
 			&sthttp.HTTPConfig{
 				ConfigTimeout:   viper.GetDuration("httpconfigtimeout"),
