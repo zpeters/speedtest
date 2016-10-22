@@ -186,7 +186,7 @@ func TestGetServersBlacklist(t *testing.T) {
 
 	timeout, _ := time.ParseDuration("15s")
 	stc := Client{
-		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL, Blacklist: "3484"},
+		SpeedtestConfig: &SpeedtestConfig{ServersURL: ts.URL, Blacklist: []string{"3484", "4600"}},
 		HTTPConfig:      &HTTPConfig{ConfigTimeout: timeout},
 	}
 	serversBlacklist, err := stc.GetServers()
@@ -194,14 +194,14 @@ func TestGetServersBlacklist(t *testing.T) {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
 	}
-	stc.SpeedtestConfig.Blacklist = ""
+	stc.SpeedtestConfig.Blacklist = []string{""}
 	serversAll, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(serversAll)-1, len(serversBlacklist), "All servers should be one less than blacklist list")
+	assert.Equal(t, len(serversAll)-2, len(serversBlacklist), "All servers should be one less than blacklist list")
 
 }
 
