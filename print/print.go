@@ -37,10 +37,4 @@ func EnvironmentReport(client *sthttp.Client) {
 	log.Printf("[args]\n")
 	log.Printf("%#v\n", os.Args)
 	log.Printf("--------------------------------\n")
-	// TODO:
-	// log.Printf("[Mode]\n")
-	// log.Printf("Report: %v\n", client.Report)
-	// log.Printf("List: %v\n", c.Bool("list"))
-	// log.Printf("Ping: %v\n", c.Bool("Ping"))
-	log.Printf("-------------------------------\n")
 }

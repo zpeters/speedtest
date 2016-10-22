@@ -17,18 +17,6 @@ import (
 	"github.com/zpeters/speedtest/stxml"
 )
 
-// HTTPConfigTimeout is how long we'll wait for a config download to timeout
-// var HTTPConfigTimeout = time.Duration(viper.GetDuration("httpconfigtimeout") * time.Second)
-
-// // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-// var HTTPLatencyTimeout = time.Duration(viper.GetDuration("httplatencytimeout") * time.Second)
-
-// // HTTPDownloadTimeout is how long we'll wait for a download to timeout
-// var HTTPDownloadTimeout = time.Duration(viper.GetDuration("httpdownloadtimeout") * time.Minute)
-
-// CONFIG is our global config space
-// var CONFIG Config
-
 // Config struct holds our config (users current ip, lat, lon and isp)
 type Config struct {
 	IP  string
@@ -39,28 +27,11 @@ type Config struct {
 
 // Client define a Speedtest HTTP client
 type Client struct {
-	// Config defines the client configuration
 	Config          *Config
 	SpeedtestConfig *SpeedtestConfig
 	HTTPConfig      *HTTPConfig
-
-	// ConfigURL  string
-	// ServersURL string
-	// // HTTPConfigTimeout is how long we'll wait for a config download to timeout
-	// HTTPConfigTimeout time.Duration
-	// // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-	// HTTPLatencyTimeout time.Duration
-	// // HTTPDownloadTimeout is how long we'll wait for a download to timeout
-	// HTTPDownloadTimeout time.Duration
-
-	Debug bool
-	// AlgoType        string
-	// NumClosest      int
-	// NumLatencyTests int
-	// Interface       string
-	// Blacklist       string
-
-	ReportChar string
+	Debug           bool
+	ReportChar      string
 }
 
 // SpeedtestConfig define Speedtest settings
@@ -87,18 +58,6 @@ type HTTPConfig struct {
 // NewClient define a new Speedtest client.
 func NewClient(speedtestConfig *SpeedtestConfig, httpConfig *HTTPConfig, debug bool, reportChar string) *Client {
 	return &Client{
-		// ConfigURL:           configURL,
-		// ServersURL:          serversURL,
-		// HTTPConfigTimeout:   time.Duration(configTimeout * time.Second),
-		// HTTPLatencyTimeout:  time.Duration(latencyTimeout * time.Second),
-		// HTTPDownloadTimeout: time.Duration(downloadTimeout * time.Second),
-		// Debug:               debug,
-		// AlgoType:            algotype,
-		// NumClosest:          numClosest,
-		// NumLatencyTests:     numLatencyTests,
-		// Interface:           eth,
-		// Blacklist:           blacklist,
-
 		Config:          &Config{},
 		HTTPConfig:      httpConfig,
 		SpeedtestConfig: speedtestConfig,
@@ -282,7 +241,6 @@ func (stClient *Client) GetClosestServers(servers []Server) []Server {
 }
 
 // GetLatencyURL will return the proper url for the latency
-// test file when given a server name
 func (stClient *Client) GetLatencyURL(server Server) string {
 	u := server.URL
 	splits := strings.Split(u, "/")
@@ -296,8 +254,6 @@ func (stClient *Client) GetLatency(server Server, url string) (result float64, e
 	var latency time.Duration
 	var minLatency time.Duration
 	var avgLatency time.Duration
-
-	// url := stClient.GetLatencyURL(server)
 
 	for i := 0; i < stClient.SpeedtestConfig.NumLatencyTests; i++ {
 		var failed bool
