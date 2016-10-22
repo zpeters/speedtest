@@ -16,9 +16,7 @@ func TestInit(t *testing.T) {
 	assert.NotEmpty(t, viper.GetInt("numlatencytests"))
 	assert.NotEmpty(t, viper.GetString("reportchar"))
 	assert.NotEmpty(t, viper.GetString("algotype"))
-	assert.NotEmpty(t, viper.GetInt("httpconfigtimeout"))
-	assert.NotEmpty(t, viper.GetInt("httplatencytimeout"))
-	assert.NotEmpty(t, viper.GetInt("httpdownloadtimeout"))
+	assert.NotEmpty(t, viper.GetInt("httptimeout"))
 	assert.NotEmpty(t, viper.Get("dlsizes").([]int))
 	assert.NotEmpty(t, viper.Get("ulsizes").([]int))
 }

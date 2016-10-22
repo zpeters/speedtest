@@ -48,12 +48,7 @@ type SpeedtestConfig struct {
 
 // HTTPConfig define settings for HTTP requests
 type HTTPConfig struct {
-	// HTTPConfigTimeout is how long we'll wait for a config download to timeout
-	ConfigTimeout time.Duration
-	// HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-	LatencyTimeout time.Duration
-	// HTTPDownloadTimeout is how long we'll wait for a download to timeout
-	DownloadTimeout time.Duration
+	HTTPTimeout time.Duration
 }
 
 // NewClient define a new Speedtest client.
@@ -139,7 +134,7 @@ func (stClient *Client) GetConfig() (c Config, err error) {
 	c = Config{}
 
 	client := &http.Client{
-		Timeout: stClient.HTTPConfig.ConfigTimeout,
+		Timeout: stClient.HTTPConfig.HTTPTimeout,
 	}
 
 	req, err := http.NewRequest("GET", stClient.SpeedtestConfig.ConfigURL, nil)
@@ -175,7 +170,7 @@ func (stClient *Client) GetConfig() (c Config, err error) {
 // GetServers will get the full server list
 func (stClient *Client) GetServers() (servers []Server, err error) {
 	client := &http.Client{
-		Timeout: stClient.HTTPConfig.ConfigTimeout,
+		Timeout: stClient.HTTPConfig.HTTPTimeout,
 	}
 	req, _ := http.NewRequest("GET", stClient.SpeedtestConfig.ServersURL, nil)
 	req.Header.Set("Cache-Control", "no-cache")
@@ -498,22 +493,22 @@ func (stClient *Client) getHTTPClient() (*http.Client, error) {
 		}
 		dialer = net.Dialer{
 			LocalAddr: &bindAddr,
-			Timeout:   stClient.HTTPConfig.ConfigTimeout,
-			KeepAlive: stClient.HTTPConfig.ConfigTimeout,
+			Timeout:   stClient.HTTPConfig.HTTPTimeout,
+			KeepAlive: stClient.HTTPConfig.HTTPTimeout,
 		}
 	} else {
 		dialer = net.Dialer{
-			Timeout:   stClient.HTTPConfig.ConfigTimeout,
-			KeepAlive: stClient.HTTPConfig.ConfigTimeout,
+			Timeout:   stClient.HTTPConfig.HTTPTimeout,
+			KeepAlive: stClient.HTTPConfig.HTTPTimeout,
 		}
 	}
 	transport := &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
 		Dial:                dialer.Dial,
-		TLSHandshakeTimeout: stClient.HTTPConfig.ConfigTimeout,
+		TLSHandshakeTimeout: stClient.HTTPConfig.HTTPTimeout,
 	}
 	client := &http.Client{
-		Timeout:   stClient.HTTPConfig.ConfigTimeout,
+		Timeout:   stClient.HTTPConfig.HTTPTimeout,
 		Transport: transport,
 	}
 	return client, nil
