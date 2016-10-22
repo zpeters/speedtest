@@ -259,7 +259,7 @@ func main() {
 			Name:  "server, s",
 			Usage: "Use a specific server",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:  "blacklist, b",
 			Usage: "Blacklist a server/list of servers",
 		},
@@ -329,6 +329,9 @@ func main() {
 		if c.String("interface") != "" {
 			viper.Set("interface", c.String("interface"))
 		}
+		if len(c.StringSlice("blacklist")) > 0 {
+			viper.Set("blacklist", c.StringSlice("blacklist"))
+		}
 
 		stClient := sthttp.NewClient(
 			&sthttp.SpeedtestConfig{
@@ -338,7 +341,7 @@ func main() {
 				NumClosest:      viper.GetInt("numclosest"),
 				NumLatencyTests: viper.GetInt("numlatencytests"),
 				Interface:       viper.GetString("interface"),
-				Blacklist:       viper.GetString("blacklist"),
+				Blacklist:       viper.GetStringSlice("blacklist"),
 			},
 			&sthttp.HTTPConfig{
 				ConfigTimeout:   viper.GetDuration("httpconfigtimeout"),
