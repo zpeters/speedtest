@@ -49,7 +49,7 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 		print.EnvironmentReport(stClient)
 	}
 
-	// get all possible servers
+	// get all possible servers (excluding blacklisted)
 	if stClient.Debug {
 		log.Printf("Getting all servers for our test list")
 	}
