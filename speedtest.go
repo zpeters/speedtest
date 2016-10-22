@@ -241,7 +241,7 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "report, r",
-			Usage: "Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
+			Usage: "Reporting mode output, minimal output with '|' for separators, use '--rc'\n\t\tto change separator characters. Reports the following: Server ID, \n\t\tServer Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
 		},
 		cli.BoolFlag{
 			Name:  "downloadonly, do",
@@ -261,7 +261,7 @@ func main() {
 		},
 		cli.StringSliceFlag{
 			Name:  "blacklist, b",
-			Usage: "Blacklist a server/list of servers",
+			Usage: "Blacklist a server.  Use this multiple times for more than one server",
 		},
 		cli.StringFlag{
 			Name:  "mini, m",
