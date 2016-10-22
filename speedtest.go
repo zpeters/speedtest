@@ -190,9 +190,7 @@ func init() {
 	viper.SetDefault("numlatencytests", 5)
 	viper.SetDefault("reportchar", "|")
 	viper.SetDefault("algotype", "max")
-	viper.SetDefault("httpconfigtimeout", 15)
-	viper.SetDefault("httplatencytimeout", 15)
-	viper.SetDefault("httpdownloadtimeout", 15)
+	viper.SetDefault("httptimeout", 15)
 	viper.SetDefault("dlsizes", []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000})
 	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
 	viper.SetDefault("speedtestconfigurl", "http://c.speedtest.net/speedtest-config.php?x="+uniuri.New())
@@ -350,9 +348,7 @@ func main() {
 				UserAgent:       viper.GetString("useragent"),
 			},
 			&sthttp.HTTPConfig{
-				ConfigTimeout:   viper.GetDuration("httpconfigtimeout"),
-				LatencyTimeout:  viper.GetDuration("httplatencytimeout"),
-				DownloadTimeout: viper.GetDuration("httpdownloadtimeout"),
+				HTTPTimeout: viper.GetDuration("httptimeout") * time.Second,
 			},
 			viper.GetBool("debug"),
 			viper.GetString("reportchar"))
