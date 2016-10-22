@@ -14,9 +14,9 @@ build:
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION}
 
 clean:
-	rm bin/speedtest*
-	rm coverage-all.out
-	rm coverage.out
+	rm -f bin/speedtest*
+	rm -f coverage-all.out
+	rm -f coverage.out
 
 test:
 	go test $(shell glide nv)
