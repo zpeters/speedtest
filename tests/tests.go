@@ -161,7 +161,7 @@ func (tester *Tester) FindServer(id string, serversList []sthttp.Server) sthttp.
 }
 
 // ListServers prints a list of all "global" servers
-func (tester *Tester) ListServers(configURL string, serversURL string, blacklist string) (err error) {
+func (tester *Tester) ListServers(configURL string, serversURL string, blacklist []string) (err error) {
 	if tester.Debug {
 		fmt.Printf("Loading config from speedtest.net\n")
 	}

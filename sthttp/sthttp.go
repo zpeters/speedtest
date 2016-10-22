@@ -71,7 +71,7 @@ type SpeedtestConfig struct {
 	NumClosest      int
 	NumLatencyTests int
 	Interface       string
-	Blacklist       string
+	Blacklist       []string
 }
 
 // HTTPConfig define settings for HTTP requests
@@ -153,12 +153,10 @@ func (server ByLatency) Swap(i, j int) {
 }
 
 // checkBlacklisted tests if the server is on the specified blacklist
-func checkBlacklisted(blacklist string, server string) bool {
+func checkBlacklisted(blacklist []string, server string) bool {
 	var isBlacklisted bool = false
-	bl := strings.Split(blacklist, ",")
-	for b := range bl {
-		blServer := strings.TrimSpace(bl[b])
-		if server == blServer {
+	for b := range blacklist {
+		if server == blacklist[b] {
 			isBlacklisted = true
 		}
 	}
