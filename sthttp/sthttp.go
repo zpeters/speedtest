@@ -17,18 +17,6 @@ import (
 	"github.com/zpeters/speedtest/stxml"
 )
 
-// HTTPConfigTimeout is how long we'll wait for a config download to timeout
-// var HTTPConfigTimeout = time.Duration(viper.GetDuration("httpconfigtimeout") * time.Second)
-
-// // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-// var HTTPLatencyTimeout = time.Duration(viper.GetDuration("httplatencytimeout") * time.Second)
-
-// // HTTPDownloadTimeout is how long we'll wait for a download to timeout
-// var HTTPDownloadTimeout = time.Duration(viper.GetDuration("httpdownloadtimeout") * time.Minute)
-
-// CONFIG is our global config space
-// var CONFIG Config
-
 // Config struct holds our config (users current ip, lat, lon and isp)
 type Config struct {
 	IP  string
@@ -39,28 +27,11 @@ type Config struct {
 
 // Client define a Speedtest HTTP client
 type Client struct {
-	// Config defines the client configuration
 	Config          *Config
 	SpeedtestConfig *SpeedtestConfig
 	HTTPConfig      *HTTPConfig
-
-	// ConfigURL  string
-	// ServersURL string
-	// // HTTPConfigTimeout is how long we'll wait for a config download to timeout
-	// HTTPConfigTimeout time.Duration
-	// // HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-	// HTTPLatencyTimeout time.Duration
-	// // HTTPDownloadTimeout is how long we'll wait for a download to timeout
-	// HTTPDownloadTimeout time.Duration
-
-	Debug bool
-	// AlgoType        string
-	// NumClosest      int
-	// NumLatencyTests int
-	// Interface       string
-	// Blacklist       string
-
-	ReportChar string
+	Debug           bool
+	ReportChar      string
 }
 
 // SpeedtestConfig define Speedtest settings
@@ -71,34 +42,18 @@ type SpeedtestConfig struct {
 	NumClosest      int
 	NumLatencyTests int
 	Interface       string
-	Blacklist       string
+	Blacklist       []string
+	UserAgent       string
 }
 
 // HTTPConfig define settings for HTTP requests
 type HTTPConfig struct {
-	// HTTPConfigTimeout is how long we'll wait for a config download to timeout
-	ConfigTimeout time.Duration
-	// HTTPLatencyTimeout is how long we'll wait for a ping to timeout
-	LatencyTimeout time.Duration
-	// HTTPDownloadTimeout is how long we'll wait for a download to timeout
-	DownloadTimeout time.Duration
+	HTTPTimeout time.Duration
 }
 
 // NewClient define a new Speedtest client.
 func NewClient(speedtestConfig *SpeedtestConfig, httpConfig *HTTPConfig, debug bool, reportChar string) *Client {
 	return &Client{
-		// ConfigURL:           configURL,
-		// ServersURL:          serversURL,
-		// HTTPConfigTimeout:   time.Duration(configTimeout * time.Second),
-		// HTTPLatencyTimeout:  time.Duration(latencyTimeout * time.Second),
-		// HTTPDownloadTimeout: time.Duration(downloadTimeout * time.Second),
-		// Debug:               debug,
-		// AlgoType:            algotype,
-		// NumClosest:          numClosest,
-		// NumLatencyTests:     numLatencyTests,
-		// Interface:           eth,
-		// Blacklist:           blacklist,
-
 		Config:          &Config{},
 		HTTPConfig:      httpConfig,
 		SpeedtestConfig: speedtestConfig,
@@ -153,12 +108,10 @@ func (server ByLatency) Swap(i, j int) {
 }
 
 // checkBlacklisted tests if the server is on the specified blacklist
-func checkBlacklisted(blacklist string, server string) bool {
+func checkBlacklisted(blacklist []string, server string) bool {
 	var isBlacklisted bool = false
-	bl := strings.Split(blacklist, ",")
-	for b := range bl {
-		blServer := strings.TrimSpace(bl[b])
-		if server == blServer {
+	for b := range blacklist {
+		if server == blacklist[b] {
 			isBlacklisted = true
 		}
 	}
@@ -181,7 +134,7 @@ func (stClient *Client) GetConfig() (c Config, err error) {
 	c = Config{}
 
 	client := &http.Client{
-		Timeout: stClient.HTTPConfig.ConfigTimeout,
+		Timeout: stClient.HTTPConfig.HTTPTimeout,
 	}
 
 	req, err := http.NewRequest("GET", stClient.SpeedtestConfig.ConfigURL, nil)
@@ -189,7 +142,7 @@ func (stClient *Client) GetConfig() (c Config, err error) {
 		return c, err
 	}
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("User-Agent", "Unofficial CLI")
+	req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -217,11 +170,11 @@ func (stClient *Client) GetConfig() (c Config, err error) {
 // GetServers will get the full server list
 func (stClient *Client) GetServers() (servers []Server, err error) {
 	client := &http.Client{
-		Timeout: stClient.HTTPConfig.ConfigTimeout,
+		Timeout: stClient.HTTPConfig.HTTPTimeout,
 	}
 	req, _ := http.NewRequest("GET", stClient.SpeedtestConfig.ServersURL, nil)
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("User-Agent", "Unofficial CLI")
+	req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 	resp, err := client.Do(req)
 
@@ -284,7 +237,6 @@ func (stClient *Client) GetClosestServers(servers []Server) []Server {
 }
 
 // GetLatencyURL will return the proper url for the latency
-// test file when given a server name
 func (stClient *Client) GetLatencyURL(server Server) string {
 	u := server.URL
 	splits := strings.Split(u, "/")
@@ -298,8 +250,6 @@ func (stClient *Client) GetLatency(server Server, url string) (result float64, e
 	var latency time.Duration
 	var minLatency time.Duration
 	var avgLatency time.Duration
-
-	// url := stClient.GetLatencyURL(server)
 
 	for i := 0; i < stClient.SpeedtestConfig.NumLatencyTests; i++ {
 		var failed bool
@@ -317,7 +267,7 @@ func (stClient *Client) GetLatency(server Server, url string) (result float64, e
 		}
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Set("Cache-Control", "no-cache")
-		req.Header.Set("User-Agent", "Unofficial CLI")
+		req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 		resp, err := client.Do(req)
 
@@ -424,7 +374,7 @@ func (stClient *Client) DownloadSpeed(url string) (speed float64, err error) {
 		return 0, err
 	}
 	req.Header.Set("Cache-Control", "no-cache")
-	req.Header.Set("User-Agent", "Unofficial CLI")
+	req.Header.Set("User-Agent", stClient.SpeedtestConfig.UserAgent)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -543,22 +493,22 @@ func (stClient *Client) getHTTPClient() (*http.Client, error) {
 		}
 		dialer = net.Dialer{
 			LocalAddr: &bindAddr,
-			Timeout:   stClient.HTTPConfig.ConfigTimeout,
-			KeepAlive: stClient.HTTPConfig.ConfigTimeout,
+			Timeout:   stClient.HTTPConfig.HTTPTimeout,
+			KeepAlive: stClient.HTTPConfig.HTTPTimeout,
 		}
 	} else {
 		dialer = net.Dialer{
-			Timeout:   stClient.HTTPConfig.ConfigTimeout,
-			KeepAlive: stClient.HTTPConfig.ConfigTimeout,
+			Timeout:   stClient.HTTPConfig.HTTPTimeout,
+			KeepAlive: stClient.HTTPConfig.HTTPTimeout,
 		}
 	}
 	transport := &http.Transport{
 		Proxy:               http.ProxyFromEnvironment,
 		Dial:                dialer.Dial,
-		TLSHandshakeTimeout: stClient.HTTPConfig.ConfigTimeout,
+		TLSHandshakeTimeout: stClient.HTTPConfig.HTTPTimeout,
 	}
 	client := &http.Client{
-		Timeout:   stClient.HTTPConfig.ConfigTimeout,
+		Timeout:   stClient.HTTPConfig.HTTPTimeout,
 		Transport: transport,
 	}
 	return client, nil

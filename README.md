@@ -77,6 +77,7 @@ Testing upload speed......
 Ping: 982.913566ms | Download: 0.91 Mbps | Upload: 1.25 Mbps
 ```
 
+speedtest.exe -b 1234 -b 5678 -- Run the test blacklisting servers 1234 and 5678
 speedtest.exe -r -- Runs speedtest in "reporting" mode (useful for Labtec, Excel spreadsheets, etc)
 speedtest.exe -r -rc="," -- Use a different separator (default is '|')
 Report Fields: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
@@ -93,12 +94,14 @@ GLOBAL OPTIONS:
    --update, -u                    Check for a new version of speedtest
    --ping, -p                      Ping only mode
    --quiet, -q                     Quiet mode
-   --report, -r                    Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
+   --report, -r                    Reporting mode output, minimal output with '|' for separators, use '--rc'
+                                     to change separator characters. Reports the following: Server ID,
+                                     Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps
    --downloadonly, --do            Only perform download test
    --uploadonly, --uo              Only perform upload test
    --reportchar value, --rc value  Set the report separator. Example: --rc=','
    --server value, -s value        Use a specific server
-   --blacklist value, -b value     Blacklist a server/list of servers
+   --blacklist value, -b value     Blacklist a server.  Use this multiple times for more than one server
    --mini value, -m value          URL of speedtest mini server
    --numclosest value, --nc value  Number of 'closest' servers to find (default: 3)
    --numlatency value, --nl value  Number of latency tests to perform (default: 5)

@@ -33,14 +33,9 @@ func EnvironmentReport(client *sthttp.Client) {
 	log.Printf("ISP: %v\n", client.Config.Isp)
 	log.Printf("Config: %s\n", client.SpeedtestConfig.ConfigURL)
 	log.Printf("Servers: %s\n", client.SpeedtestConfig.ServersURL)
+	log.Printf("User Agent: %s\n", client.SpeedtestConfig.UserAgent)
 	log.Printf("-------------------------------\n")
 	log.Printf("[args]\n")
 	log.Printf("%#v\n", os.Args)
 	log.Printf("--------------------------------\n")
-	// TODO:
-	// log.Printf("[Mode]\n")
-	// log.Printf("Report: %v\n", client.Report)
-	// log.Printf("List: %v\n", c.Bool("list"))
-	// log.Printf("Ping: %v\n", c.Bool("Ping"))
-	log.Printf("-------------------------------\n")
 }

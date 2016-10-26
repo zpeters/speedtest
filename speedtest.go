@@ -49,7 +49,7 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 		print.EnvironmentReport(stClient)
 	}
 
-	// get all possible servers
+	// get all possible servers (excluding blacklisted)
 	if stClient.Debug {
 		log.Printf("Getting all servers for our test list")
 	}
@@ -190,13 +190,12 @@ func init() {
 	viper.SetDefault("numlatencytests", 5)
 	viper.SetDefault("reportchar", "|")
 	viper.SetDefault("algotype", "max")
-	viper.SetDefault("httpconfigtimeout", 15)
-	viper.SetDefault("httplatencytimeout", 15)
-	viper.SetDefault("httpdownloadtimeout", 15)
+	viper.SetDefault("httptimeout", 15)
 	viper.SetDefault("dlsizes", []int{350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000})
 	viper.SetDefault("ulsizes", []int{int(0.25 * 1024 * 1024), int(0.5 * 1024 * 1024), int(1.0 * 1024 * 1024), int(1.5 * 1024 * 1024), int(2.0 * 1024 * 1024)})
 	viper.SetDefault("speedtestconfigurl", "http://c.speedtest.net/speedtest-config.php?x="+uniuri.New())
 	viper.SetDefault("speedtestserversurl", "http://c.speedtest.net/speedtest-servers-static.php?x="+uniuri.New())
+	viper.SetDefault("useragent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.21 Safari/537.36")
 }
 
 func main() {
@@ -241,7 +240,7 @@ func main() {
 		},
 		cli.BoolFlag{
 			Name:  "report, r",
-			Usage: "Reporting mode output, minimal output with '|' for separators, use '--rc' to change separator characters. Reports the following: Server ID, Server Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
+			Usage: "Reporting mode output, minimal output with '|' for separators, use '--rc'\n\t\tto change separator characters. Reports the following: Server ID, \n\t\tServer Name (Location), Ping time in ms, Download speed in kbps, Upload speed in kbps",
 		},
 		cli.BoolFlag{
 			Name:  "downloadonly, do",
@@ -259,13 +258,17 @@ func main() {
 			Name:  "server, s",
 			Usage: "Use a specific server",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:  "blacklist, b",
-			Usage: "Blacklist a server/list of servers",
+			Usage: "Blacklist a server.  Use this multiple times for more than one server",
 		},
 		cli.StringFlag{
 			Name:  "mini, m",
 			Usage: "URL of speedtest mini server",
+		},
+		cli.StringFlag{
+			Name:  "useragent, ua",
+			Usage: "Specify a useragent string",
 		},
 		cli.IntFlag{
 			Name:  "numclosest, nc",
@@ -329,6 +332,9 @@ func main() {
 		if c.String("interface") != "" {
 			viper.Set("interface", c.String("interface"))
 		}
+		if len(c.StringSlice("blacklist")) > 0 {
+			viper.Set("blacklist", c.StringSlice("blacklist"))
+		}
 
 		stClient := sthttp.NewClient(
 			&sthttp.SpeedtestConfig{
@@ -338,12 +344,11 @@ func main() {
 				NumClosest:      viper.GetInt("numclosest"),
 				NumLatencyTests: viper.GetInt("numlatencytests"),
 				Interface:       viper.GetString("interface"),
-				Blacklist:       viper.GetString("blacklist"),
+				Blacklist:       viper.GetStringSlice("blacklist"),
+				UserAgent:       viper.GetString("useragent"),
 			},
 			&sthttp.HTTPConfig{
-				ConfigTimeout:   viper.GetDuration("httpconfigtimeout"),
-				LatencyTimeout:  viper.GetDuration("httplatencytimeout"),
-				DownloadTimeout: viper.GetDuration("httpdownloadtimeout"),
+				HTTPTimeout: viper.GetDuration("httptimeout") * time.Second,
 			},
 			viper.GetBool("debug"),
 			viper.GetString("reportchar"))
