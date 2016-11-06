@@ -40,7 +40,7 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 	stClient.Config = &config
 
 	// if we are *not* running a report then say hello to everyone
-	if tester.Report {
+	if !tester.Report {
 		fmt.Printf("github.com/zpeters/speedtest -- unofficial cli for speedtest.net\n")
 	}
 
