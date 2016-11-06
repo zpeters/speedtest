@@ -158,7 +158,7 @@ func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
 
 		} else {
 
-			fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now().Format("2006-01-02 15:04:05 -0700"), viper.GetString("reportchar"), testServer.ID, viper.GetString("reportchar"), testServer.Sponsor, testServer.Name, testServer.Country, viper.GetString("reportchar"))
+			fmt.Printf("%s%s%s%s\"%s (%s, %s)\"%s", time.Now().Format("2006-01-02 15:04:05 -0700"), viper.GetString("reportchar"), testServer.ID, viper.GetString("reportchar"), testServer.Sponsor, testServer.Name, testServer.Country, viper.GetString("reportchar"))
 			fmt.Printf("%3.2f%s", testServer.Latency, viper.GetString("reportchar"))
 
 			if c.Bool("downloadonly") {
