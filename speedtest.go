@@ -356,7 +356,7 @@ func main() {
 		tester := tests.NewTester(
 			stClient,
 			viper.Get("dlsizes").([]int),
-			viper.Get("dlsizes").([]int),
+			viper.Get("ulsizes").([]int),
 			viper.GetBool("quiet"),
 			viper.GetBool("report"))
 
