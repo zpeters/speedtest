@@ -1,6 +1,6 @@
 Notice
 ======
-Several people are reporting a "Can not get speedtest config" error.  This should be resolved in the latest release: https://github.com/zpeters/speedtest/releases/tag/v1.0.2-b
+I no longer have time to actively develop this code.  There are currently multiple speed issues that i don't have time to track down.  It appears that Ookla is working on a beta site that will completely change the interface which woudl require a pretty much complete rewrite.  For the moment i will accept and patches but i wont be actively doing any development. 
 
 
 The Unofficial Speedtest CLI
