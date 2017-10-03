@@ -7,6 +7,7 @@ Version 1.0 was designed as an "app only".  Version 2.0 will make a cleaner spli
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
@@ -292,7 +293,7 @@ func main() {
 		if c.Bool("update") {
 			// Check if there is an update
 			client := github.NewClient(nil)
-			latestRelease, _, err := client.Repositories.GetLatestRelease("zpeters", "speedtest")
+			latestRelease, _, err := client.Repositories.GetLatestRelease(context.Background(), "zpeters", "speedtest")
 			if err != nil {
 				log.Fatalf("github call: %s", err)
 			}
