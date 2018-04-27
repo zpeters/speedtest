@@ -1,4 +1,4 @@
-package: speedtest
+package: github.com/zpeters/speedtest
 import:
 - package: github.com/dchest/uniuri
 - package: github.com/google/go-github
