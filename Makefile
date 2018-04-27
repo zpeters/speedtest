@@ -14,9 +14,7 @@ build:
 	go build ./cmd/speedtest -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION}
 
 clean:
-	rm -f bin/speedtest*
-	rm -f coverage-all.out
-	rm -f coverage.out
+	scripts/clean.sh
 
 vet:
 	go vet ./cmd/...
@@ -49,23 +47,4 @@ coverage:
 	go tool cover -html=coverage-all.out
 
 cross:
-	echo "Building darwin-amd64..."
-	GOOS="darwin" GOARCH="amd64" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-mac-amd64-${VERSION}
-
-	echo "Building windows-386..."
-	GOOS="windows" GOARCH="386" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-32-${VERSION}.exe
-
-	echo "Building windows-amd64..."
-	GOOS="windows" GOARCH="amd64" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-64-${VERSION}.exe
-
-	echo "Building freebsd-386..."
-	GOOS="freebsd" GOARCH="386" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-freebsd-386-${VERSION}
-
-	echo "Building linux-arm..."
-	GOOS="linux" GOARCH="arm" go  build -o bin/speedtest-linux-arm-${VERSION}
-
-	echo "Building linux-386..."
-	GOOS="linux" GOARCH="386" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-linux-386-${VERSION}
-
-	echo "Building linux-amd64..."
-	GOOS="linux" GOARCH="amd64" go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-linux-amd64-${VERSION}
+	scripts/cross-compile.sh
