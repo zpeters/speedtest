@@ -1,8 +1,6 @@
 hash: cedd2dd3635425cc75801c9d1c785e812902a805f30e8de21234f0b1fff406fa
-updated: 2018-04-26T21:34:40.367529907-05:00
+updated: 2018-04-26T22:09:19.446559758-05:00
 imports:
-- name: github.com/codegangsta/cli
-  version: 942282e931e8286aa802a30b01fa7e16befb50f3
 - name: github.com/dchest/uniuri
   version: 8902c56451e9b58ff940bbe5fec35d5f9c04584a
 - name: github.com/fsnotify/fsnotify
