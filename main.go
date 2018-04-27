@@ -16,11 +16,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dchest/uniuri"
-	"github.com/zpeters/speedtest/print"
-	"github.com/zpeters/speedtest/sthttp"
-	"github.com/zpeters/speedtest/tests"
+	"speedtest/internal/print"
+	"speedtest/internal/sthttp"
+	"speedtest/internal/tests"
 
+	"context"
+	"github.com/dchest/uniuri"
 	"github.com/google/go-github/github"
 	"github.com/spf13/viper"
 	"github.com/urfave/cli"
@@ -293,7 +294,8 @@ func main() {
 		if c.Bool("update") {
 			// Check if there is an update
 			client := github.NewClient(nil)
-			latestRelease, _, err := client.Repositories.GetLatestRelease(context.Background(), "zpeters", "speedtest")
+			ctx := context.Background()
+			latestRelease, _, err := client.Repositories.GetLatestRelease(ctx, "zpeters", "speedtest")
 			if err != nil {
 				log.Fatalf("github call: %s", err)
 			}

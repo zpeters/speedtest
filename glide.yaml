@@ -1,15 +1,25 @@
-package: github.com/zpeters/speedtest
+package: speedtest
 import:
-- package: github.com/urfave/cli
+- package: github.com/dchest/uniuri
 - package: github.com/google/go-github
+  version: ^15.0.0
   subpackages:
   - github
 - package: github.com/spf13/viper
-- package: github.com/dchest/uniuri
-- package: github.com/google/go-querystring
+  version: ^1.0.2
+- package: github.com/urfave/cli
+  version: ^1.20.0
+- package: github.com/zpeters/speedtest
+  version: ^26.0.0-rc-reports
   subpackages:
-  - query
-- package: github.com/BurntSushi/toml
-  version: v0.2.0
+  - coords
+  - misc
+  - print
+  - sthttp
+  - stxml
+  - tests
+testImport:
 - package: github.com/stretchr/testify
-  version: v1.1.3
+  version: ^1.2.1
+  subpackages:
+  - assert
