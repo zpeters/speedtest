@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get update -y
   - sudo apt-get install glide -y
 install:
-  - glide up
+  - glide install
   - make test
 script:
   - go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
