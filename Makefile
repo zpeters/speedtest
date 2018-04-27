@@ -21,6 +21,23 @@ clean:
 	rm -f coverage-all.out
 	rm -f coverage.out
 
+vet:
+	go vet
+	go vet ./internal/...
+lint:
+	golint
+	golint ./internal/...
+
+fmt:
+	gofmt -w main.*
+	gofmt -w ./internal/coords
+	gofmt -w ./internal/misc
+	gofmt -w ./internal/print
+	gofmt -w ./internal/sthttp
+	gofmt -w ./internal/stxml
+	gofmt -w ./internal/tests
+	git diff
+
 test:
 	go test $(shell glide nv)
 
