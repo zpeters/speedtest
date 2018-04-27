@@ -1,5 +1,5 @@
-hash: cedd2dd3635425cc75801c9d1c785e812902a805f30e8de21234f0b1fff406fa
-updated: 2018-04-26T22:09:19.446559758-05:00
+hash: e26dd0700a42e130a36c8eaf0cb88374b88f8734c29ebe2832b18cc849015ec9
+updated: 2018-04-26T22:22:30.973263-05:00
 imports:
 - name: github.com/dchest/uniuri
   version: 8902c56451e9b58ff940bbe5fec35d5f9c04584a
@@ -45,16 +45,6 @@ imports:
   version: b5e8006cbee93ec955a89ab31e0e3ce3204f3736
 - name: github.com/urfave/cli
   version: cfb38830724cc34fedffe9a2a29fb54fa9169cd1
-- name: github.com/zpeters/speedtest
-  version: fbdccc4da424eedeea2fc27a34d3fd1ec20309eb
-  subpackages:
-  - coords
-  - debug
-  - misc
-  - print
-  - sthttp
-  - stxml
-  - tests
 - name: golang.org/x/sys
   version: 62bee037599929a6e9146f29d10dd5208c43507d
   subpackages:
