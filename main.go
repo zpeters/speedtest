@@ -20,7 +20,6 @@ import (
 	"speedtest/internal/sthttp"
 	"speedtest/internal/tests"
 
-	"context"
 	"github.com/dchest/uniuri"
 	"github.com/google/go-github/github"
 	"github.com/spf13/viper"
