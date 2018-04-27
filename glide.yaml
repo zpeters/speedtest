@@ -9,15 +9,6 @@ import:
   version: ^1.0.2
 - package: github.com/urfave/cli
   version: ^1.20.0
-- package: github.com/zpeters/speedtest
-  version: ^26.0.0-rc-reports
-  subpackages:
-  - coords
-  - misc
-  - print
-  - sthttp
-  - stxml
-  - tests
 testImport:
 - package: github.com/stretchr/testify
   version: ^1.2.1
