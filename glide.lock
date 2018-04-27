@@ -1,16 +1,10 @@
-hash: e26dd0700a42e130a36c8eaf0cb88374b88f8734c29ebe2832b18cc849015ec9
-updated: 2018-04-26T22:22:30.973263-05:00
+hash: 289debd0d38616147f79d69937593fafc89e7c0f236e1426b8208aa3bcae1820
+updated: 2018-04-27T15:18:43.252999788-05:00
 imports:
-- name: github.com/codegangsta/cli
-  version: 942282e931e8286aa802a30b01fa7e16befb50f3
 - name: github.com/dchest/uniuri
   version: 8902c56451e9b58ff940bbe5fec35d5f9c04584a
 - name: github.com/fsnotify/fsnotify
   version: 7d7316ed6e1ed2de075aab8dfc76de5d158d66e1
-- name: github.com/golang/protobuf
-  version: c9c7427a2a70d2eb3bafa0ab2dc163e45f143317
-  subpackages:
-  - proto
 - name: github.com/google/go-github
   version: e48060a28fac52d0f1cb758bc8b87c07bac4a87d
   subpackages:
