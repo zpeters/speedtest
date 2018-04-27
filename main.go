@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"speedtest/internal/print"
-	"speedtest/internal/sthttp"
-	"speedtest/internal/tests"
+	"github.com/zpeters/speedtest/internal/print"
+	"github.com/zpeters/speedtest/internal/sthttp"
+	"github.com/zpeters/speedtest/internal/tests"
 
 	"github.com/dchest/uniuri"
 	"github.com/google/go-github/github"
