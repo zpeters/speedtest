@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"speedtest/internal/coords"
-	"speedtest/internal/misc"
-	"speedtest/internal/stxml"
+	"github.com/zpeters/speedtest/internal/coords"
+	"github.com/zpeters/speedtest/internal/misc"
+	"github.com/zpeters/speedtest/internal/stxml"
 )
 
 // Config struct holds our config (users current ip, lat, lon and isp)
