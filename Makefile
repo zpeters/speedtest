@@ -24,6 +24,7 @@ clean:
 vet:
 	go vet
 	go vet ./internal/...
+
 lint:
 	golint
 	golint ./internal/...
