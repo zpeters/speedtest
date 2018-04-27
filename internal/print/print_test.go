@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/urfave/cli"
-	"speedtest/internal/sthttp"
+	"github.com/zpeters/speedtest/internal/sthttp"
 )
 
 func TestServer(t *testing.T) {
