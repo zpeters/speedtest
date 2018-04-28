@@ -11,7 +11,7 @@ PACKAGES = $(shell find ./ -type d | grep -v 'vendor' | grep -v '.git' | grep -v
 default: build
 
 build:
-	go build ./cmd/speedtest -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION}
+	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION} ./cmd/speedtest
 
 static:
 	CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-extldflags \"static\"" -o bin/speedtest

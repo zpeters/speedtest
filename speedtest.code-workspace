@@ -1,11 +1,8 @@
 {
-	"folders": [
-		{
-			"path": "/Users/zachpeters/go/src/techdatadump"
-		},
-		{
-			"path": "."
-		}
-	],
-	"settings": {}
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {}
 }
