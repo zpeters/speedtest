@@ -145,10 +145,10 @@ func TestGetServers(t *testing.T) {
 	assert.Equal(t, servers[0].URL, expectURL, fmt.Sprintf("Server 0 url should be: '%s'\n", expectURL))
 
 	expectLat := 59.8833
-	assert.Equal(t, servers[100].Lat, expectLat, fmt.Sprintf("Server 10 lat should be: '%s'\n", expectLat))
+	assert.Equal(t, servers[100].Lat, expectLat, fmt.Sprintf("Server 10 lat should be: '%f'\n", expectLat))
 
 	expectLon := 15.2
-	assert.Equal(t, servers[1005].Lon, expectLon, fmt.Sprintf("Server 1050 lat should be: '%s'\n", expectLat))
+	assert.Equal(t, servers[1005].Lon, expectLon, fmt.Sprintf("Server 1050 lat should be: '%f'\n", expectLat))
 
 	expectName := "Chirchiq"
 	assert.Equal(t, servers[2021].Name, expectName, fmt.Sprintf("Server 2021 name should be: '%s'\n", expectName))
@@ -166,10 +166,10 @@ func TestGetServers(t *testing.T) {
 	assert.Equal(t, servers[666].ID, expectID, fmt.Sprintf("Server 666 name should be: '%s'\n", expectID))
 
 	expectDistance := 0
-	assert.EqualValues(t, servers[1].Distance, expectDistance, fmt.Sprintf("Server 1 name should be: '%s'\n", expectDistance))
+	assert.EqualValues(t, servers[1].Distance, expectDistance, fmt.Sprintf("Server 1 name should be: '%d'\n", expectDistance))
 
 	expectLatency := 0
-	assert.EqualValues(t, servers[21].Latency, expectLatency, fmt.Sprintf("Server 21 name should be: '%s'\n", expectLatency))
+	assert.EqualValues(t, servers[21].Latency, expectLatency, fmt.Sprintf("Server 21 name should be: '%d'\n", expectLatency))
 
 }
 
