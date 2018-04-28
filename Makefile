@@ -14,7 +14,8 @@ build:
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION} ./cmd/speedtest
 
 static:
-	CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-extldflags \"static\"" -o bin/speedtest
+	CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-extldflags \"static\" -s -w" -o bin/speedtest ./cmd/speedtest
+	upx bin/speedtest
 
 clean:
 	scripts/clean.sh
