@@ -13,6 +13,9 @@ default: build
 build:
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION}
 
+static:
+	CGO_ENABLED=0 GOOS=linux go build -a -ldflags="-extldflags \"static\"" -o bin/speedtest
+
 clean:
 	rm -f bin/speedtest*
 	rm -f coverage-all.out
