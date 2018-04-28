@@ -109,7 +109,7 @@ func (server ByLatency) Swap(i, j int) {
 
 // checkBlacklisted tests if the server is on the specified blacklist
 func checkBlacklisted(blacklist []string, server string) bool {
-	var isBlacklisted bool = false
+	var isBlacklisted = false
 	for b := range blacklist {
 		if server == blacklist[b] {
 			isBlacklisted = true

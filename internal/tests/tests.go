@@ -28,6 +28,8 @@ type Tester struct {
 	AlgoType string
 }
 
+// NewTester creates a new Tester struct. should probably make
+// this more conventional with a "make_tester" or similar
 func NewTester(client *sthttp.Client, dlsizes []int, ulsizes []int, quiet bool, report bool) *Tester {
 	return &Tester{
 		Client:  client,
