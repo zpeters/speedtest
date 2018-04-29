@@ -10,7 +10,7 @@ install:
   - glide install
   - make test
 script:
-  - go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest
+  - go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest ./cmd/speedtest
   - ./bin/speedtest -p
 notifications:
   email:
