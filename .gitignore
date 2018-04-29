@@ -4,6 +4,7 @@ bin/
 pkg/
 \#*\#
 .\#*
+.vagrant/
 Godeps/_workspace
 vendor/
 coverage-all.out
