@@ -17,8 +17,8 @@ import (
 	"time"
 
 	"github.com/zpeters/speedtest/internal/print"
+	"github.com/zpeters/speedtest/internal/speedtests"
 	"github.com/zpeters/speedtest/internal/sthttp"
-	"github.com/zpeters/speedtest/internal/tests"
 
 	"github.com/dchest/uniuri"
 	"github.com/google/go-github/github"
@@ -29,7 +29,7 @@ import (
 // Version placeholder, injected in Makefile
 var Version string
 
-func runTest(c *cli.Context, stClient *sthttp.Client, tester *tests.Tester) {
+func runTest(c *cli.Context, stClient *sthttp.Client, tester *speedtests.Tester) {
 	// create our server object and load initial config
 	var testServer sthttp.Server
 
@@ -355,7 +355,7 @@ func main() {
 			viper.GetBool("debug"),
 			viper.GetString("reportchar"))
 
-		tester := tests.NewTester(
+		tester := speedtests.NewTester(
 			stClient,
 			viper.Get("dlsizes").([]int),
 			viper.Get("ulsizes").([]int),
