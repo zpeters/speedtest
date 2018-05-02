@@ -81,7 +81,7 @@ func TestServerLatency(t *testing.T) {
 }
 
 func TestGetConfig(t *testing.T) {
-	x, err := ioutil.ReadFile("sthttp_test_config.xml")
+	x, err := ioutil.ReadFile("../testing_assets/sthttp_test_config.xml")
 	if err != nil {
 		t.Logf("Cannot read sthttp_test_config.xml")
 	}
@@ -119,7 +119,7 @@ func TestGetConfigNoConnection(t *testing.T) {
 }
 
 func TestGetServers(t *testing.T) {
-	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	x, err := ioutil.ReadFile("../testing_assets/sthttp_test_servers.xml")
 	if err != nil {
 		t.Logf("Cannot read sthttp_test_servers.xml")
 	}
@@ -174,7 +174,7 @@ func TestGetServers(t *testing.T) {
 }
 
 func TestGetServersBlacklist(t *testing.T) {
-	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	x, err := ioutil.ReadFile("../testing_assets/sthttp_test_servers.xml")
 	if err != nil {
 		t.Logf("Cannot read sthttp_test_servers.xml")
 	}
@@ -206,7 +206,7 @@ func TestGetServersBlacklist(t *testing.T) {
 }
 
 func TestGetClosestServers(t *testing.T) {
-	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	x, err := ioutil.ReadFile("../testing_assets/sthttp_test_servers.xml")
 	if err != nil {
 		t.Logf("Cannot read sthttp_test_servers.xml")
 	}
@@ -256,7 +256,7 @@ func TestGetLatency(t *testing.T) {
 }
 
 func TestGetFastestServer(t *testing.T) {
-	x, err := ioutil.ReadFile("sthttp_test_servers.xml")
+	x, err := ioutil.ReadFile("../testing_assets/sthttp_test_servers.xml")
 	if err != nil {
 		t.Logf("Cannot read sthttp_test_servers.xml")
 	}
@@ -282,7 +282,7 @@ func TestGetFastestServer(t *testing.T) {
 }
 
 func TestDownloadSpeed(t *testing.T) {
-	f, err := os.Open("random750x750.jpg")
+	f, err := os.Open("../testing_assets/random750x750.jpg")
 	assert.NoError(t, err, "Can't open test file")
 	defer f.Close()
 
@@ -316,7 +316,7 @@ func TestDownloadSpeedBadUrl(t *testing.T) {
 }
 
 func TestUploadSpeed(t *testing.T) {
-	f, err := os.Open("random750x750.jpg")
+	f, err := os.Open("../testing_assets/random750x750.jpg")
 	assert.NoError(t, err, "Can't open test file")
 	defer f.Close()
 
