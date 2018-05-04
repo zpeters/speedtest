@@ -35,7 +35,7 @@ fmt:
 	gofmt -w ./internal/print
 	gofmt -w ./internal/sthttp
 	gofmt -w ./internal/stxml
-	gofmt -w ./internal/tests
+	gofmt -w ./internal/speedtests
 
 test:
 	go test ./cmd/... ./internal/...
