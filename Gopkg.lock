@@ -16,7 +16,8 @@
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
-  revision = "7d7316ed6e1ed2de075aab8dfc76de5d158d66e1"
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  version = "v1.4.7"
 
 [[projects]]
   name = "github.com/google/go-github"
@@ -31,6 +32,7 @@
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 
 [[projects]]
+  branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [
     ".",
@@ -44,23 +46,25 @@
     "json/scanner",
     "json/token"
   ]
-  revision = "630949a3c5fa3c613328e1b8256052cbc2327c9b"
+  revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "b3b15ef068fd0b17ddf408a23669f20811d194d2"
-
-[[projects]]
-  name = "github.com/mitchellh/mapstructure"
-  packages = ["."]
-  revision = "d2dd0262208475919e1a362f675cfc0e7c10e905"
+  revision = "c3beff4c2358b44d0493c7dda585e7db7ff28ae6"
+  version = "v1.7.6"
 
 [[projects]]
   branch = "master"
+  name = "github.com/mitchellh/mapstructure"
+  packages = ["."]
+  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
+
+[[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
-  revision = "66540cf1fcd2c3aee6f6787dfa32a6ae9a870f12"
+  revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/pmezard/go-difflib"
@@ -80,18 +84,20 @@
 [[projects]]
   name = "github.com/spf13/cast"
   packages = ["."]
-  revision = "ce135a4ebeee6cfe9a26c93ee0d37825f26113c7"
-  version = "v1.0.0"
+  revision = "8965335b8c7107321228e3e3702cab9832751bac"
+  version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
-  revision = "fa7ca7e836cf3a8bb4ebf799f472c12d7e903d66"
+  revision = "7c0cea34c8ece3fbeb2b27ab9b59511d360fb394"
 
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "9ff6c6923cfffbcd502984b8e0c80539a94968b7"
+  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/spf13/viper"
@@ -112,12 +118,12 @@
   version = "v1.20.0"
 
 [[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "99f16d856c9836c42d24e7ab64ea72916925fa97"
+  revision = "6f686a352de66814cdd080d970febae7767857a3"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/text"
   packages = [
     "internal/gen",
@@ -127,12 +133,14 @@
     "unicode/cldr",
     "unicode/norm"
   ]
-  revision = "7922cc490dd5a7dbaa7fd5d6196b49db59ac042f"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "a3f3340b5840cee44f372bddb5880fcbc419b46a"
+  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
