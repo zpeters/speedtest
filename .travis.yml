@@ -5,9 +5,9 @@ go:
 before_install:
   - sudo add-apt-repository ppa:masterminds/glide -y
   - sudo apt-get update -y
-  - sudo apt-get install glide -y
+  - sudo apt-get install dep -y
 install:
-  - glide install
+  - dep ensure
   - make test
 script:
   - go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest ./cmd/speedtest
