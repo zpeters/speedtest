@@ -3,9 +3,9 @@ sudo: true
 go:
   - 1.9
 before_install:
-  - sudo add-apt-repository ppa:masterminds/glide -y
   - sudo apt-get update -y
-  - sudo apt-get install dep -y
+  - sudo apt install curl -y
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 install:
   - dep ensure
   - make test
