@@ -38,10 +38,10 @@ fmt:
 	gofmt -w ./internal/tests
 
 test:
-	go test $(shell glide nv)
+	go test ./cmd/... ./internal/...
 
 cover:
-	go test -cover $(shell glide nv)
+	go test -cover ./cmd/... ./internal/...
 
 coverage:
 	echo "mode: count" > coverage-all.out
