@@ -34,6 +34,7 @@ func EnvironmentReport(client *sthttp.Client) {
 	log.Printf("Config: %s\n", client.SpeedtestConfig.ConfigURL)
 	log.Printf("Servers: %s\n", client.SpeedtestConfig.ServersURL)
 	log.Printf("User Agent: %s\n", client.SpeedtestConfig.UserAgent)
+	log.Printf("HTTP Timeout (seconds): %d\n", client.HTTPConfig.HTTPTimeout/1000000000)
 	log.Printf("-------------------------------\n")
 	log.Printf("[args]\n")
 	log.Printf("%#v\n", os.Args)
