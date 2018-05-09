@@ -82,6 +82,8 @@ Report Fields: Server ID, Server Name (Location), Ping time in ms, Download spee
 
 ```shell
 COMMANDS:
+     help, h  Shows a list of commands or help for one command
+
 GLOBAL OPTIONS:
    --algo value, -a value          Specify the measurement method to use ('max', 'avg')
    --debug, -d                     Turn on debugging
@@ -98,7 +100,9 @@ GLOBAL OPTIONS:
    --server value, -s value        Use a specific server
    --blacklist value, -b value     Blacklist a server.  Use this multiple times for more than one server
    --mini value, -m value          URL of speedtest mini server
+   --useragent value, --ua value   Specify a useragent string
    --numclosest value, --nc value  Number of 'closest' servers to find (default: 3)
+   --httptimeout value, -t value   Timeout (seconds) for http connections (default: 15)
    --numlatency value, --nl value  Number of latency tests to perform (default: 5)
    --interface value, -I value     Source IP address or name of an interface
    --help, -h                      show help
