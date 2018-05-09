@@ -10,6 +10,15 @@ PACKAGES = $(shell find ./ -type d | grep -v 'vendor' | grep -v '.git' | grep -v
 
 default: build
 
+dockerbuild:
+	docker build -t speedtest .
+
+dockerrun:
+	 docker run --rm -it speedtest
+
+dockerclean:
+	docker-clean all	
+
 build:
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION} ./cmd/speedtest
 
