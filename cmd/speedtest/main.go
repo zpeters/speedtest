@@ -277,6 +277,11 @@ func main() {
 			Usage: "Number of 'closest' servers to find",
 		},
 		cli.IntFlag{
+			Name:  "httptimeout, t",
+			Value: viper.GetInt("httptimeout"),
+			Usage: "Timeout (seconds) for http connections",
+		},
+		cli.IntFlag{
 			Name:  "numlatency, nl",
 			Value: viper.GetInt("numlatencytests"),
 			Usage: "Number of latency tests to perform",
@@ -328,6 +333,7 @@ func main() {
 		}
 		viper.Set("numclosest", c.Int("numclosest"))
 		viper.Set("numlatencytests", c.Int("numlatency"))
+		viper.Set("httptimeout", c.Int("httptimeout"))
 		if c.String("reportchar") != "" {
 			viper.Set("reportchar", c.String("reportchar"))
 		}
