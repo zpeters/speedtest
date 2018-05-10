@@ -1,8 +1,3 @@
-Notice
-======
-I no longer have time to actively develop this code.  There are currently multiple speed issues that i don't have time to track down.  It appears that Ookla is working on a beta site that will completely change the interface which woudl require a pretty much complete rewrite.  For the moment i will accept and patches but i wont be actively doing any development. 
-
-
 The Unofficial Speedtest CLI
 ============================
 The Unofficial Speedtest CLI is a command-line program to test
@@ -21,7 +16,7 @@ thanks for your work!
 
 **master branch**
 [![Go Report Card](https://goreportcard.com/badge/github.com/zpeters/speedtest)](https://goreportcard.com/report/github.com/zpeters/speedtest)
-[![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://github.com/zpeters/speedtest)
+[![Github All Releases](https://img.shields.io/github/downloads/zpeters/speedtest/total.svg?style=plastic)](https://www.somsubhra.com/github-release-stats/?username=zpeters&repository=speedtest)
 [![Build Status](https://travis-ci.org/zpeters/speedtest.svg?branch=master)](https://travis-ci.org/zpeters/speedtest)
 [![GoDoc](https://godoc.org/github.com/zpeters/speedtest?status.svg)](https://godoc.org/github.com/zpeters/speedtest)
 
@@ -39,9 +34,9 @@ Download
 
 Build
 =====
-See the wiki
+See [Build Instructions](https://github.com/zpeters/speedtest/wiki/Build-Instructions)
 
-Bugs and Features
+Bugs, Features and Contributing
 =================
 See github issues tracker - https://github.com/zpeters/speedtest/issues
 
@@ -109,14 +104,6 @@ GLOBAL OPTIONS:
    --help, -h                      show help
    --version, -v                   print the version
 ```
-
-Feedback / Contributing
-=======================
-Contact zpeters@gmail.com for general feedback
-
-For Bug reports please use the Github issue tracker for this project
-
-To contribute please see CONTRIBUTING.md
 
 Thank You
 =========
