@@ -17,16 +17,6 @@ func TestServer(t *testing.T) {
 	Server(s)
 }
 
-func TestServerReport(t *testing.T) {
-	stc := sthttp.Client{}
-	s := sthttp.Server{}
-	s.ID = "123"
-	s.Sponsor = "Sponsor"
-	s.Name = "Name"
-	s.Country = "Country"
-	ServerReport(&stc, s)
-}
-
 func TestEnvironmentReport(t *testing.T) {
 	stc := sthttp.Client{
 		Config:          &sthttp.Config{},

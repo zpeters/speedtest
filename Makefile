@@ -43,7 +43,6 @@ fmt:
 	gofmt -w ./internal/misc
 	gofmt -w ./internal/print
 	gofmt -w ./internal/sthttp
-	gofmt -w ./internal/stxml
 	gofmt -w ./internal/speedtests
 
 test:

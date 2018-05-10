@@ -14,8 +14,46 @@ import (
 
 	"github.com/zpeters/speedtest/internal/coords"
 	"github.com/zpeters/speedtest/internal/misc"
-	"github.com/zpeters/speedtest/internal/stxml"
 )
+
+// TheClient is our users information
+type TheClient struct {
+	IP  string `xml:"ip,attr"`
+	Lat string `xml:"lat,attr"`
+	Lon string `xml:"lon,attr"`
+	Isp string `xml:"isp,attr"`
+}
+
+// XMLConfigSettings is a container for settings
+type XMLConfigSettings struct {
+	XMLName xml.Name  `xml:"settings"`
+	Client  TheClient `xml:"client"`
+}
+
+// XMLServer is a candidate server
+type XMLServer struct {
+	XMLName xml.Name `xml:"server"`
+	URL     string   `xml:"url,attr"`
+	Lat     string   `xml:"lat,attr"`
+	Lon     string   `xml:"lon,attr"`
+	Name    string   `xml:"name,attr"`
+	Country string   `xml:"country,attr"`
+	CC      string   `xml:"cc,attr"`
+	Sponsor string   `xml:"sponsor,attr"`
+	ID      string   `xml:"id,attr"`
+}
+
+// TheServersContainer is a list of servers
+type TheServersContainer struct {
+	XMLName    xml.Name    `xml:"servers"`
+	XMLServers []XMLServer `xml:"server"`
+}
+
+// ServerSettings is the servers part of the setings
+type ServerSettings struct {
+	XMLName          xml.Name            `xml:"settings"`
+	ServersContainer TheServersContainer `xml:"servers"`
+}
 
 // Config struct holds our config (users current ip, lat, lon and isp)
 type Config struct {
@@ -155,7 +193,7 @@ func (stClient *Client) GetConfig() (c Config, err error) {
 
 	body, err := ioutil.ReadAll(resp.Body)
 
-	cx := new(stxml.XMLConfigSettings)
+	cx := new(XMLConfigSettings)
 
 	err = xml.Unmarshal(body, &cx)
 
@@ -188,7 +226,7 @@ func (stClient *Client) GetServers() (servers []Server, err error) {
 		return servers, err2
 	}
 
-	s := new(stxml.ServerSettings)
+	s := new(ServerSettings)
 
 	err3 := xml.Unmarshal(body, &s)
 	if err3 != nil {

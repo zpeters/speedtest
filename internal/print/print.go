@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"runtime"
-	"time"
 
 	"github.com/zpeters/speedtest/internal/sthttp"
 )
@@ -13,11 +12,6 @@ import (
 // Server prints the results in "human" format
 func Server(server sthttp.Server) {
 	fmt.Printf("%-4s | %s (%s, %s)\n", server.ID, server.Sponsor, server.Name, server.Country)
-}
-
-// ServerReport prints restults in a machine useable format
-func ServerReport(client *sthttp.Client, server sthttp.Server) {
-	fmt.Printf("%s%s%s%s%s(%s,%s)%s", time.Now(), client.ReportChar, server.ID, client.ReportChar, server.Sponsor, server.Name, server.Country, client.ReportChar)
 }
 
 // EnvironmentReport is a debugging report helpful for debugging
