@@ -12,4 +12,3 @@ default: build
 
 build:
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION} ./cmd/speedtest
-
