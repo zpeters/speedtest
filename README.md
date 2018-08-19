@@ -12,6 +12,8 @@ TODO / NOTES
 - cleanup
 
 -- big issue will be getting timestamps in teh correct timezone
+-- how to get your servers
+-- how to get your server timezone
 
 
 
