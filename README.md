@@ -1,3 +1,8 @@
+NOT SUPPORTED
+=============
+This version of speedtest is not supported.  The underlying method of speed testing is not (and has not) been reliable.  There is a new version of the speedtest protocol that i am working on a rewrite for.  
+
+
 The Unofficial Speedtest CLI
 ============================
 The Unofficial Speedtest CLI is a command-line program to test
