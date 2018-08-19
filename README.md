@@ -2,6 +2,7 @@ NOT SUPPORTED
 =============
 This version of speedtest is not supported.  The underlying method of speed testing is not (and has not) been reliable.  There is a new version of the speedtest protocol that i am working on a rewrite for.  
 
+Notes - https://gist.github.com/sdstrowes/411fca9d900a846a704f68547941eb97
 
 The Unofficial Speedtest CLI
 ============================
