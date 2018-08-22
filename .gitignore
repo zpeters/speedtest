@@ -1,7 +1,6 @@
 *~
 *.exe
 bin/
-pkg/
 \#*\#
 .\#*
 .vagrant/
