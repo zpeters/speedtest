@@ -1,20 +1,9 @@
 TODO / NOTES
-====
+============
 -  https://gist.github.com/sdstrowes/411fca9d900a846a704f68547941eb97
--- download
--- upload
--- list servers
-- app
--- download test
--- upload test
--- all test
-- tests
-- cleanup
-
--- big issue will be getting timestamps in teh correct timezone
--- how to get your servers
--- how to get your server timezone
-
+- need better algo for finding "best" server
+- download seems okay for my enviroment but need to dynamically tune
+- upload sucks
 
 
 NOT SUPPORTED

@@ -5,7 +5,16 @@ import (
 )
 import (
 	"github.com/zpeters/speedtest/internal/pkg/cmds"
+	"github.com/zpeters/speedtest/internal/pkg/server"
 )
+
+func GetAllServers() (servers []server.Server) {
+	return server.GetAllServers()
+}
+
+func GetBestServer() (s server.Server) {
+	return server.GetBestServer()
+}
 
 func Connect(server string) (conn net.Conn) {
 	return cmds.Connect(server)
@@ -15,46 +24,53 @@ func Version(conn net.Conn) (version string) {
 	return cmds.Version(conn)
 }
 
-func Quit(conn net.Conn) {
-	cmds.Quit(conn)
-}
-
-
-func UploadTest(conn net.Conn, numtests int, bytes int) (results string) {
+func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	var acc float64
 
-	for i := 0; i < numtests; i++ {
-		fmt.Printf("\tUpload test %d\n", i)
-		res := cmds.Upload(conn, bytes)
-		acc = acc + res
+	fmt.Printf("Download test: ")
+	for i := range numbytes {
+		for j := 0; j < numtests; j++ {
+			fmt.Printf(".")
+			res := cmds.Download(conn, numbytes[i])
+			acc = acc + res
+		}
 	}
 
-	resFloat := acc / float64(numtests)
-	results = fmt.Sprintf("%4.2f", resFloat)
+	results = acc / float64(numtests)
+	fmt.Printf("\n")
 	return results
 }
 
-func DownloadTest(conn net.Conn, numtests int, bytes int) (results string) {
+func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	var acc float64
 
-	for i := 0; i < numtests; i++ {
-		res := cmds.Download(conn, bytes)
-		acc = acc + res
+	fmt.Printf("Upload test: ")
+	for i := range numbytes {
+		for j := 0; j < numtests; j++ {
+			fmt.Printf(".")
+			res := cmds.Upload(conn, numbytes[i])
+			acc = acc + res
+		}
 	}
 
-	resFloat := acc / float64(numtests)
-	results = fmt.Sprintf("%4.2f", resFloat)
+	results = acc / float64(numtests)
+	fmt.Printf("\n")
 	return results
 }
+
 
 func PingTest(conn net.Conn, numtests int) (results int64) {
 	var acc int64
 
+	fmt.Printf("Ping test: ")
 	for i := 0; i < numtests; i++ {
+		fmt.Printf(".")
 		res := cmds.Ping(conn)
 		acc = acc + res
 	}
 
 	results = acc / int64(numtests)
+	fmt.Printf("\n")
 	return results
 }
+

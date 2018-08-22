@@ -7,19 +7,20 @@ import (
 )
 
 func main() {
-	server := "speedtest1.mtaonline.net:8080"
-	conn := app.Connect(server)
+	server := app.GetBestServer()
+	fmt.Printf("Found best server: (%s) %s - %s\n", server.Id, server.Name, server.Sponsor)
+	conn := app.Connect(server.Host)
 
-	// fmt.Printf("Version: %s\n", app.Version(conn))
+	fmt.Printf("Speedtest protocol version: %s\n", app.Version(conn))
 
-	// ping := app.PingTest(conn, 5)
-	// fmt.Printf("Ping results: %d ms\n", ping)
+	ping := app.PingTest(conn, 20)
+	download_bytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000, 2000000, 5000000, 9000000}
+	download := app.DownloadTest(conn, download_bytes, 4)
+	upload_bytes := []int{1000000}
+	upload := app.UploadTest(conn, upload_bytes, 3)
 
-	// dl := app.DownloadTest(conn, 4, 1000000)
-	// fmt.Printf("Download results: %s mbps\n", dl)
-
-	ul := app.UploadTest(conn, 2, 5000)
-	fmt.Printf("Upload results: %s mbps\n", ul)
-
-	app.Quit(conn)
+	fmt.Printf("--| Results |---\n")
+	fmt.Printf("Ping results: %d ms\n", ping)
+	fmt.Printf("Download results: %f mbps\n", download)
+	fmt.Printf("Upload results: %f mbps\n", upload)
 }
