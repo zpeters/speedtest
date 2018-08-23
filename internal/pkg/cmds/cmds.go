@@ -2,10 +2,15 @@ package cmds
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"net"
 	"strings"
 	"time"
+)
+
+import (
+	"github.com/spf13/viper"
 )
 import (
 	"github.com/zpeters/speedtest/internal/pkg/comms"
@@ -79,6 +84,9 @@ func calcMbps(start time.Time, finish time.Time, numbytes int) (mbps float64) {
 }
 
 func generateBytes(numbytes int) (random []byte) {
+	if viper.GetBool("Debug") {
+		log.Printf("Generating %d radnom bytes", numbytes)
+	}
 	random = make([]byte, numbytes)
 	_, err := rand.Read(random)
 	if err != nil {

@@ -7,6 +7,9 @@ import (
 	"net"
 	"strings"
 )
+import (
+	"github.com/spf13/viper"
+)
 
 // Connect starts a tcp connection
 func Connect(server string) (conn net.Conn) {
@@ -20,8 +23,9 @@ func Connect(server string) (conn net.Conn) {
 // Send the string to connection
 func Send(conn net.Conn, msg string) {
 	nm := fmt.Sprintf("%s\n", msg)
-	// For DEBUGGING
-	//log.Printf("[COMM Tx (%d bytes)] %#v", len(nm), nm)
+	if viper.GetBool("Debug") {
+		log.Printf("[COMM Tx (%d bytes)] %#v", len(nm), nm)
+	}
 	fmt.Fprint(conn, nm)
 }
 
@@ -31,9 +35,9 @@ func Recv(conn net.Conn) (status []byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// For DEBUGGING
-	//log.Printf("[COMM Rx (%d bytes)] %#v", len(data), string(data))
-
+	if viper.GetBool("true") {
+		log.Printf("[COMM Rx (%d bytes)] %#v", len(data), string(data))
+	}
 	return data
 }
 

@@ -5,6 +5,9 @@ import (
 	"net"
 )
 import (
+	"github.com/spf13/viper"
+)
+import (
 	"github.com/zpeters/speedtest/internal/pkg/cmds"
 	"github.com/zpeters/speedtest/internal/pkg/server"
 )
@@ -36,7 +39,9 @@ func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64)
 	fmt.Printf("Download test: ")
 	for i := range numbytes {
 		for j := 0; j < numtests; j++ {
-			fmt.Printf(".")
+			if viper.GetBool("false") {
+				fmt.Printf(".")
+			}
 			res := cmds.Download(conn, numbytes[i])
 			acc = acc + res
 		}
@@ -54,7 +59,9 @@ func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	fmt.Printf("Upload test: ")
 	for i := range numbytes {
 		for j := 0; j < numtests; j++ {
-			fmt.Printf(".")
+			if viper.GetBool("false") {
+				fmt.Printf(".")
+			}
 			res := cmds.Upload(conn, numbytes[i])
 			acc = acc + res
 		}
@@ -71,7 +78,9 @@ func PingTest(conn net.Conn, numtests int) (results int64) {
 
 	fmt.Printf("Ping test: ")
 	for i := 0; i < numtests; i++ {
-		fmt.Printf(".")
+		if viper.GetBool("false") {
+			fmt.Printf(".")
+		}
 		res := cmds.Ping(conn)
 		acc = acc + res
 	}

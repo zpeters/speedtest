@@ -10,15 +10,6 @@ PACKAGES = $(shell find ./ -type d | grep -v 'vendor' | grep -v '.git' | grep -v
 
 default: build
 
-dockerbuild:
-	docker build -t speedtest .
-
-dockerrun:
-	 docker run --rm -it speedtest
-
-dockerclean:
-	docker-clean all
-
 build:
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION} ./cmd/speedtest
 
@@ -45,15 +36,8 @@ fmt:
 test:
 	go test ./cmd/... ./internal/...
 
-cover:
-	go test -cover ./cmd/... ./internal/...
-
-coverage:
-	echo "mode: count" > coverage-all.out
-	$(foreach pkg,$(PACKAGES),\
-		go test -coverprofile=coverage.out -covermode=count $(pkg);\
-		tail -n +2 coverage.out >> coverage-all.out;)
-	go tool cover -html=coverage-all.out
+update:
+	dep ensure -update
 
 cross:
 	scripts/cross-compile.sh
