@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	_ "log"
-	"strings"
+	"log"
 )
 import (
 	"github.com/spf13/viper"
@@ -13,7 +12,7 @@ import (
 )
 
 func config() {
-	viper.SetDefault("Debug", true)
+	viper.SetDefault("Debug", false)
 }
 
 func main() {
