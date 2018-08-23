@@ -17,7 +17,7 @@ dockerrun:
 	 docker run --rm -it speedtest
 
 dockerclean:
-	docker-clean all	
+	docker-clean all
 
 build:
 	go build -ldflags="-X main.Version=${VERSION}" -o bin/speedtest-${VERSION} ./cmd/speedtest
@@ -39,11 +39,8 @@ lint:
 
 fmt:
 	gofmt -w ./cmd/speedtest
-	gofmt -w ./internal/coords
-	gofmt -w ./internal/misc
-	gofmt -w ./internal/print
-	gofmt -w ./internal/sthttp
-	gofmt -w ./internal/speedtests
+	gofmt -w ./internal/app
+	gofmt -w ./internal/pkg
 
 test:
 	go test ./cmd/... ./internal/...

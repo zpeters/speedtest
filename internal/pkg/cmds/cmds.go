@@ -1,25 +1,30 @@
 package cmds
+
 import (
 	"fmt"
+	"math/rand"
+	"net"
 	"strings"
 	"time"
-	"net"
-	"math/rand"
 )
 import (
 	"github.com/zpeters/speedtest/internal/pkg/comms"
 )
 
+// Connect will returns a socket connection from the server
 func Connect(server string) (conn net.Conn) {
 	return comms.Connect(server)
 }
 
+// Version retrieves and parses the protocol version
 func Version(conn net.Conn) (version string) {
 	resp := comms.Command(conn, "HI")
 	verLine := strings.Split(resp, " ")
 	version = verLine[1]
 	return version
 }
+
+// Ping issues and times a ping command
 func Ping(conn net.Conn) (result int64) {
 	start := time.Now()
 
@@ -32,26 +37,28 @@ func Ping(conn net.Conn) (result int64) {
 	return diff.Nanoseconds() / 1000000
 }
 
-func Download(conn net.Conn, numbytes int) (result float64) {
+// Download performs a timed download, returning the mpbs
+func Download(conn net.Conn, numbytes int) (mbps float64) {
 	start := time.Now()
 	cmdString := fmt.Sprintf("DOWNLOAD %d", numbytes)
 	comms.Send(conn, cmdString)
 	_ = comms.Recv(conn)
 	finish := time.Now()
 
-	mbps := calc_mbps(start, finish, numbytes)
+	mbps = calcMbps(start, finish, numbytes)
 	return mbps
 }
 
+// Upload performs a timed upload of numbytes random bytes, returning the mpbs
 func Upload(conn net.Conn, numbytes int) (result float64) {
-	rand_bytes := generate_bytes(numbytes)
+	randBytes := generateBytes(numbytes)
 
-	bytes_string := fmt.Sprintf("%d", len(rand_bytes))
-	len_bytes_string := len(bytes_string)
-	final_bytes := len_bytes_string + numbytes + len("UPLOAD_0_\n\n")
+	bytesString := fmt.Sprintf("%d", len(randBytes))
+	lenBytesString := len(bytesString)
+	finalBytes := lenBytesString + numbytes + len("UPLOAD_0_\n\n")
 
-	cmdString1 := fmt.Sprintf("UPLOAD %d 0", final_bytes)
-	cmdString2 := fmt.Sprintf("%s", rand_bytes)
+	cmdString1 := fmt.Sprintf("UPLOAD %d 0", finalBytes)
+	cmdString2 := fmt.Sprintf("%s", randBytes)
 
 	start := time.Now()
 	comms.Send(conn, cmdString1)
@@ -59,12 +66,11 @@ func Upload(conn net.Conn, numbytes int) (result float64) {
 	_ = comms.Recv(conn)
 	finish := time.Now()
 
-	mbps := calc_mbps(start, finish, numbytes)
+	mbps := calcMbps(start, finish, numbytes)
 	return mbps
 }
 
-
-func calc_mbps(start time.Time, finish time.Time, numbytes int) (mbps float64) {
+func calcMbps(start time.Time, finish time.Time, numbytes int) (mbps float64) {
 	diff := finish.Sub(start)
 	secs := float64(diff.Nanoseconds()) / float64(1000000000)
 	megabits := float64(numbytes) / float64(125000)
@@ -72,7 +78,7 @@ func calc_mbps(start time.Time, finish time.Time, numbytes int) (mbps float64) {
 	return mbps
 }
 
-func generate_bytes(numbytes int) (random []byte) {
+func generateBytes(numbytes int) (random []byte) {
 	random = make([]byte, numbytes)
 	_, err := rand.Read(random)
 	if err != nil {

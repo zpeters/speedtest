@@ -1,29 +1,35 @@
 package app
+
 import (
-	"net"
 	"fmt"
+	"net"
 )
 import (
 	"github.com/zpeters/speedtest/internal/pkg/cmds"
 	"github.com/zpeters/speedtest/internal/pkg/server"
 )
 
+// GetAllServers returns all recommended servers
 func GetAllServers() (servers []server.Server) {
 	return server.GetAllServers()
 }
 
+// GetBestServer gets the first in the list
 func GetBestServer() (s server.Server) {
 	return server.GetBestServer()
 }
 
+// Connect returns the initial connection to the testing server
 func Connect(server string) (conn net.Conn) {
 	return cmds.Connect(server)
 }
 
+// Version returns the protocol version of speedtest binary protocol
 func Version(conn net.Conn) (version string) {
 	return cmds.Version(conn)
 }
 
+// DownloadTest runs numtests download tests for numbytes requested bytes
 func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	var acc float64
 
@@ -41,6 +47,7 @@ func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64)
 	return results
 }
 
+// UploadTest runs numtests upload tests of numbytes random bytes
 func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	var acc float64
 
@@ -58,7 +65,7 @@ func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	return results
 }
 
-
+// PingTest gets roundtrip time to issue the "PING" command
 func PingTest(conn net.Conn, numtests int) (results int64) {
 	var acc int64
 
@@ -73,4 +80,3 @@ func PingTest(conn net.Conn, numtests int) (results int64) {
 	fmt.Printf("\n")
 	return results
 }
-
