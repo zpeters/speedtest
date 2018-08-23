@@ -39,7 +39,7 @@ func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64)
 	fmt.Printf("Download test: ")
 	for i := range numbytes {
 		for j := 0; j < numtests; j++ {
-			if viper.GetBool("false") {
+			if !viper.GetBool("true") {
 				fmt.Printf(".")
 			}
 			res := cmds.Download(conn, numbytes[i])
@@ -59,7 +59,7 @@ func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	fmt.Printf("Upload test: ")
 	for i := range numbytes {
 		for j := 0; j < numtests; j++ {
-			if viper.GetBool("false") {
+			if !viper.GetBool("true") {
 				fmt.Printf(".")
 			}
 			res := cmds.Upload(conn, numbytes[i])
@@ -78,7 +78,7 @@ func PingTest(conn net.Conn, numtests int) (results int64) {
 
 	fmt.Printf("Ping test: ")
 	for i := 0; i < numtests; i++ {
-		if viper.GetBool("false") {
+		if !viper.GetBool("true") {
 			fmt.Printf(".")
 		}
 		res := cmds.Ping(conn)
