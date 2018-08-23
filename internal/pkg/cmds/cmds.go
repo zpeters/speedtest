@@ -34,25 +34,23 @@ func Ping(conn net.Conn) (result int64) {
 
 func Download(conn net.Conn, numbytes int) (result float64) {
 	start := time.Now()
-
 	cmdString := fmt.Sprintf("DOWNLOAD %d", numbytes)
 	comms.Send(conn, cmdString)
 	_ = comms.Recv(conn)
-
 	finish := time.Now()
-	diff := finish.Sub(start)
 
-	secs := float64(diff.Nanoseconds()) / float64(1000000000)
-	megabits := float64(numbytes) / float64(125000)
-	mbps := megabits / secs
+	mbps := calc_mbps(start, finish, numbytes)
 	return mbps
 }
 
 func Upload(conn net.Conn, numbytes int) (result float64) {
 	rand_bytes := generate_bytes(numbytes)
-	len_bytes := len(rand_bytes)
 
-	cmdString1 := fmt.Sprintf("UPLOAD %d 0", len_bytes)
+	bytes_string := fmt.Sprintf("%d", len(rand_bytes))
+	len_bytes_string := len(bytes_string)
+	final_bytes := len_bytes_string + numbytes + len("UPLOAD_0_\n\n")
+
+	cmdString1 := fmt.Sprintf("UPLOAD %d 0", final_bytes)
 	cmdString2 := fmt.Sprintf("%s", rand_bytes)
 
 	start := time.Now()
@@ -61,11 +59,16 @@ func Upload(conn net.Conn, numbytes int) (result float64) {
 	_ = comms.Recv(conn)
 	finish := time.Now()
 
-	diff := finish.Sub(start)
+	mbps := calc_mbps(start, finish, numbytes)
+	return mbps
+}
 
+
+func calc_mbps(start time.Time, finish time.Time, numbytes int) (mbps float64) {
+	diff := finish.Sub(start)
 	secs := float64(diff.Nanoseconds()) / float64(1000000000)
 	megabits := float64(numbytes) / float64(125000)
-	mbps := megabits / secs
+	mbps = megabits / secs
 	return mbps
 }
 

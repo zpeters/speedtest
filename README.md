@@ -1,9 +1,12 @@
 TODO / NOTES
 ============
--  https://gist.github.com/sdstrowes/411fca9d900a846a704f68547941eb97
 - need better algo for finding "best" server
 - download seems okay for my enviroment but need to dynamically tune
-- upload sucks
+- breaking ui but somewhat feature pairity
+
+NOTES
+=====
+-  https://gist.github.com/sdstrowes/411fca9d900a846a704f68547941eb97
 
 
 NOT SUPPORTED

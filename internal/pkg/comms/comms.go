@@ -24,6 +24,7 @@ func Command(conn net.Conn, command string) (resp string) {
 
 func Send(conn net.Conn, msg string) {
 	nm := fmt.Sprintf("%s\n", msg)
+	//log.Printf("[COMM Tx (%d bytes)] %#v", len(nm), nm)
 	fmt.Fprint(conn, nm)
 }
 
@@ -32,6 +33,7 @@ func Recv(conn net.Conn) (status []byte) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//log.Printf("[COMM Rx (%d bytes)] %#v", len(data), string(data))
 
 	return data
 }
