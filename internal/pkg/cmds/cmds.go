@@ -16,6 +16,13 @@ import (
 	"github.com/zpeters/speedtest/internal/pkg/comms"
 )
 
+type Result struct {
+	Start time.Time
+	Finish time.Time
+	DurationMs int64
+	Bytes int
+}
+
 // Connect will returns a socket connection from the server
 func Connect(server string) (conn net.Conn) {
 	return comms.Connect(server)
@@ -30,32 +37,35 @@ func Version(conn net.Conn) (version string) {
 }
 
 // Ping issues and times a ping command
-func Ping(conn net.Conn) (result int64) {
+func Ping(conn net.Conn) (ms int64) {
 	start := time.Now()
-
 	cmdString := fmt.Sprintf("PING %s", start)
-
 	comms.Command(conn, cmdString)
-
 	finish := time.Now()
-	diff := finish.Sub(start)
-	return diff.Nanoseconds() / 1000000
+	ms = calcMs(start, finish)
+	return ms
 }
 
 // Download performs a timed download, returning the mpbs
-func Download(conn net.Conn, numbytes int) (mbps float64) {
+func Download(conn net.Conn, numbytes int) (result Result) {
 	start := time.Now()
 	cmdString := fmt.Sprintf("DOWNLOAD %d", numbytes)
 	comms.Send(conn, cmdString)
 	_ = comms.Recv(conn)
 	finish := time.Now()
 
-	mbps = calcMbps(start, finish, numbytes)
-	return mbps
+	result = Result{
+		Start: start,
+		Finish: finish,
+		DurationMs: calcMs(start, finish),
+		Bytes: numbytes,
+	}
+
+	return result
 }
 
 // Upload performs a timed upload of numbytes random bytes, returning the mpbs
-func Upload(conn net.Conn, numbytes int) (result float64) {
+func Upload(conn net.Conn, numbytes int) (result Result) {
 	randBytes := generateBytes(numbytes)
 
 	bytesString := fmt.Sprintf("%d", len(randBytes))
@@ -71,17 +81,16 @@ func Upload(conn net.Conn, numbytes int) (result float64) {
 	_ = comms.Recv(conn)
 	finish := time.Now()
 
-	mbps := calcMbps(start, finish, numbytes)
-	return mbps
+	result = Result{
+		Start: start,
+		Finish: finish,
+		DurationMs: calcMs(start, finish),
+		Bytes: numbytes,
+	}
+
+	return result
 }
 
-func calcMbps(start time.Time, finish time.Time, numbytes int) (mbps float64) {
-	diff := finish.Sub(start)
-	secs := float64(diff.Nanoseconds()) / float64(1000000000)
-	megabits := float64(numbytes) / float64(125000)
-	mbps = megabits / secs
-	return mbps
-}
 
 func generateBytes(numbytes int) (random []byte) {
 	if viper.GetBool("Debug") {
@@ -93,4 +102,10 @@ func generateBytes(numbytes int) (random []byte) {
 		panic(err)
 	}
 	return random
+}
+
+
+func calcMs(start time.Time, finish time.Time) (ms int64) {
+	diff := finish.Sub(start)
+	return diff.Nanoseconds() / 1000000
 }

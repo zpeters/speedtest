@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"net"
+	"time"
 )
 import (
 	"github.com/spf13/viper"
@@ -11,6 +12,26 @@ import (
 	"github.com/zpeters/speedtest/internal/pkg/cmds"
 	"github.com/zpeters/speedtest/internal/pkg/server"
 )
+
+func TuneDownload(conn net.Conn) (res cmds.Result){
+	var targetMs int64 = 3000 // 3 seconds
+	incBytes := 1048576 // 1 meg
+	numBytes := 104857 // 0.1 megs
+	maxBytes := 31457280 // 30 megs
+
+	for {
+		res = cmds.Download(conn, numBytes)
+		fmt.Printf("Results: %#v\n", res)
+		if res.DurationMs >= targetMs {
+			break
+		}
+		if numBytes >= maxBytes {
+			break
+		}
+		numBytes = numBytes + incBytes
+	}
+	return res
+}
 
 // GetAllServers returns all recommended servers
 func GetAllServers() (servers []server.Server) {
@@ -43,7 +64,8 @@ func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64)
 				fmt.Printf(".")
 			}
 			res := cmds.Download(conn, numbytes[i])
-			acc = acc + res
+			mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
+			acc = acc + mbps
 		}
 	}
 
@@ -63,7 +85,8 @@ func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 				fmt.Printf(".")
 			}
 			res := cmds.Upload(conn, numbytes[i])
-			acc = acc + res
+			mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
+			acc = acc + mbps
 		}
 	}
 
@@ -88,4 +111,12 @@ func PingTest(conn net.Conn, numtests int) (results int64) {
 	results = acc / int64(numtests)
 	fmt.Printf("\n")
 	return results
+}
+
+func CalcMbps(start time.Time, finish time.Time, numbytes int) (mbps float64) {
+	diff := finish.Sub(start)
+	secs := float64(diff.Nanoseconds()) / float64(1000000000)
+	megabits := float64(numbytes) / float64(125000)
+	mbps = megabits / secs
+	return mbps
 }
