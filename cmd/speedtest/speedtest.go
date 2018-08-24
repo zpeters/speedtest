@@ -3,20 +3,23 @@ package main
 import (
 	"fmt"
 	"log"
-)
-import (
+	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
-)
-import (
+
 	"github.com/zpeters/speedtest/internal/app"
+	"github.com/zpeters/speedtest/internal/pkg/data"
 )
 
 func config() {
 	viper.SetDefault("Debug", false)
+	viper.SetDefault("DbLocation", "data.sqlite")
 }
 
 func main() {
 	config()
+	db := data.DbOpen()
 
 	server := app.GetBestServer()
 	fmt.Printf("Found best server: (%s) %s - %s\n", server.ID, server.Name, server.Sponsor)
@@ -25,12 +28,9 @@ func main() {
 	//log.Printf("Begin tuning...")
 	//res := app.TuneDownload(conn)
 	//fmt.Printf("Tuned Download: %#v", res)
-
-	//mbps := app.CalcMbps(res.Start, res.Finish, res.Bytes ) 
+	//mbps := app.CalcMbps(res.Start, res.Finish, res.Bytes )
 	//log.Printf("MBPS: %#v\n", mbps)
-
 	//log.Printf("Tuning complete...")
-
 
 	fmt.Printf("Speedtest protocol version: %s\n", app.Version(conn))
 
@@ -52,4 +52,5 @@ func main() {
 	fmt.Printf("Ping results: %d ms\n", ping)
 	fmt.Printf("Download results: %f mbps\n", download)
 	fmt.Printf("Upload results: %f mbps\n", upload)
+	data.DbInsert(db, time.Now(), server.Name, server.ID, ping, download, upload)
 }

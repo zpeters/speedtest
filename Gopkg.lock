@@ -37,6 +37,14 @@
   version = "v1.8.0"
 
 [[projects]]
+  digest = "1:3cafc6a5a1b8269605d9df4c6956d43d8011fc57f266ca6b9d04da6c09dee548"
+  name = "github.com/mattn/go-sqlite3"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "25ecb14adfc7543176f7d85291ec7dba82c6f7e4"
+  version = "v1.9.0"
+
+[[projects]]
   branch = "master"
   digest = "1:5ab79470a1d0fb19b041a624415612f8236b3c06070161a910562f2b2d064355"
   name = "github.com/mitchellh/mapstructure"
@@ -97,14 +105,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:30b369306cba9586a3e019efc1906c6ab3926fa148b493524250d3a9eecf7152"
-  name = "github.com/tucnak/climax"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "da4c02f3b1f8ee2c27bb2a8910fe692900d8fc26"
-
-[[projects]]
-  branch = "master"
   digest = "1:a3f00ac457c955fe86a41e1495e8f4c54cb5399d609374c5cc26aa7d72e542c8"
   name = "golang.org/x/sys"
   packages = ["unix"]
@@ -138,8 +138,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/mattn/go-sqlite3",
     "github.com/spf13/viper",
-    "github.com/tucnak/climax",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

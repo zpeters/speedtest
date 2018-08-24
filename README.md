@@ -1,12 +1,10 @@
 TODO / NOTES
 ============
 - cli
+- add lat/lon to database
+- better configs to database
 - breaking ui but somewhat feature pairity
 - add tests
-
-FEATURES 
-========
-- local database to record past runs (date, time, my loc, server, ping, dl , ul)
 - need better algo for finding "best" server
 - download seems okay for my enviroment but need to dynamically tune
 
