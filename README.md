@@ -1,11 +1,9 @@
 TODO / NOTES
 ============
-- cli
-- add lat/lon to database
-- better configs to database
-- breaking ui but somewhat feature pairity
-- add tests
 - need better algo for finding "best" server
+- add tests
+- cli
+- breaking ui but somewhat feature pairity
 - download seems okay for my enviroment but need to dynamically tune
 
 NOTES
