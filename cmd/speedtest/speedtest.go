@@ -21,12 +21,12 @@ func main() {
 	fmt.Printf("Found best server: (%s) %s - %s\n", server.ID, server.Name, server.Sponsor)
 	conn := app.Connect(server.Host)
 
-	//log.Printf("Begin tuning...")
-	//res := app.TuneDownload(conn)
-	//fmt.Printf("Tuned Download: %#v", res)
-	//mbps := app.CalcMbps(res.Start, res.Finish, res.Bytes )
-	//log.Printf("MBPS: %#v\n", mbps)
-	//log.Printf("Tuning complete...")
+	// log.Printf("Begin tuning...")
+	// res := app.TuneDownload(conn)
+	// fmt.Printf("Tuned Download: %#v", res)
+	// mbps := app.CalcMbps(res.Start, res.Finish, res.Bytes )
+	// log.Printf("MBPS: %#v\n", mbps)
+	// log.Printf("Tuning complete...")
 
 	fmt.Printf("Speedtest protocol version: %s\n", app.Version(conn))
 

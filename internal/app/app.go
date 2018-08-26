@@ -13,11 +13,11 @@ import (
 	"github.com/zpeters/speedtest/internal/pkg/server"
 )
 
-func TuneDownload(conn net.Conn) (res cmds.Result){
+func TuneDownload(conn net.Conn) (res cmds.Result) {
 	var targetMs int64 = 3000 // 3 seconds
-	incBytes := 1048576 // 1 meg
-	numBytes := 104857 // 0.1 megs
-	maxBytes := 31457280 // 30 megs
+	incBytes := 1048576       // 1 meg
+	numBytes := 104857        // 0.1 megs
+	maxBytes := 31457280      // 30 megs
 
 	for {
 		res = cmds.Download(conn, numBytes)
@@ -39,8 +39,20 @@ func GetAllServers() (servers []server.Server) {
 }
 
 // GetBestServer gets the first in the list
-func GetBestServer() (s server.Server) {
-	return server.GetBestServer()
+func GetBestServer() (bestserver server.Server) {
+	fmt.Println("Finding best server")
+	var bestspeed int64 = 999
+	servers := GetAllServers()
+	for s := range servers {
+		c := Connect(servers[s].Host)
+		res := PingTest(c, 3)
+		if res < bestspeed {
+			bestspeed = res
+			bestserver = servers[s]
+		}
+	}
+
+	return bestserver
 }
 
 // Connect returns the initial connection to the testing server

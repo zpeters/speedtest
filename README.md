@@ -1,7 +1,7 @@
 TODO / NOTES
 ============
-- need better algo for finding "best" server
 - add tests
+- better default experience
 - cli
 - breaking ui but somewhat feature pairity
 - download seems okay for my enviroment but need to dynamically tune

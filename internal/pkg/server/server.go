@@ -40,11 +40,3 @@ func GetAllServers() (servers []Server) {
 
 	return servers
 }
-
-// GetBestServer returns the first servert of GetAllServers
-func GetBestServer() (s Server) {
-	// TODO right now we are just picking the first server
-	// eventually we need a better algorithm
-	servers := GetAllServers()
-	return servers[0]
-}
