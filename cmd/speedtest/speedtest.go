@@ -5,11 +5,9 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/viper"
 
 	"github.com/zpeters/speedtest/internal/app"
-	"github.com/zpeters/speedtest/internal/pkg/data"
 )
 
 func config() {
@@ -19,7 +17,6 @@ func config() {
 
 func main() {
 	config()
-	db := data.DbOpen()
 
 	server := app.GetBestServer()
 	fmt.Printf("Found best server: (%s) %s - %s\n", server.ID, server.Name, server.Sponsor)
@@ -52,5 +49,4 @@ func main() {
 	fmt.Printf("Ping results: %d ms\n", ping)
 	fmt.Printf("Download results: %f mbps\n", download)
 	fmt.Printf("Upload results: %f mbps\n", upload)
-	data.DbInsert(db, time.Now(), server.Name, server.ID, ping, download, upload)
 }
