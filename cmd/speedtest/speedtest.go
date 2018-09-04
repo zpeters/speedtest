@@ -32,13 +32,15 @@ func main() {
 
 	ping := app.PingTest(conn, 20)
 
-	downloadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000, 2000000, 5000000, 7000000}
+	//downloadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000, 2000000, 5000000, 7000000}
+	downloadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000, 2000000}
 	if viper.GetBool("Debug") {
 		log.Printf("downloadBytes: %#v\n", downloadBytes)
 	}
 	download := app.DownloadTest(conn, downloadBytes, 4)
 
-	uploadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000, 2000000, 5000000, 7000000}
+	//uploadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000, 2000000, 5000000, 7000000}
+	uploadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000}
 	if viper.GetBool("Debug") {
 		log.Printf("uploadBytes: %#v\n", uploadBytes)
 	}
