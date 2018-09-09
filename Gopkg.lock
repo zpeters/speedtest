@@ -45,6 +45,14 @@
   version = "v1.8.0"
 
 [[projects]]
+  digest = "1:67105594fba7ad3f5abea71688338e6c7c48f8dc7e3b5a5b467dca94a24dad3e"
+  name = "github.com/matryer/is"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5f0030ca4decdf2e702be47575d88eabf610593e"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:645110e089152bd0f4a011a2648fbb0e4df5977be73ca605781157ac297f50c4"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
@@ -154,6 +162,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/matryer/is",
     "github.com/spf13/viper",
     "github.com/stretchr/testify/assert",
   ]
