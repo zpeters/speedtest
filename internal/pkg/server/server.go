@@ -23,7 +23,7 @@ type Server struct {
 }
 
 // GetAllServers parses the list of all recommended servers
-func GetAllServers() (servers []Server) {
+func GetAllServers() (servers []Server, err error) {
 	res, err := http.Get("http://www.speedtest.net/api/js/servers?engine=js")
 	if err != nil {
 		panic(err.Error())
@@ -38,5 +38,5 @@ func GetAllServers() (servers []Server) {
 		panic(err.Error())
 	}
 
-	return servers
+	return servers, err
 }
