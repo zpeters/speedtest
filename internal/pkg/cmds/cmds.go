@@ -17,10 +17,10 @@ import (
 )
 
 type Result struct {
-	Start time.Time
-	Finish time.Time
+	Start      time.Time
+	Finish     time.Time
 	DurationMs int64
-	Bytes int
+	Bytes      int
 }
 
 // Connect will returns a socket connection from the server
@@ -30,7 +30,10 @@ func Connect(server string) (conn net.Conn) {
 
 // Version retrieves and parses the protocol version
 func Version(conn net.Conn) (version string) {
-	resp := comms.Command(conn, "HI")
+	resp, err := comms.Command(conn, "HI")
+	if err != nil {
+		log.Fatal(err)
+	}
 	verLine := strings.Split(resp, " ")
 	version = verLine[1]
 	return version
@@ -51,14 +54,17 @@ func Download(conn net.Conn, numbytes int) (result Result) {
 	start := time.Now()
 	cmdString := fmt.Sprintf("DOWNLOAD %d", numbytes)
 	comms.Send(conn, cmdString)
-	_ = comms.Recv(conn)
+	_, err := comms.Recv(conn)
+	if err != nil {
+		log.Fatal(err)
+	}
 	finish := time.Now()
 
 	result = Result{
-		Start: start,
-		Finish: finish,
+		Start:      start,
+		Finish:     finish,
 		DurationMs: calcMs(start, finish),
-		Bytes: numbytes,
+		Bytes:      numbytes,
 	}
 
 	return result
@@ -78,23 +84,25 @@ func Upload(conn net.Conn, numbytes int) (result Result) {
 	start := time.Now()
 	comms.Send(conn, cmdString1)
 	comms.Send(conn, cmdString2)
-	_ = comms.Recv(conn)
+	_, err := comms.Recv(conn)
+	if err != nil {
+		log.Fatal(err)
+	}
 	finish := time.Now()
 
 	result = Result{
-		Start: start,
-		Finish: finish,
+		Start:      start,
+		Finish:     finish,
 		DurationMs: calcMs(start, finish),
-		Bytes: numbytes,
+		Bytes:      numbytes,
 	}
 
 	return result
 }
 
-
 func generateBytes(numbytes int) (random []byte) {
 	if viper.GetBool("Debug") {
-		log.Printf("Generating %d radnom bytes", numbytes)
+		log.Printf("Generating %d random bytes", numbytes)
 	}
 	random = make([]byte, numbytes)
 	_, err := rand.Read(random)
@@ -103,7 +111,6 @@ func generateBytes(numbytes int) (random []byte) {
 	}
 	return random
 }
-
 
 func calcMs(start time.Time, finish time.Time) (ms int64) {
 	diff := finish.Sub(start)
