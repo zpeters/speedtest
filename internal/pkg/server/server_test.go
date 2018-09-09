@@ -3,13 +3,16 @@ package server
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestGetAllServers(t *testing.T) {
+	is := is.New(t)
+
 	servers, err := GetAllServers()
-	assert.NoError(t, err)
 	aServer := servers[0]
-	assert.NotEmpty(t, aServer.ID)
-	assert.NotEmpty(t, aServer.Host)
+
+	is.NoErr(err)               // we should be able to get servers
+	is.True(aServer.ID != "")   // a server ID should not be empty
+	is.True(aServer.Host != "") // a server Host should not be empty
 }
