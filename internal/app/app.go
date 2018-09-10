@@ -2,67 +2,34 @@ package app
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"time"
-)
-import (
+
 	"github.com/spf13/viper"
-)
-import (
 	"github.com/zpeters/speedtest/internal/pkg/cmds"
 	"github.com/zpeters/speedtest/internal/pkg/server"
 )
 
-func TuneDownload(conn net.Conn) (res cmds.Result) {
-	var targetMs int64 = 3000 // 3 seconds
-	incBytes := 1048576       // 1 meg
-	numBytes := 104857        // 0.1 megs
-	maxBytes := 31457280      // 30 megs
-
-	for {
-		res = cmds.Download(conn, numBytes)
-		fmt.Printf("Results: %#v\n", res)
-		if res.DurationMs >= targetMs {
-			break
-		}
-		if numBytes >= maxBytes {
-			break
-		}
-		numBytes = numBytes + incBytes
-	}
-	return res
-}
-
-// GetAllServers returns all recommended servers
-func GetAllServers() (servers []server.Server) {
-	return server.GetAllServers()
-}
-
 // GetBestServer gets the first in the list
-func GetBestServer() (bestserver server.Server) {
+func GetBestServer() (bestserver server.Server, err error) {
 	fmt.Println("Finding best server")
 	var bestspeed int64 = 999
-	servers := GetAllServers()
+	servers, err := server.GetAllServers()
+	if err != nil {
+		log.Fatal(err)
+	}
 	for s := range servers {
-		c := Connect(servers[s].Host)
+		c := cmds.Connect(servers[s].Host)
 		res := PingTest(c, 3)
+		servers[s].BestTestPing = res
 		if res < bestspeed {
 			bestspeed = res
 			bestserver = servers[s]
 		}
 	}
 
-	return bestserver
-}
-
-// Connect returns the initial connection to the testing server
-func Connect(server string) (conn net.Conn) {
-	return cmds.Connect(server)
-}
-
-// Version returns the protocol version of speedtest binary protocol
-func Version(conn net.Conn) (version string) {
-	return cmds.Version(conn)
+	return bestserver, err
 }
 
 // DownloadTest runs numtests download tests for numbytes requested bytes

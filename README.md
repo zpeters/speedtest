@@ -1,6 +1,12 @@
 TODO / NOTES
 ============
 - add tests
+- speed testing / verification
+-- TestDownloadTest seems waaay off
+- find a way to remove static speedtest.tec.com:8080 in test
+- in the top level speedtest.go we are calling into internal packages, might turn this into a "alias" in app package
+- Version too
+- better way to do ping progress test
 - better default experience
 - cli
 - breaking ui but somewhat feature pairity

@@ -20,6 +20,7 @@ type Server struct {
 	Preferred       int    `json:"preferred"`
 	Host            string `json:"host"`
 	ForcePingSelect int    `json:"force_ping_select"`
+	BestTestPing    int64
 }
 
 // GetAllServers parses the list of all recommended servers

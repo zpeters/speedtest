@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/zpeters/speedtest/internal/app"
+	"github.com/zpeters/speedtest/internal/pkg/cmds"
 )
 
 func config() {
@@ -17,9 +18,15 @@ func config() {
 func main() {
 	config()
 
-	server := app.GetBestServer()
+	server, err := app.GetBestServer()
+	if err != nil {
+		log.Fatal(err)
+	}
 	fmt.Printf("Found best server: (%s) %s - %s\n", server.ID, server.Name, server.Sponsor)
-	conn := app.Connect(server.Host)
+	conn := cmds.Connect(server.Host)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// log.Printf("Begin tuning...")
 	// res := app.TuneDownload(conn)
@@ -28,7 +35,7 @@ func main() {
 	// log.Printf("MBPS: %#v\n", mbps)
 	// log.Printf("Tuning complete...")
 
-	fmt.Printf("Speedtest protocol version: %s\n", app.Version(conn))
+	fmt.Printf("Speedtest protocol version: %s\n", cmds.Version(conn))
 
 	ping := app.PingTest(conn, 20)
 
