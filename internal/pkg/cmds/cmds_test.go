@@ -1,82 +1,131 @@
 package cmds
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/matryer/is"
 )
 
 func TestConnect(t *testing.T) {
+	is := is.New(t)
+
 	conn := Connect("speedtest.tec.com:8080")
-	assert.NotNil(t, conn)
+
+	is.True(conn != nil) // conn should not be nil
 }
 
 func TestVersion(t *testing.T) {
+	is := is.New(t)
+
 	conn := Connect("speedtest.tec.com:8080")
 	ver := Version(conn)
-	assert.Contains(t, ver, ".")
+
+	is.True(isVersion(ver)) // ver should be in the format 1.2
 }
 
 func TestPing(t *testing.T) {
-	var i int64
-	var base float64 = 200
-	var delta float64 = 200
+	var min int64 = 100
+	var max int64 = 200
+
+	is := is.New(t)
 
 	conn := Connect("speedtest.tec.com:8080")
 	ms := Ping(conn)
-	t.Logf("Base: %#v", base)
-	t.Logf("Delta: %#v", delta)
-	t.Logf("ms: %#v", ms)
-	assert.IsType(t, i, ms)
-	assert.InDeltaf(t, ms, base, delta, "Delta %f too large, expected within %fms of %fms", ms, delta, base)
+
+	is.True(inRange(ms, min, max)) // ping should be between 100 and 200 ms
 }
 
 func TestCalcMs(t *testing.T) {
+	var min int64 = 100
+	var max int64 = 103
+
+	is := is.New(t)
+
 	start := time.Now()
 	time.Sleep(100 * time.Millisecond)
 	finish := time.Now()
 	ms := calcMs(start, finish)
-	t.Logf("MS: %#v", ms)
-	assert.InDelta(t, ms, 100, 10)
+
+	is.True(inRange(ms, min, max)) // calcMs should calculate a 100ms sleep as 100 ms, within 3 ms
 }
 
 func TestGenerateBytes(t *testing.T) {
+	is := is.New(t)
+
 	randBytes1 := 10
 	randBytes2 := 555
 	randBytes3 := 874321
+
 	bytes1 := generateBytes(randBytes1)
 	bytes2 := generateBytes(randBytes2)
 	bytes3 := generateBytes(randBytes3)
-	assert.Equal(t, randBytes1, len(bytes1))
-	assert.Equal(t, randBytes2, len(bytes2))
-	assert.Equal(t, randBytes3, len(bytes3))
+
+	is.Equal(randBytes1, len(bytes1)) // requesting 10 randBytes should return 10 bytes
+	is.Equal(randBytes2, len(bytes2)) // requesting 555 randBytes should return 10 bytes
+	is.Equal(randBytes3, len(bytes3)) // requesting 874321 randBytes should return 10 bytes
 }
 
 func TestDownload(t *testing.T) {
+	var min1 int64 = 100
+	var max1 int64 = 200
+	var min2 int64 = 1000
+	var max2 int64 = 4000
+
+	is := is.New(t)
+
 	conn := Connect("speedtest.tec.com:8080")
 	bytes1 := 100
 	res1 := Download(conn, bytes1)
 	bytes2 := 555555
 	res2 := Download(conn, bytes2)
-	assert.NotNil(t, res1)
-	assert.Equal(t, bytes1, res1.Bytes)
-	assert.InDelta(t, res1.DurationMs, 100, 100)
-	assert.NotNil(t, res2)
-	assert.Equal(t, bytes2, res2.Bytes)
-	assert.InDelta(t, res2.DurationMs, 2000, 1000)
+
+	is.True(inRange(res1.DurationMs, min1, max1)) // 10 byte download should take between 100 to 200 ms
+	is.True(inRange(res2.DurationMs, min2, max2)) // 555,555 byte download should take between 1000 and 2000 ms
 }
 
 func TestUpload(t *testing.T) {
+	var min1 int64 = 100
+	var max1 int64 = 200
+	var min2 int64 = 1000
+	var max2 int64 = 4000
+
+	is := is.New(t)
+
 	conn := Connect("speedtest.tec.com:8080")
 	bytes1 := 100
 	res1 := Upload(conn, bytes1)
 	bytes2 := 555555
 	res2 := Upload(conn, bytes2)
-	assert.NotNil(t, res1)
-	assert.Equal(t, bytes1, res1.Bytes)
-	assert.InDelta(t, res1.DurationMs, 100, 100)
-	assert.NotNil(t, res2)
-	assert.Equal(t, bytes2, res2.Bytes)
-	assert.InDelta(t, res2.DurationMs, 2000, 1000)
+
+	is.True(inRange(res1.DurationMs, min1, max1)) // 10 byte upload should take between 100 to 200 ms
+	is.True(inRange(res2.DurationMs, min2, max2)) // 555,555 byte upload should take between 1000 and 2000 ms
+}
+
+/* Helpers */
+func isVersion(ver string) bool {
+	v := strings.Split(ver, ".")
+	maj := v[0]
+	min := v[1]
+
+	_, err1 := strconv.Atoi(maj)
+	_, err2 := strconv.Atoi(min)
+
+	if err1 == nil && err2 == nil && len(v) == 2 {
+		return true
+	}
+	return false
+}
+
+func inRange(ms int64, min int64, max int64) bool {
+	fmt.Printf("ms: %d", ms)
+	fmt.Printf("min: %d", min)
+	fmt.Printf("max: %d", max)
+	if ms >= min && ms <= max {
+		return true
+	}
+	return false
 }
