@@ -3,11 +3,11 @@ package comms
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net"
 	"strings"
 )
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -15,7 +15,7 @@ import (
 func Connect(server string) (conn net.Conn) {
 	conn, err := net.Dial("tcp", server)
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	return conn
 }
@@ -23,9 +23,9 @@ func Connect(server string) (conn net.Conn) {
 // Send the string to connection
 func Send(conn net.Conn, msg string) (err error) {
 	nm := fmt.Sprintf("%s\n", msg)
-	if viper.GetBool("Debug") {
-		log.Printf("[COMM Tx (%d bytes)] %#v", len(nm), nm)
-	}
+	log.WithFields(log.Fields{
+		"len": len(nm),
+	}).Debug("COMM Tx")
 	fmt.Fprint(conn, nm)
 	return err
 }
@@ -34,10 +34,12 @@ func Send(conn net.Conn, msg string) (err error) {
 func Recv(conn net.Conn) (status []byte, err error) {
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	if viper.GetBool("true") {
-		log.Printf("[COMM Rx (%d bytes)] %#v", len(data), string(data))
+		log.WithFields(log.Fields{
+			"len": len(data),
+		}).Debug("COMM Rx")
 	}
 	return data, err
 }
@@ -46,12 +48,12 @@ func Recv(conn net.Conn) (status []byte, err error) {
 func Command(conn net.Conn, command string) (resp string, err error) {
 	err = Send(conn, command)
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	data, err := Recv(conn)
 	resp = strings.TrimSpace(string(data))
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	return resp, err
 }

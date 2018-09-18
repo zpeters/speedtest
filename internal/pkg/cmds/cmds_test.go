@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/matryer/is"
 )
@@ -28,29 +27,15 @@ func TestVersion(t *testing.T) {
 }
 
 func TestPing(t *testing.T) {
-	var min int64 = 100
-	var max int64 = 200
+	var min int64 = 10
+	var max int64 = 300
 
 	is := is.New(t)
 
 	conn := Connect("speedtest.tec.com:8080")
 	ms := Ping(conn)
 
-	is.True(inRange(ms, min, max)) // ping should be between 100 and 200 ms
-}
-
-func TestCalcMs(t *testing.T) {
-	var min int64 = 100
-	var max int64 = 103
-
-	is := is.New(t)
-
-	start := time.Now()
-	time.Sleep(100 * time.Millisecond)
-	finish := time.Now()
-	ms := calcMs(start, finish)
-
-	is.True(inRange(ms, min, max)) // calcMs should calculate a 100ms sleep as 100 ms, within 3 ms
+	is.True(inRange(ms, min, max)) // ping should be between 10 and 300 ms
 }
 
 func TestGenerateBytes(t *testing.T) {

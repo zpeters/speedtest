@@ -1,34 +1,43 @@
 package app
 
 import (
-	"fmt"
-	"log"
 	"net"
 	"time"
-
-	"github.com/spf13/viper"
+)
+import (
+	log "github.com/sirupsen/logrus"
+)
+import (
 	"github.com/zpeters/speedtest/internal/pkg/cmds"
 	"github.com/zpeters/speedtest/internal/pkg/server"
 )
 
 // GetBestServer gets the first in the list
 func GetBestServer() (bestserver server.Server, err error) {
-	fmt.Println("Finding best server")
 	var bestspeed int64 = 999
 	servers, err := server.GetAllServers()
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	for s := range servers {
+		log.WithFields(log.Fields{
+			"server": servers[s],
+		}).Debug("GetBestServer")
 		c := cmds.Connect(servers[s].Host)
 		res := PingTest(c, 3)
 		servers[s].BestTestPing = res
+		log.WithFields(log.Fields{
+			"speed": res,
+		}).Debug("GetBestServer")
 		if res < bestspeed {
 			bestspeed = res
 			bestserver = servers[s]
 		}
 	}
 
+	log.WithFields(log.Fields{
+		"bestserver": bestserver,
+	}).Debug("GetBestServer")
 	return bestserver, err
 }
 
@@ -36,12 +45,8 @@ func GetBestServer() (bestserver server.Server, err error) {
 func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	var acc float64
 
-	fmt.Printf("Download test: ")
 	for i := range numbytes {
 		for j := 0; j < numtests; j++ {
-			if !viper.GetBool("true") {
-				fmt.Printf(".")
-			}
 			res := cmds.Download(conn, numbytes[i])
 			mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
 			acc = acc + mbps
@@ -49,7 +54,6 @@ func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64)
 	}
 
 	results = acc / float64(numtests)
-	fmt.Printf("\n")
 	return results
 }
 
@@ -57,12 +61,8 @@ func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64)
 func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	var acc float64
 
-	fmt.Printf("Upload test: ")
 	for i := range numbytes {
 		for j := 0; j < numtests; j++ {
-			if !viper.GetBool("true") {
-				fmt.Printf(".")
-			}
 			res := cmds.Upload(conn, numbytes[i])
 			mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
 			acc = acc + mbps
@@ -70,7 +70,6 @@ func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 	}
 
 	results = acc / float64(numtests)
-	fmt.Printf("\n")
 	return results
 }
 
@@ -78,17 +77,12 @@ func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 func PingTest(conn net.Conn, numtests int) (results int64) {
 	var acc int64
 
-	fmt.Printf("Ping test: ")
 	for i := 0; i < numtests; i++ {
-		if !viper.GetBool("true") {
-			fmt.Printf(".")
-		}
 		res := cmds.Ping(conn)
 		acc = acc + res
 	}
 
 	results = acc / int64(numtests)
-	fmt.Printf("\n")
 	return results
 }
 

@@ -2,7 +2,6 @@ package cmds
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"net"
 	"strings"
@@ -10,7 +9,7 @@ import (
 )
 
 import (
-	"github.com/spf13/viper"
+	log "github.com/sirupsen/logrus"
 )
 import (
 	"github.com/zpeters/speedtest/internal/pkg/comms"
@@ -32,7 +31,7 @@ func Connect(server string) (conn net.Conn) {
 func Version(conn net.Conn) (version string) {
 	resp, err := comms.Command(conn, "HI")
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	verLine := strings.Split(resp, " ")
 	version = verLine[1]
@@ -46,6 +45,9 @@ func Ping(conn net.Conn) (ms int64) {
 	comms.Command(conn, cmdString)
 	finish := time.Now()
 	ms = calcMs(start, finish)
+	log.WithFields(log.Fields{
+		"ms": ms,
+	}).Debug("Ping")
 	return ms
 }
 
@@ -56,7 +58,7 @@ func Download(conn net.Conn, numbytes int) (result Result) {
 	comms.Send(conn, cmdString)
 	_, err := comms.Recv(conn)
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	finish := time.Now()
 
@@ -67,6 +69,9 @@ func Download(conn net.Conn, numbytes int) (result Result) {
 		Bytes:      numbytes,
 	}
 
+	log.WithFields(log.Fields{
+		"result": result,
+	}).Debug("Download")
 	return result
 }
 
@@ -86,7 +91,7 @@ func Upload(conn net.Conn, numbytes int) (result Result) {
 	comms.Send(conn, cmdString2)
 	_, err := comms.Recv(conn)
 	if err != nil {
-		log.Fatal(err)
+		log.WithFields(log.Fields{"err": err}).Fatal()
 	}
 	finish := time.Now()
 
@@ -97,13 +102,16 @@ func Upload(conn net.Conn, numbytes int) (result Result) {
 		Bytes:      numbytes,
 	}
 
+	log.WithFields(log.Fields{
+		"result": result,
+	}).Debug("Upload")
 	return result
 }
 
 func generateBytes(numbytes int) (random []byte) {
-	if viper.GetBool("Debug") {
-		log.Printf("Generating %d random bytes", numbytes)
-	}
+	log.WithFields(log.Fields{
+		"numbytes": numbytes,
+	}).Debug("generateBytes")
 	random = make([]byte, numbytes)
 	_, err := rand.Read(random)
 	if err != nil {
