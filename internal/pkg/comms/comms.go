@@ -15,7 +15,11 @@ import (
 func Connect(server string) (conn net.Conn) {
 	conn, err := net.Dial("tcp", server)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Fatal()
+		log.WithFields(log.Fields{
+			"err": err,
+			"package": "comms",
+			"function": "Connect",
+		}).Fatal()
 	}
 	return conn
 }
@@ -25,6 +29,8 @@ func Send(conn net.Conn, msg string) (err error) {
 	nm := fmt.Sprintf("%s\n", msg)
 	log.WithFields(log.Fields{
 		"len": len(nm),
+		"package": "comms",
+		"function": "Send",
 	}).Debug("COMM Tx")
 	fmt.Fprint(conn, nm)
 	return err
@@ -34,11 +40,17 @@ func Send(conn net.Conn, msg string) (err error) {
 func Recv(conn net.Conn) (status []byte, err error) {
 	data, err := bufio.NewReader(conn).ReadBytes('\n')
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Fatal()
+		log.WithFields(log.Fields{
+			"err": err,
+			"package": "comms",
+			"function": "Recv",
+		}).Fatal()
 	}
 	if viper.GetBool("true") {
 		log.WithFields(log.Fields{
 			"len": len(data),
+			"package": "comms",
+			"function": "Recv",
 		}).Debug("COMM Rx")
 	}
 	return data, err
@@ -48,12 +60,20 @@ func Recv(conn net.Conn) (status []byte, err error) {
 func Command(conn net.Conn, command string) (resp string, err error) {
 	err = Send(conn, command)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Fatal()
+		log.WithFields(log.Fields{
+			"err": err,
+			"package": "comms",
+			"function": "Command",
+		}).Fatal()
 	}
 	data, err := Recv(conn)
 	resp = strings.TrimSpace(string(data))
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Fatal()
+		log.WithFields(log.Fields{
+			"err": err,
+			"package": "comms",
+			"function": "Command",
+		}).Fatal()
 	}
 	return resp, err
 }

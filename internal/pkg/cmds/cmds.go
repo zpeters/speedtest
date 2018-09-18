@@ -31,7 +31,11 @@ func Connect(server string) (conn net.Conn) {
 func Version(conn net.Conn) (version string) {
 	resp, err := comms.Command(conn, "HI")
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Fatal()
+		log.WithFields(log.Fields{
+			"err": err,
+			"package": "cmds",
+			"funciton": "Version",
+		}).Fatal()
 	}
 	verLine := strings.Split(resp, " ")
 	version = verLine[1]
@@ -47,6 +51,8 @@ func Ping(conn net.Conn) (ms int64) {
 	ms = calcMs(start, finish)
 	log.WithFields(log.Fields{
 		"ms": ms,
+		"package": "cmds",
+		"funciton": "Ping",
 	}).Debug("Ping")
 	return ms
 }
@@ -58,7 +64,11 @@ func Download(conn net.Conn, numbytes int) (result Result) {
 	comms.Send(conn, cmdString)
 	_, err := comms.Recv(conn)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Fatal()
+		log.WithFields(log.Fields{
+			"err": err,
+			"package": "cmds",
+			"function": "Download",
+		}).Fatal()
 	}
 	finish := time.Now()
 
@@ -70,7 +80,10 @@ func Download(conn net.Conn, numbytes int) (result Result) {
 	}
 
 	log.WithFields(log.Fields{
-		"result": result,
+		"duration": result.DurationMs,
+		"bytes": result.Bytes,
+		"package": "cmds",
+		"function": "Download",
 	}).Debug("Download")
 	return result
 }
@@ -91,7 +104,11 @@ func Upload(conn net.Conn, numbytes int) (result Result) {
 	comms.Send(conn, cmdString2)
 	_, err := comms.Recv(conn)
 	if err != nil {
-		log.WithFields(log.Fields{"err": err}).Fatal()
+		log.WithFields(log.Fields{
+			"err": err,
+			"package": "cmds",
+			"function": "Upload",
+		}).Fatal()
 	}
 	finish := time.Now()
 
@@ -103,7 +120,10 @@ func Upload(conn net.Conn, numbytes int) (result Result) {
 	}
 
 	log.WithFields(log.Fields{
-		"result": result,
+		"duration": result.DurationMs,
+		"bytes": result.Bytes,
+		"package": "cmds",
+		"function": "Upload",
 	}).Debug("Upload")
 	return result
 }
@@ -111,6 +131,8 @@ func Upload(conn net.Conn, numbytes int) (result Result) {
 func generateBytes(numbytes int) (random []byte) {
 	log.WithFields(log.Fields{
 		"numbytes": numbytes,
+		"package": "cmds",
+		"function": "generateBytes",
 	}).Debug("generateBytes")
 	random = make([]byte, numbytes)
 	_, err := rand.Read(random)

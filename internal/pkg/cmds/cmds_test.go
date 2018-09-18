@@ -26,18 +26,6 @@ func TestVersion(t *testing.T) {
 	is.True(isVersion(ver)) // ver should be in the format 1.2
 }
 
-func TestPing(t *testing.T) {
-	var min int64 = 10
-	var max int64 = 300
-
-	is := is.New(t)
-
-	conn := Connect("speedtest.tec.com:8080")
-	ms := Ping(conn)
-
-	is.True(inRange(ms, min, max)) // ping should be between 10 and 300 ms
-}
-
 func TestGenerateBytes(t *testing.T) {
 	is := is.New(t)
 
@@ -52,42 +40,6 @@ func TestGenerateBytes(t *testing.T) {
 	is.Equal(randBytes1, len(bytes1)) // requesting 10 randBytes should return 10 bytes
 	is.Equal(randBytes2, len(bytes2)) // requesting 555 randBytes should return 10 bytes
 	is.Equal(randBytes3, len(bytes3)) // requesting 874321 randBytes should return 10 bytes
-}
-
-func TestDownload(t *testing.T) {
-	var min1 int64 = 100
-	var max1 int64 = 200
-	var min2 int64 = 1000
-	var max2 int64 = 4000
-
-	is := is.New(t)
-
-	conn := Connect("speedtest.tec.com:8080")
-	bytes1 := 100
-	res1 := Download(conn, bytes1)
-	bytes2 := 555555
-	res2 := Download(conn, bytes2)
-
-	is.True(inRange(res1.DurationMs, min1, max1)) // 10 byte download should take between 100 to 200 ms
-	is.True(inRange(res2.DurationMs, min2, max2)) // 555,555 byte download should take between 1000 and 2000 ms
-}
-
-func TestUpload(t *testing.T) {
-	var min1 int64 = 100
-	var max1 int64 = 200
-	var min2 int64 = 1000
-	var max2 int64 = 4000
-
-	is := is.New(t)
-
-	conn := Connect("speedtest.tec.com:8080")
-	bytes1 := 100
-	res1 := Upload(conn, bytes1)
-	bytes2 := 555555
-	res2 := Upload(conn, bytes2)
-
-	is.True(inRange(res1.DurationMs, min1, max1)) // 10 byte upload should take between 100 to 200 ms
-	is.True(inRange(res2.DurationMs, min2, max2)) // 555,555 byte upload should take between 1000 and 2000 ms
 }
 
 /* Helpers */
