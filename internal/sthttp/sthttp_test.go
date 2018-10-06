@@ -281,6 +281,37 @@ func TestGetFastestServer(t *testing.T) {
 	assert.NotNil(t, fs, "No fastest server returned")
 }
 
+
+func TestFastestServerWithTimeout(t *testing.T) {
+  slowServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    sleepDuration, _ := time.ParseDuration("10s")
+    time.Sleep(sleepDuration)
+	}))
+  defer slowServer.Close()
+
+  slowServerXML := "<server url=\"" + slowServer.URL + "/speedtest/upload.php\" name=\"slow\" />"
+
+	listServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+    serverList := "<settings>\n<servers>\n" + slowServerXML + "\n</servers>\n</settings>"
+		fmt.Fprintln(w, serverList)
+	}))
+	defer listServer.Close()
+
+	timeout, _ := time.ParseDuration("1s")
+	stc := Client{
+    SpeedtestConfig: &SpeedtestConfig{ServersURL: listServer.URL, NumLatencyTests: 1},
+		HTTPConfig:      &HTTPConfig{HTTPTimeout: timeout},
+	}
+	servers, err := stc.GetServers()
+	if err != nil {
+		t.Logf("Cannot get servers")
+		t.Fatal(err)
+	}
+
+	fs := stc.GetFastestServer(servers)
+	assert.NotNil(t, fs, "No fastest server returned")
+}
+
 func TestDownloadSpeed(t *testing.T) {
 	f, err := os.Open("../testing_assets/random750x750.jpg")
 	assert.NoError(t, err, "Can't open test file")
