@@ -2,30 +2,31 @@ package main
 
 import (
 	"fmt"
-)
+	"time"
 
-import (
 	log "github.com/sirupsen/logrus"
-)
-
-import (
 	"github.com/zpeters/speedtest/internal/app"
 	"github.com/zpeters/speedtest/internal/pkg/cmds"
 )
 
 func init() {
-	log.SetLevel(log.WarnLevel)
-	//log.SetLevel(log.InfoLevel)
+	//log.SetLevel(log.WarnLevel)
+	log.SetLevel(log.InfoLevel)
 	//log.SetLevel(log.DebugLevel)
 }
 
 func main() {
+	var seedbytes int = 1000000
+	var numping int = 10
+	var timelimit int = 7
+
+	start := time.Now()
 
 	server, err := app.GetBestServer()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"err": err,
-			"package": "main",
+			"err":      err,
+			"package":  "main",
 			"function": "main",
 		}).Fatal()
 	}
@@ -33,33 +34,35 @@ func main() {
 	conn := cmds.Connect(server.Host)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"err": err,
-			"package": "main",
+			"err":      err,
+			"package":  "main",
 			"function": "main",
 		}).Fatal()
 	}
 
 	fmt.Printf("Speedtest protocol version: %s\n", cmds.Version(conn))
 
-	ping := app.PingTest(conn, 20)
+	ping := app.PingTest(conn, numping)
 
-	downloadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000, 2000000}
 	log.WithFields(log.Fields{
-		"testrange": downloadBytes,
-		"package": "main",
+		"seed":     seedbytes,
+		"package":  "main",
 		"funciton": "main",
 	}).Debug("DownloadBytes")
-	download := app.DownloadTest(conn, downloadBytes, 4)
+	download := app.DownloadTest(conn, seedbytes, timelimit)
 
-	uploadBytes := []int{5000, 10000, 53725, 71582, 73434, 80026, 121474, 1000000}
 	log.WithFields(log.Fields{
-		"testrange": uploadBytes,
-		"package": "main",
+		"seed":     seedbytes,
+		"package":  "main",
 		"funciton": "main",
 	}).Debug("UploadBytes")
-	upload := app.UploadTest(conn, uploadBytes, 4)
+	upload := app.UploadTest(conn, seedbytes, timelimit)
+
+	complete := time.Now()
+	elapsed := complete.Sub(start)
 
 	fmt.Printf("Ping results: %d ms\n", ping)
 	fmt.Printf("Download results: %f mbps\n", download)
 	fmt.Printf("Upload results: %f mbps\n", upload)
+	fmt.Printf("Took: %s\n", elapsed)
 }

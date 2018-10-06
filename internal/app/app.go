@@ -18,23 +18,23 @@ func GetBestServer() (bestserver server.Server, err error) {
 	servers, err := server.GetAllServers()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"err": err,
-			"package": "app",
+			"err":      err,
+			"package":  "app",
 			"function": "GetBestServer",
 		}).Fatal()
 	}
 	for s := range servers {
 		log.WithFields(log.Fields{
-			"server": servers[s].ID,
-			"package": "app",
+			"server":   servers[s].ID,
+			"package":  "app",
 			"function": "GetBestServer",
 		}).Debug("GetBestServer")
 		c := cmds.Connect(servers[s].Host)
 		res := PingTest(c, 3)
 		servers[s].BestTestPing = res
 		log.WithFields(log.Fields{
-			"speed": res,
-			"package": "app",
+			"speed":    res,
+			"package":  "app",
 			"function": "GetBestServer",
 		}).Debug("GetBestServer")
 		if res < bestspeed {
@@ -45,49 +45,87 @@ func GetBestServer() (bestserver server.Server, err error) {
 
 	log.WithFields(log.Fields{
 		"bestserver": bestserver,
-		"package": "app",
-		"function": "GetBestServer",
+		"package":    "app",
+		"function":   "GetBestServer",
 	}).Debug("GetBestServer")
 	return bestserver, err
 }
 
-// DownloadTest runs numtests download tests for numbytes requested bytes
-func DownloadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
+// DownloadTest runs download tests through numbytes until a download test takes more than numseconds
+func DownloadTest(conn net.Conn, seedbytes int, numseconds int) (results float64) {
 	var acc float64
+	var numtests int = 1
+	var sustained bool
+	var numbytes int = seedbytes
 
-	for i := range numbytes {
-		for j := 0; j < numtests; j++ {
-			res := cmds.Download(conn, numbytes[i])
-			mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
-			acc = acc + mbps
+	for {
+		start := time.Now()
+		res := cmds.Download(conn, numbytes)
+		mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
+		acc = acc + mbps
+		stop := time.Now()
+		elapsed := stop.Sub(start)
+		threshold := time.Second * time.Duration(numseconds)
+		sustained = elapsed > threshold
+		numtests++
+		log.WithFields(log.Fields{
+			"package":   "app",
+			"function":  "DownloadTest",
+			"testnum":   numtests,
+			"elapsed":   elapsed,
+			"threshold": threshold,
+			"sustained": sustained,
+		}).Info("sustained test")
+		if sustained {
+			break
 		}
+		numbytes = numbytes + (7 * seedbytes)
 	}
 
 	results = acc / float64(numtests)
 	log.WithFields(log.Fields{
-		"results": results,
-		"package": "app",
+		"results":  results,
+		"package":  "app",
 		"function": "DownloadTest",
 	}).Info("DownloadTest")
 	return results
 }
 
-// UploadTest runs numtests upload tests of numbytes random bytes
-func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
+// UploadTest runs download tests through numbytes until a download test takes more than numseconds
+func UploadTest(conn net.Conn, seedbytes int, numseconds int) (results float64) {
 	var acc float64
+	var numtests int = 1
+	var sustained bool
+	var numbytes int = seedbytes
 
-	for i := range numbytes {
-		for j := 0; j < numtests; j++ {
-			res := cmds.Upload(conn, numbytes[i])
-			mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
-			acc = acc + mbps
+	for {
+		start := time.Now()
+		res := cmds.Upload(conn, numbytes)
+		mbps := CalcMbps(res.Start, res.Finish, res.Bytes)
+		acc = acc + mbps
+		stop := time.Now()
+		elapsed := stop.Sub(start)
+		threshold := time.Second * time.Duration(numseconds)
+		sustained = elapsed > threshold
+		numtests++
+		log.WithFields(log.Fields{
+			"package":   "app",
+			"function":  "UploadTest",
+			"testnum":   numtests,
+			"elapsed":   elapsed,
+			"threshold": threshold,
+			"sustained": sustained,
+		}).Info("sustained test")
+		if sustained {
+			break
 		}
+		numbytes = numbytes + (7 * seedbytes)
 	}
 
 	results = acc / float64(numtests)
 	log.WithFields(log.Fields{
-		"results": results,
-		"package": "app",
+		"results":  results,
+		"package":  "app",
 		"function": "UploadTest",
 	}).Info("UploadTest")
 	return results
@@ -97,15 +135,15 @@ func UploadTest(conn net.Conn, numbytes []int, numtests int) (results float64) {
 func PingTest(conn net.Conn, numtests int) (results int64) {
 	var acc int64
 
-	for i := 0; i < numtests; i++ {
+	for i := 1; i <= numtests; i++ {
 		res := cmds.Ping(conn)
 		acc = acc + res
 	}
 
 	results = acc / int64(numtests)
 	log.WithFields(log.Fields{
-		"results": results,
-		"package": "app",
+		"results":  results,
+		"package":  "app",
 		"function": "PingTest",
 	}).Info("PingTest")
 	return results

@@ -1,5 +1,6 @@
 TODO / NOTES
 ============
+- based off of testmy.net, just do a progressively longer upload/download until we have a sustained tx for 7 seconds
 - add tests
 - speed testing / verification
 -- TestDownloadTest seems waaay off
