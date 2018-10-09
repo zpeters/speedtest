@@ -370,7 +370,9 @@ func (stClient *Client) GetFastestServer(servers []Server) Server {
       urlerr, ok := err.(*url.Error)
       // If error is a url error and has timed out
       if ok && urlerr.Timeout() {
-				log.Printf("Server %d timed out, skipping...\n", server)
+        if stClient.Debug {
+          log.Printf("Server %d timed out, skipping...\n", server)
+        }
         continue
       } else {
         log.Fatal(err)
@@ -389,14 +391,19 @@ func (stClient *Client) GetFastestServer(servers []Server) Server {
 			if stClient.Debug {
 				log.Printf("Server latency was ok %f adding to successful servers list", latency)
 			}
-			successfulServers = append(successfulServers, servers[server])
-			successfulServers[server].Latency = latency
+      newServer := servers[server]
+      newServer.Latency = latency
+			successfulServers = append(successfulServers, newServer)
 		}
 
 		if len(successfulServers) == stClient.SpeedtestConfig.NumClosest {
 			break
 		}
 	}
+
+  if len(successfulServers) <= 0 {
+    log.Fatal("No servers responded")
+  }
 
 	sort.Sort(ByLatency(successfulServers))
 	if stClient.Debug {
