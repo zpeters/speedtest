@@ -1,0 +1,3 @@
+- add a "total data" upload / download at the end
+- what other switches/features do we need
+- getting 10ms for ping consistently..somethng wrong?
