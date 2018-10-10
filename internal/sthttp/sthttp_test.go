@@ -10,6 +10,8 @@ import (
 	"sort"
 	"testing"
 	"time"
+  "log"
+  "bytes"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -311,15 +313,21 @@ func TestFastestServerWithTimeout(t *testing.T) {
 	stc := Client{
     SpeedtestConfig: &SpeedtestConfig{ServersURL: listServer.URL, NumLatencyTests: 1},
 		HTTPConfig:      &HTTPConfig{HTTPTimeout: timeout},
+    Debug:           true,
 	}
 	servers, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
 	}
-
-  // Make sure correct server returned
+  
+  var buf bytes.Buffer
+  log.SetOutput(&buf)
 	fs := stc.GetFastestServer(servers)
+  log.SetOutput(os.Stdout)
+  // Make sure timeout was logged
+  assert.True(t, bytes.Contains(buf.Bytes(), []byte("Server 0 timed out")), "Timeout must be logged")
+  // Make sure correct server returned
 	assert.NotNil(t, fs, "No fastest server returned")
   assert.Equal(t, fs.Name, "fast", "Fast server should be returned")
 }
