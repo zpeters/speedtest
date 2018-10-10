@@ -1,8 +1,6 @@
-NOT SUPPORTED
-=============
-This version of speedtest is not supported.  The underlying method of speed testing is not (and has not) been reliable.  There is a new version of the speedtest protocol that i am working on a rewrite for.  
-
-Notes - https://gist.github.com/sdstrowes/411fca9d900a846a704f68547941eb97
+VERSION 2.0 Testing
+===================
+Initial testing release of v2.0 is out for the testing. See "releases" for downloads.  The current "test" is hard coded and there are no options at the moment.  I believe we'll end up needing a "tuning" to adjust the size and amount of data based on your internet connection.  Please send me any feedback at zpeters@gmail.com or through the issues
 
 The Unofficial Speedtest CLI
 ============================
