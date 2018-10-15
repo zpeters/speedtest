@@ -8,7 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
-  "net/url"
+	"net/url"
 	"sort"
 	"strings"
 	"time"
@@ -367,16 +367,16 @@ func (stClient *Client) GetFastestServer(servers []Server) Server {
 		}
 		latency, err := stClient.GetLatency(servers[server], stClient.GetLatencyURL(servers[server]))
 		if err != nil {
-      urlerr, ok := err.(*url.Error)
-      // If error is a url error and has timed out
-      if ok && urlerr.Timeout() {
-        if stClient.Debug {
-          log.Printf("Server %d timed out, skipping...\n", server)
-        }
-        continue
-      } else {
-        log.Fatal(err)
-      }
+			urlerr, ok := err.(*url.Error)
+			// If error is a url error and has timed out
+			if ok && urlerr.Timeout() {
+				if stClient.Debug {
+					log.Printf("Server %d timed out, skipping...\n", server)
+				}
+				continue
+			} else {
+				log.Fatal(err)
+			}
 		}
 
 		if stClient.Debug {
@@ -391,8 +391,8 @@ func (stClient *Client) GetFastestServer(servers []Server) Server {
 			if stClient.Debug {
 				log.Printf("Server latency was ok %f adding to successful servers list", latency)
 			}
-      newServer := servers[server]
-      newServer.Latency = latency
+			newServer := servers[server]
+			newServer.Latency = latency
 			successfulServers = append(successfulServers, newServer)
 		}
 
@@ -401,9 +401,9 @@ func (stClient *Client) GetFastestServer(servers []Server) Server {
 		}
 	}
 
-  if len(successfulServers) <= 0 {
-    log.Fatal("No servers responded")
-  }
+	if len(successfulServers) <= 0 {
+		log.Fatal("No servers responded")
+	}
 
 	sort.Sort(ByLatency(successfulServers))
 	if stClient.Debug {
