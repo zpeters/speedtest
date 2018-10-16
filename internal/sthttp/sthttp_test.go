@@ -1,17 +1,17 @@
 package sthttp
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
-  "io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"sort"
 	"testing"
 	"time"
-  "log"
-  "bytes"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -284,52 +284,51 @@ func TestGetFastestServer(t *testing.T) {
 	assert.NotNil(t, fs, "No fastest server returned")
 }
 
-
 func TestFastestServerWithTimeout(t *testing.T) {
-  // Setup test server to check for latency
-  testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-    if r.URL.Path == "/slow/latency.txt" {
-      sleepDuration, _ := time.ParseDuration("0.2s")
-      time.Sleep(sleepDuration)
-    }
-    w.WriteHeader(http.StatusOK)
-    io.WriteString(w, "Hello")
+	// Setup test server to check for latency
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/slow/latency.txt" {
+			sleepDuration, _ := time.ParseDuration("0.2s")
+			time.Sleep(sleepDuration)
+		}
+		w.WriteHeader(http.StatusOK)
+		io.WriteString(w, "Hello")
 	}))
-  defer testServer.Close()
+	defer testServer.Close()
 
-  // Setup server to list 2 server one that will timeout, one that wont
-  slowServerXML := "<server url=\"" + testServer.URL + "/slow/upload.php\" name=\"slow\" />\n"
-  fastServerXML := "<server url=\"" + testServer.URL + "/fast/upload.php\" name=\"fast\" />\n"
+	// Setup server to list 2 server one that will timeout, one that wont
+	slowServerXML := "<server url=\"" + testServer.URL + "/slow/upload.php\" name=\"slow\" />\n"
+	fastServerXML := "<server url=\"" + testServer.URL + "/fast/upload.php\" name=\"fast\" />\n"
 
 	listServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(http.StatusOK)
-    serverList := "<settings>\n<servers>\n" + slowServerXML + fastServerXML + "\n</servers>\n</settings>"
+		w.WriteHeader(http.StatusOK)
+		serverList := "<settings>\n<servers>\n" + slowServerXML + fastServerXML + "\n</servers>\n</settings>"
 		io.WriteString(w, serverList)
 	}))
 	defer listServer.Close()
 
-  // Setup client with short timeout
+	// Setup client with short timeout
 	timeout, _ := time.ParseDuration("0.1s")
 	stc := Client{
-    SpeedtestConfig: &SpeedtestConfig{ServersURL: listServer.URL, NumLatencyTests: 1},
+		SpeedtestConfig: &SpeedtestConfig{ServersURL: listServer.URL, NumLatencyTests: 1},
 		HTTPConfig:      &HTTPConfig{HTTPTimeout: timeout},
-    Debug:           true,
+		Debug:           true,
 	}
 	servers, err := stc.GetServers()
 	if err != nil {
 		t.Logf("Cannot get servers")
 		t.Fatal(err)
 	}
-  
-  var buf bytes.Buffer
-  log.SetOutput(&buf)
+
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
 	fs := stc.GetFastestServer(servers)
-  log.SetOutput(os.Stdout)
-  // Make sure timeout was logged
-  assert.True(t, bytes.Contains(buf.Bytes(), []byte("Server 0 timed out")), "Timeout must be logged")
-  // Make sure correct server returned
+	log.SetOutput(os.Stdout)
+	// Make sure timeout was logged
+	assert.True(t, bytes.Contains(buf.Bytes(), []byte("Server 0 timed out")), "Timeout must be logged")
+	// Make sure correct server returned
 	assert.NotNil(t, fs, "No fastest server returned")
-  assert.Equal(t, fs.Name, "fast", "Fast server should be returned")
+	assert.Equal(t, fs.Name, "fast", "Fast server should be returned")
 }
 
 func TestDownloadSpeed(t *testing.T) {
