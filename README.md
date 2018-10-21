@@ -27,6 +27,8 @@ thanks for your work!
 **development branch**
 [![Build Status](https://travis-ci.org/zpeters/speedtest.svg?branch=develop)](https://travis-ci.org/zpeters/speedtest)
 
+[![Sparkline](https://stars.medv.io/zpeters/speedtest.svg)](https://stars.medv.io/zpeters/speedtest)
+
 License
 =======
 Licensed under GPLv3 (See COPYING and LICENSE)
