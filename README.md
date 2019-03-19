@@ -1,6 +1,15 @@
+2019 Update
+==========
+I don't have a lot of time to work on this code anymore. I may post updates from time to time, but at the moment this software is mostly abandonded.  I am working on a Rust implementation and will post more details here in the future.
+
+Thank you for all of the fun and support over the years.
+
+-zach
+
+
 VERSION 2.0 Testing
 ===================
-Initial testing release of v2.0 is out for the testing. See "releases" for downloads.  The current "test" is hard coded and there are no options at the moment.  I believe we'll end up needing a "tuning" to adjust the size and amount of data based on your internet connection.  Please send me any feedback at zpeters@gmail.com or through the issues
+Initial testing release of v2.0 is out for the testing. See "releases" for downloads.  The current "test" is hard coded and there are no options at the moment. Please send me any feedback at zpeters@gmail.com or through the issues.
 
 The Unofficial Speedtest CLI
 ============================
