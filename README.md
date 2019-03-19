@@ -1,6 +1,6 @@
 2019 Update
 ==========
-I don't have a lot of time to work on this code anymore. I may post updates from time to time, but at the moment this software is mostly abandonded.  I am working on a Rust implementation and will post more details here in the future.
+I don't have a lot of time to work on this code anymore. I may post updates from time to time, but at the moment this software is mostly abandonded.  I am working on a Rust implementation and will post more details here in the future. See https://github.com/zpeters/speedtestr
 
 Thank you for all of the fun and support over the years.
 
