@@ -69,7 +69,7 @@ Ping: 53.613233ms | Download: 13.34 Mbps | Upload: 3.89 Mbps
 
 speedtest.exe -l -- List servers
 ```shell
-$ bin/speedtest.ext -l
+$ bin/speedtest.exe -l
 1724 | CityNet (Zaporizhzhya, Ukraine)
 2966 | FUSION MEDIA Kft. (Budapest, Hungary)
 3634 | Paul Bunyan Communications (Bemidji, MN, United States
